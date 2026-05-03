@@ -21,10 +21,13 @@
   "packageManager": "pnpm@10.33.2",
   "dependencies": {
     "@bus-booking/common": "workspace:*",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "helmet": "^8.1.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6"
   }
 }
