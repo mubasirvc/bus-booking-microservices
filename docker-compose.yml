@@ -1,0 +1,21 @@
+services:
+  auth-db:
+    image: mysql:8.0
+    container_name: bus_booking-auth-db
+    environment:
+      MYSQL_DATABASE: bus_booking_auth_service
+      MYSQL_USER: bus_booking_auth_user
+      MYSQL_PASSWORD: bus_booking_auth_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - auth-db-data:/var/lib/mysql
+    networks:
+      - bus_booking-network
+
+volumes:
+  auth-db-data:
+
+networks:
+  bus_booking-network:
