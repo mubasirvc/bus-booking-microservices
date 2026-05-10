@@ -1,15 +1,14 @@
 import express, { type Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { errorHandler } from './middleware/error-handler.js';
-import { registerRoutes } from './routes/index.js';
-import { createInternalAuthMiddleware } from '@bus-booking/common';
-import { env } from './config/env.js';
+import { registerRoutes } from './routes';
+import { errorHandler } from './middleware/error-handler';
+
 
 export const createApp = (): Application => {
   const app = express();
 
- app.use(helmet());
+  app.use(helmet());
   app.use(
     cors({
       origin: '*',
@@ -19,7 +18,6 @@ export const createApp = (): Application => {
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  app.use(createInternalAuthMiddleware(env.INTERNAL_AUTH_TOKEN));
 
   registerRoutes(app);
 
@@ -27,7 +25,7 @@ export const createApp = (): Application => {
     res.status(404).json({ message: 'Not Found' });
   });
 
-  app.use(errorHandler)
+  app.use(errorHandler);
 
   return app;
 };
