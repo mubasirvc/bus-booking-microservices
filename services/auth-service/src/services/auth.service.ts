@@ -12,6 +12,7 @@ import { Op, Transaction } from 'sequelize';
 import crypto from 'crypto';
 import { HttpError } from '@bus-booking/common';
 import { logger } from '../utils/logger.js';
+import { publishUserRegistered } from '../messaging/event-publishing.js';
 
 const REFRESH_TOKEN_TTL_DAYS = 30;
 
@@ -53,6 +54,8 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
       createdAt: user.createdAt.toISOString(),
     };
 
+    publishUserRegistered(userData);
+
     return {
       accessToken,
       refreshToken,
@@ -63,7 +66,6 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
     throw error;
   }
 };
-
 
 export const login = async (input: LoginInput): Promise<AuthTokens> => {
   const credential = await UserCredentials.findOne({ where: { email: { [Op.eq]: input.email } } });
