@@ -57,6 +57,9 @@ importers:
       '@bus-booking/common':
         specifier: workspace:*
         version: link:../../packages/common
+      amqplib:
+        specifier: ^2.0.1
+        version: 2.0.1
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0
@@ -82,6 +85,9 @@ importers:
         specifier: ^6.37.8
         version: 6.37.8(mysql2@3.22.3(@types/node@25.6.0))
     devDependencies:
+      '@types/amqplib':
+        specifier: ^0.10.8
+        version: 0.10.8
       '@types/bcrypt':
         specifier: ^6.0.0
         version: 6.0.0
@@ -355,6 +361,9 @@ packages:
   '@pinojs/redact@0.4.0':
     resolution: {integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==}
 
+  '@types/amqplib@0.10.8':
+    resolution: {integrity: sha512-vtDp8Pk1wsE/AuQ8/Rgtm6KUZYqcnTgNvEHwzCkX8rL7AGsC6zqAfKAAJhUZXFhM/Pp++tbnUHiam/8vVpPztA==}
+
   '@types/axios@0.14.4':
     resolution: {integrity: sha512-9JgOaunvQdsQ/qW2OPmE5+hCeUB52lQSolecrFrthct55QekhmXEwT203s20RL+UHtCQc15y3VXpby9E7Kkh/g==}
     deprecated: This is a stub types definition. axios provides its own type definitions, so you do not need this installed.
@@ -495,6 +504,10 @@ packages:
 
   ajv@6.15.0:
     resolution: {integrity: sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw==}
+
+  amqplib@2.0.1:
+    resolution: {integrity: sha512-a3P2MgfCf9nzVis12VxWEn0dS6hcqve7dlEAhXDtIWR27BlhtMkILOc+H9aeHjDi6i6r94dYKc2Kx2OFe3avvg==}
+    engines: {node: '>=18'}
 
   asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
@@ -1445,6 +1458,10 @@ snapshots:
 
   '@pinojs/redact@0.4.0': {}
 
+  '@types/amqplib@0.10.8':
+    dependencies:
+      '@types/node': 25.6.0
+
   '@types/axios@0.14.4':
     dependencies:
       axios: 1.16.0
@@ -1631,6 +1648,8 @@ snapshots:
       fast-json-stable-stringify: 2.1.0
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
+
+  amqplib@2.0.1: {}
 
   asynckit@0.4.0: {}
 
