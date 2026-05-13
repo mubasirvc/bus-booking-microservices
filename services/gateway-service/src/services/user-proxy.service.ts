@@ -1,7 +1,7 @@
-import { HttpError } from '@chatapp/common';
+import { HttpError } from '@bus-booking/common';
 import axios from 'axios';
 
-import { env } from '@/config/env';
+import { env } from '../config/env';
 
 const client = axios.create({
   baseURL: env.USER_SERVICE_URL,
@@ -17,7 +17,7 @@ const authHeader = {
 export interface UserDto {
   id: string;
   email: string;
-  displayName: string;
+  userName: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -32,7 +32,7 @@ export interface UserLisResponse {
 
 export interface CreateUserPayload {
   email: string;
-  displayName: string;
+  userName: string;
 }
 
 export interface SearchUsersParams {

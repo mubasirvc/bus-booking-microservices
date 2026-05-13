@@ -1,9 +1,9 @@
-import { HttpError, type AuthenticatedUser } from '@chatapp/common';
+import { HttpError, type AuthenticatedUser } from '@bus-booking/common';
 import jwt from 'jsonwebtoken';
 
 import type { RequestHandler } from 'express';
 
-import { env } from '@/config/env';
+import { env } from '../config/env';
 
 interface AccessTokenClaims {
   sub: string;

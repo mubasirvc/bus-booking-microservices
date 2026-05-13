@@ -1,12 +1,8 @@
-import { userProxyService } from '@/services/user-proxy.service';
-import { getAuthenticatedUser } from '@/utils/auth';
-import {
-  createUserSchema,
-  SearchUsersQuery,
-  searchUsersQuerySchema,
-  userIdParamsSchema,
-} from '@/validation/user.schema';
-import { AsyncHandler } from '@chatapp/common';
+
+import { AsyncHandler } from '@bus-booking/common';
+import { userProxyService } from '../services/user-proxy.service';
+import { getAuthenticatedUser } from '../utils/auth';
+import { createUserSchema, SearchUsersQuery, searchUsersQuerySchema, userIdParamsSchema } from '../validation/user.schema';
 
 export const getUser: AsyncHandler = async (req, res, next) => {
   try {

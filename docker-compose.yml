@@ -12,12 +12,20 @@ services:
       - rabbitmq-data:/var/lib/rabbitmq
     networks:
       - bus_booking-network
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
+
+  user-db:
+    image: postgres:16
+    container_name: bus_booking-user-db
+    environment:
+      POSTGRES_DB: ${USER_DB_NAME:-bus_booking_user_service}
+      POSTGRES_USER: ${USER_DB_USER:-bus_booking_user}
+      POSTGRES_PASSWORD: ${USER_DB_PASSWORD:-bus_booking_user_password}
+    ports:
+      - "${USER_DB_PORT:-5432}:5432"
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    networks:
+      - bus_booking-network
 
   auth-db:
     image: mysql:8.0
@@ -36,6 +44,7 @@ services:
 
 volumes:
   rabbitmq-data:
+  user-db-data:
   auth-db-data:
 
 networks:

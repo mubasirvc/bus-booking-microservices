@@ -32,3 +32,5 @@ export const searchUsersQuerySchema = z.object({
 });
 
 export type SearchUsersQuery = z.infer<typeof searchUsersQuerySchema>;
+export type CreateUserBody = z.infer<typeof createUserSchema>;
+export type UserIdParams = z.infer<typeof userIdParamsSchema>;
