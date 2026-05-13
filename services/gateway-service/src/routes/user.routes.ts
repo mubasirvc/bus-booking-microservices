@@ -1,8 +1,8 @@
-import { createUser, getAllUsers, getUser, searchUsers } from '@/controllers/user.controller';
-import { requireAuth } from '@/middleware/require-auth';
-import { createUserSchema, searchUsersQuerySchema, userIdParamsSchema } from '@/validation/user.schema';
-import { asyncHandler, validateRequest } from '@chatapp/common';
+import { asyncHandler, validateRequest } from '@bus-booking/common';
 import { Router } from 'express';
+import { requireAuth } from '../middleware/require-auth';
+import { createUser, getAllUsers, getUser, searchUsers } from '../controllers/user.controller';
+import { createUserSchema, searchUsersQuerySchema, userIdParamsSchema } from '../validation/user.schema';
 
 export const userRouter: Router = Router();
 

@@ -1,4 +1,4 @@
-import { HttpError, type AuthenticatedUser } from '@chatapp/common';
+import { HttpError, type AuthenticatedUser } from '@bus-booking/common';
 
 import type { Request } from 'express';
 
