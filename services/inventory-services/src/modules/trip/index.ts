@@ -1,0 +1,1 @@
+export {TripModel} from './model/trip.model.js';

@@ -1,13 +1,13 @@
 import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
-// import { initializeDatabase } from './db/sequelize.js';
+import { initializeDatabase } from './db/sequelize.js';
 import { createServer } from 'node:http';
 
 
 const main = async () => {
   try {
-    // await initializeDatabase();
+    await initializeDatabase();
 
     const app = createApp();
     const server = createServer(app);
