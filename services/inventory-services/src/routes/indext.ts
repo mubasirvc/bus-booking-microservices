@@ -1,5 +1,5 @@
 import type { Router } from 'express';
-import { routeRoutes } from './route.route.js';
+import { routeRoutes } from './route.routes.js';
 
 export const registerRoutes = (app: Router) => {
 
