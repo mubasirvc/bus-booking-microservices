@@ -1,6 +1,7 @@
 import type { Router } from 'express';
 import { authRouter } from './auth.routes';
 import { userRouter } from './user.routes';
+import { routeRouter } from './inventory-routes/router.routes';
 
 export const registerRoutes = (app: Router) => {
   // Health check endpoint for Docker/K8s
@@ -10,4 +11,5 @@ export const registerRoutes = (app: Router) => {
 
   app.use('/auth', authRouter);
   app.use('/users', userRouter);
+  app.use('/routes', routeRouter);  
 };
