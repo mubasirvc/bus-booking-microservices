@@ -1,4 +1,3 @@
-// route.model.ts
 import { DataTypes, Model, type Optional } from 'sequelize';
 import { sequelize } from '../../../db/sequelize.js';
 import { Route } from '../types/route.types.js';
