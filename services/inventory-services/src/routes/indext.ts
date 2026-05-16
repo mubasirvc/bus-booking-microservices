@@ -1,5 +1,7 @@
 import type { Router } from 'express';
 import { routeRoutes } from './route.routes.js';
+import { tripRoutes } from './trip.routes.js';
+import { busRoutes } from './bus.routes.js';
 
 export const registerRoutes = (app: Router) => {
 
@@ -8,4 +10,6 @@ export const registerRoutes = (app: Router) => {
   });
 
   app.use('/routes', routeRoutes);
+  app.use('/trips', tripRoutes);
+  app.use('/buses', busRoutes);
 };

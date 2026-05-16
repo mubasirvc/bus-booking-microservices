@@ -14,7 +14,6 @@ const authHeader = {
   },
 } as const;
 
-
 export interface RouteDto {
   id: string;
   source: string;
@@ -92,6 +91,43 @@ export interface SearchTripsParams {
   busId?: string;
   travelDate?: string;
   status?: string;
+}
+
+export interface BusDto {
+  id: string;
+  name: string;
+  busNumber: string;
+  type: string;
+  totalSeats: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BusResponse {
+  data: BusDto;
+}
+
+export interface BusListResponse {
+  data: BusDto[];
+}
+
+export interface CreateBusPayload {
+  name: string;
+  busNumber: string;
+  type: string;
+  totalSeats: number;
+}
+
+export interface UpdateBusPayload {
+  name?: string;
+  busNumber?: string;
+  type?: string;
+  totalSeats?: number;
+}
+
+export interface SearchBusesParams {
+  name?: string;
+  type?: string;
 }
 
 const resolvedMessage = (status: number, data: unknown): string => {
@@ -283,5 +319,69 @@ export const inventoryProxyService = {
       return handleAxiosError(error);
     }
   },
-};
 
+  async getBusById(id: string): Promise<BusResponse> {
+    try {
+      const response = await client.get<BusResponse>(`/buses/${id}`, authHeader);
+
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error);
+    }
+  },
+
+  async getAllBuses(): Promise<BusListResponse> {
+    try {
+      const response = await client.get<BusListResponse>('/buses', authHeader);
+
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error);
+    }
+  },
+
+  async createBus(payload: CreateBusPayload): Promise<BusResponse> {
+    try {
+      const response = await client.post<BusResponse>('/buses', payload, authHeader);
+
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error);
+    }
+  },
+
+  async updateBus(id: string, payload: UpdateBusPayload): Promise<BusResponse> {
+    try {
+      const response = await client.patch<BusResponse>(`/buses/${id}`, payload, authHeader);
+
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error);
+    }
+  },
+
+  async deleteBus(id: string): Promise<{ message: string }> {
+    try {
+      const response = await client.delete<{
+        message: string;
+      }>(`/buses/${id}`, authHeader);
+
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error);
+    }
+  },
+
+  async searchBuses(params: SearchBusesParams): Promise<BusListResponse> {
+    try {
+      const response = await client.get<BusListResponse>('/buses/search', {
+        headers: authHeader.headers,
+        params,
+      });
+
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error);
+    }
+  },
+};
