@@ -1,4 +1,3 @@
-// trip.model.ts
 import { DataTypes, Model, type Optional } from 'sequelize';
 import { sequelize } from '../../../db/sequelize.js';
 import { BusModel } from '../../bus/index.js';
@@ -18,9 +17,9 @@ export class TripModel
   declare id: string;
   declare busId: string;
   declare routeId: string;
-  declare travelDate: Date;
-  declare departureTime: Date;
-  declare arrivalTime: Date;
+  declare travelDate: string;
+  declare departureTime: string;
+  declare arrivalTime: string;
   declare fare: number;
   declare status: string;
   declare createdAt: Date;

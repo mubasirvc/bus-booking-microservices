@@ -27,6 +27,20 @@ services:
     networks:
       - bus_booking-network
 
+  inventory-db:
+    image: postgres:16
+    container_name: bus_booking-inventory-db
+    environment:
+      POSTGRES_DB: ${INVENTORY_DB_NAME:-bus_booking_inventory_service}
+      POSTGRES_USER: ${INVENTORY_DB_USER:-bus_booking_inventory_user}
+      POSTGRES_PASSWORD: ${INVENTORY_DB_PASSWORD:-bus_booking_inventory_password}
+    ports:
+      - "${INVENTORY_DB_PORT:-5433}:5432"
+    volumes:
+      - inventory-db-data:/var/lib/postgresql/data
+    networks:
+      - bus_booking-network
+
   auth-db:
     image: mysql:8.0
     container_name: bus_booking-auth-db
@@ -46,6 +60,7 @@ volumes:
   rabbitmq-data:
   user-db-data:
   auth-db-data:
+  inventory-db-data:
 
 networks:
   bus_booking-network:

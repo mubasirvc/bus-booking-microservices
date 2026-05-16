@@ -12,7 +12,7 @@ import {
   getSources,
   searchRoutes,
   updateRoute,
-} from '../../controllers/inventory-controllers/router.controller';
+} from '../../controllers/inventory-controllers/route.controller';
 
 import {
   createRouteSchema,
