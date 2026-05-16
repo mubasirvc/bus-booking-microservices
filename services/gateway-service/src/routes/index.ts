@@ -4,9 +4,10 @@ import { userRouter } from './user.routes';
 import { routeRouter } from './inventory-routes/route.routes';
 import { tripRouter } from './inventory-routes/trip.routes';
 import { busRouter } from './inventory-routes/bus.routes';
+import { bookingRouter } from './booking.routes';
 
 export const registerRoutes = (app: Router) => {
-  // Health check endpoint for Docker/K8s
+
   app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok', service: 'gateway-service' });
   });
@@ -16,4 +17,5 @@ export const registerRoutes = (app: Router) => {
   app.use('/routes', routeRouter);
   app.use('/trips', tripRouter);
   app.use('/buses', busRouter);
+  app.use('/bookings', bookingRouter);
 };
