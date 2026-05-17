@@ -1,3 +1,5 @@
+import './docs/openapi.js';
+
 import { createServer } from 'http';
 import { createApp } from './app.js';
 import { logger } from './utils/logger.js';

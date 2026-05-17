@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import { env } from './config/env.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { registerRoutes } from './routes/indext.js';
-import { createInternalAuthMiddleware } from '@bus-booking/common/src/http/internal-auth.js';
+import { createInternalAuthMiddleware } from '@bus-booking/common';
 
 export const createApp = (): Application => {
   const app = express();

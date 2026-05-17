@@ -1,44 +1,86 @@
 import { z } from '@bus-booking/common';
 
+// ======================================================
+// ENUMS
+// ======================================================
+
+export const bookingStatusEnum = z.enum(['PENDING', 'CONFIRMED', 'CANCELLED']);
+
+// ======================================================
+// CREATE BOOKING
+// ======================================================
+
 export const createBookingSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().uuid().openapi({
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  }),
 
-  tripId: z.string().uuid(),
+  tripId: z.string().uuid().openapi({
+    example: '660e8400-e29b-41d4-a716-446655440000',
+  }),
 
-  seatCount: z
-    .union([z.string(), z.number()])
-    .transform((value) => Number(value))
-    .refine((value) => Number.isInteger(value) && value > 0, {
-      message: 'Seat count must be greater than zero',
-    }),
+  seatCount: z.coerce.number().int().positive().openapi({
+    example: 2,
+  }),
 
-  totalAmount: z
-    .union([z.string(), z.number()])
-    .transform((value) => Number(value))
-    .refine((value) => value > 0, {
-      message: 'Total amount must be greater than zero',
-    }),
+  totalAmount: z.coerce.number().positive().openapi({
+    example: 2400,
+  }),
 });
+
+// ======================================================
+// UPDATE BOOKING
+// ======================================================
 
 export const updateBookingSchema = z
   .object({
-    status: z.enum(['PENDING', 'CONFIRMED', 'CANCELLED']).optional(),
+    status: bookingStatusEnum.optional().openapi({
+      example: 'CONFIRMED',
+    }),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: 'At least one field is required',
   });
 
+// ======================================================
+// PARAMS
+// ======================================================
+
 export const bookingIdParamsSchema = z.object({
-  id: z.string().uuid(),
+  id: z
+    .string()
+    .uuid()
+    .openapi({
+      param: {
+        name: 'id',
+        in: 'path',
+      },
+
+      example: '550e8400-e29b-41d4-a716-446655440000',
+    }),
 });
+
+// ======================================================
+// SEARCH QUERY
+// ======================================================
 
 export const searchBookingsQuerySchema = z.object({
-  userId: z.string().uuid().optional(),
+  userId: z.string().uuid().optional().openapi({
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  }),
 
-  tripId: z.string().uuid().optional(),
+  tripId: z.string().uuid().optional().openapi({
+    example: '660e8400-e29b-41d4-a716-446655440000',
+  }),
 
-  status: z.enum(['PENDING', 'CONFIRMED', 'CANCELLED']).optional(),
+  status: bookingStatusEnum.optional().openapi({
+    example: 'CONFIRMED',
+  }),
 });
+
+// ======================================================
+// TYPES
+// ======================================================
 
 export type CreateBookingBody = z.infer<typeof createBookingSchema>;
 

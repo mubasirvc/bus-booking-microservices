@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { registerRoutes } from './routes';
 import { errorHandler } from './middleware/error-handler';
+import { setupSwagger } from './docs/swagger';
 
 
 export const createApp = (): Application => {
@@ -20,6 +21,8 @@ export const createApp = (): Application => {
   app.use(express.urlencoded({ extended: true }));
 
   registerRoutes(app);
+  
+  setupSwagger(app);
 
   app.use((_req, res) => {
     res.status(404).json({ message: 'Not Found' });
