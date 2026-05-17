@@ -1,10 +1,11 @@
 import express, { type Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import { createInternalAuthMiddleware } from '@bus-booking/common';
 import { env } from './config/env.js';
 import { errorHandler } from './middleware/error-handler.js';
-import { registerRoutes } from './routes/indext.js';
-import { createInternalAuthMiddleware } from '@bus-booking/common/src/http/internal-auth.js';
+import { registerRoutes } from './routes/index.js';
+
 
 export const createApp = (): Application => {
   const app = express();
@@ -19,7 +20,7 @@ export const createApp = (): Application => {
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-   app.use(
+  app.use(
     createInternalAuthMiddleware(env.INTERNAL_API_TOKEN, {
       exemptPaths: ['/health'],
     }),

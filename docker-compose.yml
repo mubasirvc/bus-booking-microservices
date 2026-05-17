@@ -41,6 +41,20 @@ services:
     networks:
       - bus_booking-network
 
+  booking-db:
+    image: postgres:16
+    container_name: bus_booking-booking-db
+    environment:
+      POSTGRES_DB: ${BOOKING_DB_NAME:-bus_booking_booking_service}
+      POSTGRES_USER: ${BOOKING_DB_USER:-bus_booking_booking_user}
+      POSTGRES_PASSWORD: ${BOOKING_DB_PASSWORD:-bus_booking_booking_password}
+    ports:
+      - "${BOOKING_DB_PORT:-5435}:5432"
+    volumes:
+      - booking-db-data:/var/lib/postgresql/data
+    networks:
+      - bus_booking-network 
+
   auth-db:
     image: mysql:8.0
     container_name: bus_booking-auth-db
@@ -61,6 +75,6 @@ volumes:
   user-db-data:
   auth-db-data:
   inventory-db-data:
-
+  booking-db-data:
 networks:
   bus_booking-network:
