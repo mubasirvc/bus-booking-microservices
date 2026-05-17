@@ -1,9 +1,19 @@
 import { z } from '@bus-booking/common';
 
 export const createUserSchema = z.object({
-  email: z.string().email(),
-  userName: z.string().min(3).max(255),
+  email: z.string().email().openapi({
+    example: 'john@example.com',
+  }),
+
+  userName: z.string().min(3).max(255).openapi({
+    example: 'john_doe',
+  }),
 });
+
+// export const createUserSchema = z.object({
+//   email: z.string().email(),
+//   userName: z.string().min(3).max(255),
+// });
 
 export const userIdParamsSchema = z.object({
   id: z.string().uuid(),

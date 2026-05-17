@@ -1,49 +1,88 @@
 import { z } from '@bus-booking/common';
 
+// ======================================================
+// CREATE BUS
+// ======================================================
+
 export const createBusSchema = z.object({
-  name: z.string().trim().min(2).max(255),
+  name: z.string().trim().min(2).max(255).openapi({
+    example: 'KSRTC Express',
+  }),
 
-  busNumber: z.string().trim().min(3).max(50),
+  busNumber: z.string().trim().min(3).max(50).openapi({
+    example: 'KA01AB1234',
+  }),
 
-  type: z.string().trim().min(2).max(100),
+  type: z.string().trim().min(2).max(100).openapi({
+    example: 'AC Sleeper',
+  }),
 
-  totalSeats: z
-    .union([z.string(), z.number()])
-    .transform((value) => Number(value))
-    .refine((value) => Number.isInteger(value) && value > 0, {
-      message: 'Total seats must be greater than zero',
-    }),
+  totalSeats: z.coerce.number().int().positive().openapi({
+    example: 40,
+  }),
 });
+
+// ======================================================
+// UPDATE BUS
+// ======================================================
 
 export const updateBusSchema = z
   .object({
-    name: z.string().trim().min(2).max(255).optional(),
+    name: z.string().trim().min(2).max(255).optional().openapi({
+      example: 'Updated KSRTC Express',
+    }),
 
-    busNumber: z.string().trim().min(3).max(50).optional(),
+    busNumber: z.string().trim().min(3).max(50).optional().openapi({
+      example: 'KA01AB1234',
+    }),
 
-    type: z.string().trim().min(2).max(100).optional(),
+    type: z.string().trim().min(2).max(100).optional().openapi({
+      example: 'Non AC Sleeper',
+    }),
 
-    totalSeats: z
-      .union([z.string(), z.number()])
-      .transform((value) => Number(value))
-      .refine((value) => Number.isInteger(value) && value > 0, {
-        message: 'Total seats must be greater than zero',
-      })
-      .optional(),
+    totalSeats: z.coerce.number().int().positive().optional().openapi({
+      example: 45,
+    }),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: 'At least one field is required',
   });
 
+// ======================================================
+// PARAMS
+// ======================================================
+
 export const busIdParamsSchema = z.object({
-  id: z.string().uuid(),
+  id: z
+    .string()
+    .uuid()
+    .openapi({
+      param: {
+        name: 'id',
+        in: 'path',
+      },
+
+      example: '550e8400-e29b-41d4-a716-446655440000',
+    }),
 });
+
+// ======================================================
+// SEARCH QUERY
+// ======================================================
 
 export const searchBusesQuerySchema = z.object({
-  name: z.string().trim().min(1).optional(),
+  name: z.string().trim().min(1).optional().openapi({
+    example: 'KSRTC',
+  }),
 
-  type: z.string().trim().min(1).optional(),
+  type: z.string().trim().min(1).optional().openapi({
+    example: 'AC Sleeper',
+  }),
 });
+
+// ======================================================
+// TYPES
+// ======================================================
 
 export type CreateBusBody = z.infer<typeof createBusSchema>;
 

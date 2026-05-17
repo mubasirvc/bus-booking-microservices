@@ -1,31 +1,68 @@
 import { z } from '@bus-booking/common';
 
+// ======================================================
+// CREATE ROUTE
+// ======================================================
+
 export const createRouteSchema = z.object({
-  source: z.string().trim().min(2).max(255),
-  destination: z.string().trim().min(2).max(255),
-  distanceKm: z
-    .union([z.string(), z.number()])
-    .transform((value) => Number(value))
-    .refine((value) => Number.isFinite(value) && value > 0, {
-      message: 'Distance must be greater than 0',
-    }),
-  durationMinutes: z
-    .union([z.string(), z.number()])
-    .transform((value) => Number(value))
-    .refine((value) => Number.isInteger(value) && value > 0, {
-      message: 'Duration must be greater than 0',
-    }),
+  source: z.string().trim().min(2).max(255).openapi({
+    example: 'Bangalore',
+  }),
+
+  destination: z.string().trim().min(2).max(255).openapi({
+    example: 'Mysore',
+  }),
+
+  distanceKm: z.coerce.number().positive().openapi({
+    example: 145,
+  }),
+
+  durationMinutes: z.coerce.number().int().positive().openapi({
+    example: 180,
+  }),
 });
 
-export const updateRouteSchema = createRouteSchema.partial();
+// ======================================================
+// UPDATE ROUTE
+// ======================================================
+
+export const updateRouteSchema = createRouteSchema
+  .partial()
+  .refine((data) => Object.keys(data).length > 0, {
+    message: 'At least one field is required',
+  });
+
+// ======================================================
+// PARAMS
+// ======================================================
 
 export const routeIdParamsSchema = z.object({
-  id: z.string().uuid(),
+  id: z
+    .string()
+    .uuid()
+    .openapi({
+      param: {
+        name: 'id',
+        in: 'path',
+      },
+
+      example: '550e8400-e29b-41d4-a716-446655440000',
+    }),
 });
 
+// ======================================================
+// SEARCH QUERY
+// ======================================================
+
 export const searchRoutesQuerySchema = z.object({
-  query: z.string().trim().min(2).max(255),
+  query: z.string().trim().min(2).max(255).openapi({
+    example: 'Bangalore',
+  }),
 });
+
+// ======================================================
+// TYPES
+// ======================================================
 
 export type CreateRouteBody = z.infer<typeof createRouteSchema>;
 
