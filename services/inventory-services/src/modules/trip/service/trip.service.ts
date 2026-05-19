@@ -3,9 +3,13 @@ import { HttpError } from '@bus-booking/common';
 import { Trip, CreateTripInput, UpdateTripInput } from '../types/trip.types.js';
 
 import { TripRepository, tripRepository } from '../repository/trip.repository.js';
+import { busRepository, BusRepository } from '../../bus/repository/bus.repository.js';
 
 class TripService {
-  constructor(private readonly repository: TripRepository) {}
+  constructor(
+    private readonly repository: TripRepository,
+    private busRepository: BusRepository,
+  ) {}
 
   async getTripById(id: string): Promise<Trip> {
     const trip = await this.repository.findById(id);
@@ -30,7 +34,16 @@ class TripService {
       throw new HttpError(400, 'Fare must be greater than zero');
     }
 
-    return this.repository.create(input);
+    const bus = await this.busRepository.findById(input.busId);
+
+    if (!bus) {
+      throw new HttpError(404, 'Bus not found');
+    }
+
+    return this.repository.create({
+      ...input,
+      availableSeats: bus.totalSeats,
+    });
   }
 
   async updateTrip(id: string, input: UpdateTripInput): Promise<Trip> {
@@ -91,4 +104,4 @@ class TripService {
   }
 }
 
-export const tripService = new TripService(tripRepository);
+export const tripService = new TripService(tripRepository, busRepository);

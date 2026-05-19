@@ -10,6 +10,7 @@ const toDomainTrip = (model: TripModel): Trip => ({
   travelDate: model.travelDate,
   departureTime: model.departureTime,
   arrivalTime: model.arrivalTime,
+  availableSeats: model.availableSeats,
   fare: Number(model.fare),
   status: model.status,
   createdAt: model.createdAt,
