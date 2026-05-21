@@ -4,14 +4,14 @@ export interface Booking {
   tripId: string;
   seatCount: number;
   totalAmount: number;
-  status: string;
+  status: 'PENDING' | 'CANCELLED' | 'CONFIRMED';
   createdAt: Date;
   updatedAt: Date;
 }
 
 export type CreateBookingInput = Omit<
   Booking,
-  'id' | 'status' | 'createdAt' | 'updatedAt'
+  'id'| 'createdAt' | 'updatedAt'
 >;
 
 export type UpdateBookingInput = Partial<

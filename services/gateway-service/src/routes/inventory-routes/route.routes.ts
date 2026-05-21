@@ -23,18 +23,18 @@ import {
 
 export const routeRouter: Router = Router();
 
-routeRouter.get('/', requireAuth, asyncHandler(getAllRoutes));
+routeRouter.get('/',  asyncHandler(getAllRoutes));
 
-routeRouter.get('/search',requireAuth,validateRequest({  query: searchRoutesQuerySchema,}),asyncHandler(searchRoutes),);
+routeRouter.get('/search',validateRequest({  query: searchRoutesQuerySchema,}),asyncHandler(searchRoutes),);
 
-routeRouter.get('/sources', requireAuth, asyncHandler(getSources));
+routeRouter.get('/sources',  asyncHandler(getSources));
 
-routeRouter.get('/destinations', requireAuth, asyncHandler(getDestinations));
+routeRouter.get('/destinations',  asyncHandler(getDestinations));
 
-routeRouter.get('/:id',requireAuth, validateRequest({ params: routeIdParamsSchema,}),asyncHandler(getRoute),);
+routeRouter.get('/:id', validateRequest({ params: routeIdParamsSchema,}),asyncHandler(getRoute),);
 
-routeRouter.post('/',requireAuth, validateRequest({   body: createRouteSchema, }), asyncHandler(createRoute));
+routeRouter.post('/', validateRequest({   body: createRouteSchema, }), asyncHandler(createRoute));
 
-routeRouter.patch('/:id',requireAuth,validateRequest({  params: routeIdParamsSchema,  body: updateRouteSchema,}),asyncHandler(updateRoute),);
+routeRouter.patch('/:id',validateRequest({  params: routeIdParamsSchema,  body: updateRouteSchema,}),asyncHandler(updateRoute),);
 
-routeRouter.delete('/:id', requireAuth, validateRequest({   params: routeIdParamsSchema, }), asyncHandler(deleteRoute),);
+routeRouter.delete('/:id',  validateRequest({   params: routeIdParamsSchema, }), asyncHandler(deleteRoute),);

@@ -3,6 +3,7 @@ export interface Trip {
   busId: string;
   routeId: string;
   travelDate: string;
+  availableSeats: number;
   departureTime: string;
   arrivalTime: string;
   fare: number;
@@ -26,5 +27,6 @@ export type UpdateTripInput = Partial<
     | 'arrivalTime'
     | 'fare'
     | 'status'
+    | 'availableSeats'
   >
 >;

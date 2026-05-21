@@ -10,6 +10,7 @@ const toDomainTrip = (model: TripModel): Trip => ({
   travelDate: model.travelDate,
   departureTime: model.departureTime,
   arrivalTime: model.arrivalTime,
+  availableSeats: model.availableSeats,
   fare: Number(model.fare),
   status: model.status,
   createdAt: model.createdAt,
@@ -137,6 +138,17 @@ export class TripRepository {
     );
 
     return updated[0] > 0;
+  }
+
+  async updateAvailableSeats(tripId: string, availableSeats: number): Promise<void> {
+    await TripModel.update(
+      { availableSeats },
+      {
+        where: {
+          id: tripId,
+        },
+      },
+    );
   }
 
   async cancelTrip(id: string): Promise<boolean> {

@@ -3,6 +3,8 @@ import { HttpError } from '@bus-booking/common';
 import { Booking, CreateBookingInput, UpdateBookingInput } from '../types/booking.js';
 
 import { BookingRepository, bookingRepository } from '../repository/booking.repostiory.js';
+import inventoryGrpcService from './inventory-grpc.service.js';
+import { logger } from '../utils/logger.js';
 
 class BookingService {
   constructor(private readonly repository: BookingRepository) {}
@@ -22,15 +24,49 @@ class BookingService {
   }
 
   async createBooking(input: CreateBookingInput): Promise<Booking> {
-    if (input.seatCount <= 0) {
-      throw new HttpError(400, 'Seat count must be greater than zero');
-    }
+    let seatsReserved = false;
 
-    if (input.totalAmount <= 0) {
-      throw new HttpError(400, 'Total amount must be greater than zero');
-    }
+    try {
+      if (input.seatCount <= 0) {
+        throw new HttpError(400, 'Seat count must be greater than zero');
+      }
 
-    return this.repository.create(input);
+      if (input.seatCount > 4) {
+        throw new HttpError(400, 'Cannot book more than 4 seats at a time');
+      }
+
+      const reservation = await inventoryGrpcService.reserveSeats(input.tripId, input.seatCount);
+
+      seatsReserved = true;
+
+      logger.info(reservation, 'Seat reservation successful');
+
+      const totalAmount = reservation.fare * input.seatCount;
+
+      const paymentSuccess = true;
+
+      const booking = await this.repository.create({
+        ...input,
+        totalAmount,
+        status: paymentSuccess ? 'CONFIRMED' : 'CANCELLED',
+      });
+
+      if (!paymentSuccess) {
+        throw new HttpError(400, 'Payment failed');
+      }
+
+      return booking;
+    } catch (error) {
+      logger.error(error, 'Error creating booking');
+
+      if (seatsReserved) {
+        const res = await inventoryGrpcService.releaseSeats(input.tripId, input.seatCount);
+
+        logger.info(res, 'Seats released due to payment failure');
+      }
+
+      throw error;
+    }
   }
 
   async updateBooking(id: string, input: UpdateBookingInput): Promise<Booking> {
@@ -80,6 +116,8 @@ class BookingService {
       throw new HttpError(400, 'Booking already cancelled');
     }
 
+    await inventoryGrpcService.releaseSeats(booking.tripId, booking.seatCount);
+
     const cancelled = await this.repository.cancelBooking(id);
 
     if (!cancelled) {
@@ -87,6 +125,12 @@ class BookingService {
     }
 
     return cancelled;
+  }
+
+  async getSeats(tripId: number): Promise<number> {
+    const seats = await inventoryGrpcService.getAvailableSeats(tripId.toString());
+
+    return seats;
   }
 }
 

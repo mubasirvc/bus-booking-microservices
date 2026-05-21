@@ -6,6 +6,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   INVENTORY_SERVICE_PORT: z.coerce.number().int().min(0).max(65_535).default(4001),
   INVENTORY_DB_URL: z.string(),
+  GRPC_PORT: z.coerce.number().int().min(0).max(65_535).default(50051),
   RABBITMQ_URL: z.string().optional(),
   INTERNAL_API_TOKEN: z.string().min(16),
 });

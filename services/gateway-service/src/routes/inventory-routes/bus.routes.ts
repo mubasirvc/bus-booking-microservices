@@ -1,7 +1,7 @@
 import { asyncHandler, validateRequest } from '@bus-booking/common';
 import { Router } from 'express';
 
-import { requireAuth } from '../../middleware/require-auth.js';
+import { requireAuth} from '../../middleware/require-auth.js';
 
 import {
   createBus,
@@ -21,32 +21,32 @@ import {
 
 export const busRouter: Router = Router();
 
-busRouter.get('/', requireAuth, asyncHandler(getAllBuses));
+busRouter.get('/',  asyncHandler(getAllBuses));
 
 busRouter.get(
   '/search',
-  requireAuth,
+  
   validateRequest({ query: searchBusesQuerySchema }),
   asyncHandler(searchBuses),
 );
 
 busRouter.get(
   '/:id',
-  requireAuth,
+  
   validateRequest({ params: busIdParamsSchema }),
   asyncHandler(getBus),
 );
 
 busRouter.post(
   '/',
-  requireAuth,
+ 
   validateRequest({ body: createBusSchema }),
   asyncHandler(createBus),
 );
 
 busRouter.patch(
   '/:id',
-  requireAuth,
+  
   validateRequest({
     params: busIdParamsSchema,
     body: updateBusSchema,
@@ -56,7 +56,7 @@ busRouter.patch(
 
 busRouter.delete(
   '/:id',
-  requireAuth,
+  
   validateRequest({ params: busIdParamsSchema }),
   asyncHandler(deleteBus),
 );

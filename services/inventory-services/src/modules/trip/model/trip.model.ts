@@ -4,20 +4,14 @@ import { BusModel } from '../../bus/index.js';
 import { RouteModel } from '../../route/index.js';
 import { Trip } from '../types/trip.types.js';
 
+export type TripCreationAttributes = Optional<Trip, 'id' | 'status' | 'createdAt' | 'updatedAt'>;
 
-export type TripCreationAttributes = Optional<
-  Trip,
-  'id' | 'status' | 'createdAt' | 'updatedAt'
->;
-
-export class TripModel
-  extends Model<Trip, TripCreationAttributes>
-  implements Trip
-{
+export class TripModel extends Model<Trip, TripCreationAttributes> implements Trip {
   declare id: string;
   declare busId: string;
   declare routeId: string;
   declare travelDate: string;
+  declare availableSeats: number;
   declare departureTime: string;
   declare arrivalTime: string;
   declare fare: number;
@@ -62,13 +56,17 @@ TripModel.init(
       type: DataTypes.DATE,
       allowNull: false,
     },
+    availableSeats: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
     fare: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
     },
     status: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: DataTypes.ENUM('ACTIVE', 'CANCELLED', 'COMPLETED'),
       defaultValue: 'ACTIVE',
     },
     createdAt: {
