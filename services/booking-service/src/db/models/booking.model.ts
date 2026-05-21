@@ -4,28 +4,18 @@ import { sequelize } from '../sequelize.js';
 
 import { Booking } from '../../types/booking.js';
 
-export type BookingCreationAttributes =
-  Optional<
-    Booking,
-    | 'id'
-    | 'status'
-    | 'createdAt'
-    | 'updatedAt'
-  >;
+export type BookingCreationAttributes = Optional<
+  Booking,
+  'id' | 'status' | 'createdAt' | 'updatedAt'
+>;
 
-export class BookingModel
-  extends Model<
-    Booking,
-    BookingCreationAttributes
-  >
-  implements Booking
-{
+export class BookingModel extends Model<Booking, BookingCreationAttributes> implements Booking {
   declare id: string;
   declare userId: string;
   declare tripId: string;
   declare seatCount: number;
   declare totalAmount: number;
-  declare status: string;
+  declare status: 'PENDING' | 'CANCELLED' | 'CONFIRMED';
   declare createdAt: Date;
   declare updatedAt: Date;
 }
@@ -60,8 +50,7 @@ BookingModel.init(
     },
 
     status: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: DataTypes.ENUM('PENDING', 'CANCELLED', 'CONFIRMED'),
       defaultValue: 'PENDING',
     },
 

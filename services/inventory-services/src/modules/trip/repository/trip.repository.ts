@@ -140,6 +140,17 @@ export class TripRepository {
     return updated[0] > 0;
   }
 
+  async updateAvailableSeats(tripId: string, availableSeats: number): Promise<void> {
+    await TripModel.update(
+      { availableSeats },
+      {
+        where: {
+          id: tripId,
+        },
+      },
+    );
+  }
+
   async cancelTrip(id: string): Promise<boolean> {
     return this.updateStatus(id, 'CANCELLED');
   }
