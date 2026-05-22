@@ -12,3 +12,12 @@ export interface Payment {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface CreatePaymentInput {
+  bookingId: string;
+  userId: string;
+  amount: number;
+  currency: string;
+  razorpayOrderId?: string;
+  status?: 'PENDING';
+}

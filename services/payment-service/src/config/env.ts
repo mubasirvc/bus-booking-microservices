@@ -7,6 +7,8 @@ const envSchema = z.object({
   PAYMENT_SERVICE_PORT: z.coerce.number().int().min(0).max(65_535).default(4006),
   PAYMENT_DB_URL: z.string(),
   INTERNAL_API_TOKEN: z.string().min(16),
+  RAZORPAY_KEY_ID: z.string().min(16),
+  RAZORPAY_KEY_SECRET: z.string().min(16),
 });
 
 type EnvType = z.infer<typeof envSchema>;
