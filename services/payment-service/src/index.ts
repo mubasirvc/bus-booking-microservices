@@ -3,6 +3,8 @@ import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
 import { initializeDatabase } from './db/sequelize.js';
 import { createServer } from 'node:http';
+import grpc from '@grpc/grpc-js';
+import grpcServer from './grpc/server.js';
 
 const main = async () => {
   try {
@@ -13,8 +15,16 @@ const main = async () => {
 
     const port = env.PAYMENT_SERVICE_PORT;
 
+    const grpcPort = env.PAYMENT_GRPC_PORT || 50053;
+
     server.listen(port, () => {
       logger.info({ port }, 'Payment service is running');
+    });
+
+    grpcServer.bindAsync(`0.0.0.0:${grpcPort}`, grpc.ServerCredentials.createInsecure(), () => {
+      grpcServer.start();
+
+      logger.info({ port: grpcPort }, 'Payment gRPC service running');
     });
 
     const shutdown = () => {

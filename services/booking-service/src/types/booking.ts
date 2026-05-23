@@ -4,7 +4,7 @@ export interface Booking {
   tripId: string;
   seatCount: number;
   totalAmount: number;
-  status: 'PENDING' | 'CANCELLED' | 'CONFIRMED';
+  status?: 'PENDING' | 'CANCELLED' | 'CONFIRMED';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,3 +17,9 @@ export type CreateBookingInput = Omit<
 export type UpdateBookingInput = Partial<
   Pick<Booking, 'status'>
 >;
+
+export enum BookingStatus {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  CANCELLED = 'CANCELLED',
+}

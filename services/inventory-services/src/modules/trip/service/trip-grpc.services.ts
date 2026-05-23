@@ -12,7 +12,7 @@ class TripGrpcService {
       throw new HttpError(404, 'Trip not found');
     }
 
-    return trip.availableSeats;
+    return trip.availableSeats ?? 0;
   }
 
   async reserveSeats(tripId: string, seatCount: number) {
@@ -22,7 +22,7 @@ class TripGrpcService {
       throw new HttpError(404, 'Trip not found');
     }
 
-    if (trip.availableSeats < seatCount) {
+    if (trip.availableSeats === undefined || trip.availableSeats < seatCount) {
       throw new HttpError(400, 'Not enough seats');
     }
 
@@ -44,7 +44,7 @@ class TripGrpcService {
       throw new HttpError(404, 'Trip not found');
     }
     
-    await this.repository.updateAvailableSeats(tripId, trip.availableSeats + seatCount);
+    await this.repository.updateAvailableSeats(tripId, (trip.availableSeats ?? 0) + seatCount);
 
     return {
       success: true,

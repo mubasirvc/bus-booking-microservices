@@ -1,4 +1,4 @@
-import { tripGrpcService } from '../../modules/trip/service/trip.grpc.services.js';
+import { tripGrpcService } from '../../modules/trip/service/trip-grpc.services.js';
 
 export const inventoryHandlers = {
   async GetAvailableSeats(call: any, callback: any) {

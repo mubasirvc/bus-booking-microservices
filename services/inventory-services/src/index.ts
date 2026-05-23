@@ -18,7 +18,7 @@ const main = async () => {
 
     const httpPort = env.INVENTORY_SERVICE_PORT;
 
-    const grpcPort = env.GRPC_PORT || 50051;
+    const grpcPort = env.INVENTORY_GRPC_PORT|| 50051;
 
     server.listen(httpPort, () => {
       logger.info({ port: httpPort }, 'Inventory REST service running');

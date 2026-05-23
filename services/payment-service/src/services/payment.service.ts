@@ -2,6 +2,7 @@ import { HttpError } from '@bus-booking/common';
 import { razorpay } from '../config/razorpay.js';
 import { paymentRepository, PaymentRepository } from '../repository/payment.repository.js';
 import { logger } from '../utils/logger.js';
+import bookingGrpcService from './booking.grpc.service.js';
 
 class PaymentService {
   constructor(private respository: PaymentRepository) {}
@@ -38,7 +39,6 @@ class PaymentService {
     const orderId = paymentEntity.order_id;
 
     const razorpayPaymentId = paymentEntity.id;
-    logger.info(`Received webhook for orderId: ${orderId} with event: ${event}`);
 
     const payment = await this.respository.findByOrderId(orderId);
 
@@ -51,7 +51,7 @@ class PaymentService {
 
       logger.info('Payment marked SUCCESS');
 
-      // await bookingClient.updateBookingStatus(payment.bookingId, 'CONFIRMED');
+      await bookingGrpcService.updateBookingStatus(payment.bookingId, 'CONFIRMED');
     }
 
     if (event === 'payment.failed') {
@@ -59,8 +59,32 @@ class PaymentService {
 
       logger.info('Payment marked FAILED');
 
-      // await bookingClient.updateBookingStatus(payment.bookingId, 'CANCELLED');
+      await bookingGrpcService.updateBookingStatus(payment.bookingId, 'CANCELLED');
     }
+  }
+
+  async createPayment(bookingId: string, userId: string, amount: number) {
+    const order = await razorpay.orders.create({
+      amount: amount * 100,
+      currency: 'INR',
+      receipt: bookingId,
+    });
+
+    const payment = await paymentRepository.create({
+      bookingId,
+      userId,
+      amount,
+      razorpayOrderId: order.id,
+      currency: 'INR',
+      status: 'PENDING',
+    });
+
+    return {
+      paymentId: payment.id,
+      orderId: order.id,
+      amount: payment.amount,
+      status: payment.status,
+    };
   }
 }
 

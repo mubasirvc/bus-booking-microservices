@@ -4,6 +4,9 @@ import { logger } from './utils/logger.js';
 import { initializeDatabase } from './db/sequelize.js';
 import { createServer } from 'node:http';
 
+import grpc from '@grpc/grpc-js';
+import grpcServer from './grpc/server.js';
+
 const main = async () => {
   try {
     await initializeDatabase();
@@ -13,8 +16,17 @@ const main = async () => {
 
     const port = env.BOOKING_SERVICE_PORT;
 
+    const grpcPort = env.BOOKING_GRPC_PORT || 50052;
+
     server.listen(port, () => {
       logger.info({ port }, 'Booking service is running');
+    });
+
+     // gRPC server
+    grpcServer.bindAsync(`0.0.0.0:${grpcPort}`, grpc.ServerCredentials.createInsecure(), () => {
+      grpcServer.start();
+
+      logger.info({ port: grpcPort }, 'Booking gRPC service running');
     });
 
     const shutdown = () => {

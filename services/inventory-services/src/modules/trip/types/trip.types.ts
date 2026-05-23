@@ -3,7 +3,7 @@ export interface Trip {
   busId: string;
   routeId: string;
   travelDate: string;
-  availableSeats: number;
+  availableSeats?: number;
   departureTime: string;
   arrivalTime: string;
   fare: number;
@@ -14,7 +14,7 @@ export interface Trip {
 
 export type CreateTripInput = Omit<
   Trip,
-  'id' | 'status' | 'createdAt' | 'updatedAt'
+  'id' | 'status' | 'createdAt' | 'updatedAt' 
 >;
 
 export type UpdateTripInput = Partial<
