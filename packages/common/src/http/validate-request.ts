@@ -23,8 +23,6 @@ const formattedError = (error: ZodError) =>
 export const validateRequest = (schemas: RequestValidationSchemas) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log('Validating request with schemas:', schemas);
-
       res.locals.validated = {};
 
       if (schemas.body) {

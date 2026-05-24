@@ -3,9 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { createInternalAuthMiddleware } from '@bus-booking/common';
 import { env } from './config/env.js';
-import { errorHandler } from './middleware/error-handler.js';
-import { registerRoutes } from './routes/index.js';
-
+import { registerRoutes } from './routes/indext.js';
 
 export const createApp = (): Application => {
   const app = express();
@@ -31,8 +29,6 @@ export const createApp = (): Application => {
   app.use((_req, res) => {
     res.status(404).json({ message: 'Not Found' });
   });
-
-  app.use(errorHandler);
 
   return app;
 };

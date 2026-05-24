@@ -1,8 +1,7 @@
 import { type WhereOptions } from 'sequelize';
 
 import { BookingModel } from '../db/models/booking.model.js';
-
-import { Booking, CreateBookingInput, UpdateBookingInput } from '../types/booking.js';
+import { Booking, BookingStatus, CreateBookingInput, UpdateBookingInput } from '../types/booking.js';
 
 const toDomainBooking = (model: BookingModel): Booking => ({
   id: model.id,
@@ -102,7 +101,24 @@ export class BookingRepository {
     }
 
     await booking.update({
-      status: 'CANCELLED',
+      status: BookingStatus.CANCELLED,
+    });
+
+    return toDomainBooking(booking);
+  }
+
+  async updateBookingStatus(
+    id: string,
+    status: BookingStatus,
+  ): Promise<Booking | null> {
+    const booking = await BookingModel.findByPk(id);
+
+    if (!booking) {
+      return null;
+    }
+
+    await booking.update({
+      status,
     });
 
     return toDomainBooking(booking);

@@ -3,23 +3,23 @@ import protoLoader from '@grpc/proto-loader';
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-import { inventoryHandlers } from './handlers/inventory.handler.js';
+import { env } from '../config/env.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(__filename);
 
-const PROTO_PATH = path.join(__dirname, './proto/inventory.proto');
+const PROTO_PATH = path.resolve(__dirname, './proto/booking.proto');
+
+console.log(PROTO_PATH);
 
 const packageDef = protoLoader.loadSync(PROTO_PATH);
 
 const grpcObject = grpc.loadPackageDefinition(packageDef);
 
-const inventoryPackage = (grpcObject as any).inventory;
+const bookingPackage = (grpcObject as any).booking;
 
-const grpcServer = new grpc.Server();
-
-grpcServer.addService(inventoryPackage.InventoryService.service, inventoryHandlers);
-
-export default grpcServer;
+export const bookingClient = new bookingPackage.BookingService(
+  env.BOOKING_GRPC_HOST || 'localhost:50052',
+  grpc.credentials.createInsecure(),
+);

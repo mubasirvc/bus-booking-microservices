@@ -3,10 +3,6 @@ import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
 import { initializeDatabase } from './db/sequelize.js';
 import { createServer } from 'node:http';
-import './jobs/booking-expiry.listener.js';
-
-import './config/redis.js';
-
 import grpc from '@grpc/grpc-js';
 import grpcServer from './grpc/server.js';
 
@@ -17,23 +13,22 @@ const main = async () => {
     const app = createApp();
     const server = createServer(app);
 
-    const port = env.BOOKING_SERVICE_PORT;
+    const port = env.PAYMENT_SERVICE_PORT;
 
-    const grpcPort = env.BOOKING_GRPC_PORT || 50052;
+    const grpcPort = env.PAYMENT_GRPC_PORT || 50053;
 
     server.listen(port, () => {
-      logger.info({ port }, 'Booking service is running');
+      logger.info({ port }, 'Payment service is running');
     });
 
-     // gRPC server
     grpcServer.bindAsync(`0.0.0.0:${grpcPort}`, grpc.ServerCredentials.createInsecure(), () => {
       grpcServer.start();
 
-      logger.info({ port: grpcPort }, 'Booking gRPC service running');
+      logger.info({ port: grpcPort }, 'Payment gRPC service running');
     });
 
     const shutdown = () => {
-      logger.info('Shutting down booking service...');
+      logger.info('Shutting down payment service...');
       Promise.all([])
         .catch((error: unknown) => {
           logger.error({ error }, 'Error during shutdown tasks');
@@ -46,7 +41,7 @@ const main = async () => {
     process.on('SIGINT', shutdown);
     process.on('SIGTERM', shutdown);
   } catch (error) {
-    logger.error({ error }, 'Failed to start booking service');
+    logger.error({ error }, 'Failed to start payment service');
     process.exit(1);
   }
 };

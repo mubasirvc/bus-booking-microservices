@@ -54,6 +54,20 @@ services:
       - booking-db-data:/var/lib/postgresql/data
     networks:
       - bus_booking-network 
+      
+  payment-db:
+    image: postgres:16
+    container_name: bus_booking-payment-db
+    environment:
+      POSTGRES_DB: ${PAYMENT_DB_NAME:-bus_booking_payment_service}
+      POSTGRES_USER: ${PAYMENT_DB_USER:-bus_booking_payment_user}
+      POSTGRES_PASSWORD: ${PAYMENT_DB_PASSWORD:-bus_booking_payment__password}
+    ports:
+      - "${PAYMENT_DB_PORT:-5436}:5432"
+    volumes:
+      - payment-db-data:/var/lib/postgresql/data
+    networks:
+      - bus_booking-network 
 
   auth-db:
     image: mysql:8.0
@@ -70,11 +84,24 @@ services:
     networks:
       - bus_booking-network
 
+  redis:
+    image: redis:7
+    container_name: bus_booking-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - bus_booking-network
+
+
 volumes:
   rabbitmq-data:
   user-db-data:
   auth-db-data:
   inventory-db-data:
   booking-db-data:
+  payment-db-data:
+  redis-data:
 networks:
   bus_booking-network:
