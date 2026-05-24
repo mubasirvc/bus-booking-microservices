@@ -3,6 +3,9 @@ import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
 import { initializeDatabase } from './db/sequelize.js';
 import { createServer } from 'node:http';
+import './jobs/booking-expiry.listener.js';
+
+import './config/redis.js';
 
 import grpc from '@grpc/grpc-js';
 import grpcServer from './grpc/server.js';

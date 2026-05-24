@@ -10,6 +10,7 @@ const envSchema = z.object({
   BOOKING_GRPC_PORT: z.coerce.number().int().min(0).max(65_535).default(50052),
   INVENTORY_GRPC_HOST: z.string().default('localhost:50051'),
   PAYMENT_GRPC_HOST: z.string().default('localhost:50053'),
+  REDIS_URL: z.string().default('redis://localhost:6379'),
 });
 
 type EnvType = z.infer<typeof envSchema>;

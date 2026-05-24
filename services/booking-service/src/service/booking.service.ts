@@ -12,6 +12,8 @@ import inventoryGrpcService from './inventory-grpc.service.js';
 import { logger } from '../utils/logger.js';
 import paymentGrpcService from './payment-grpc.service.js';
 
+import { client } from '../config/redis.js';
+
 class BookingService {
   constructor(private readonly repository: BookingRepository) {}
 
@@ -46,6 +48,15 @@ class BookingService {
       });
 
       const payment = await paymentGrpcService.createPayment(booking.id, input.userId, totalAmount);
+
+      await client.set(
+        `booking:${booking.id}`,
+        booking.id,
+        'EX',
+        900, // 15 minutes
+      );
+
+      logger.info(`Booking timer started for ${booking.id}`);
 
       return {
         booking,
@@ -118,7 +129,6 @@ class BookingService {
     return cancelled;
   }
 
-
   async updateBookingStatus(id: string, status: BookingStatus): Promise<Booking> {
     const booking = await this.repository.findById(id);
 
@@ -141,8 +151,16 @@ class BookingService {
 
     logger.info(`Booking ${id} updated to ${status}`);
 
+    // if booking is confirmed, remove the expiry timer
+
+    if (status === 'CONFIRMED') {
+      await client.del(`booking:${id}`);
+
+      logger.info(`Booking timer removed: ${id}`);
+    }
+
     // release seats only when cancelled
-    
+
     if (status === 'CANCELLED') {
       await inventoryGrpcService.releaseSeats(booking.tripId, booking.seatCount);
 
