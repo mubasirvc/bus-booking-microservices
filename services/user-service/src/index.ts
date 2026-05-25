@@ -1,7 +1,7 @@
 import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
-import { initializeDatabase } from './db/sequelize.js';
+import { initializeDatabase } from './db/mongoose.js';
 import { createServer } from 'node:http';
 import { startAuthEventConsumer } from './messaging/auth-consumer.js';
 import { initMessaging } from './messaging/event-publisher.js';

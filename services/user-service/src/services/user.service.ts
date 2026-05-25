@@ -1,9 +1,8 @@
 import { AuthUserRegisteredPayload, HttpError } from '@bus-booking/common';
-import { UniqueConstraintError } from 'sequelize';
+import mongoose from 'mongoose';
 import { publishUserCreatedEvent } from '../messaging/event-publisher.js';
 import { UserRepository, userRepository } from '../repositories/user.repositories.js';
 import { CreateUserInput, User } from '../types/user.js';
-
 
 class UserService {
   constructor(private readonly repository: UserRepository) {}
@@ -20,6 +19,27 @@ class UserService {
     return this.repository.findAll();
   }
 
+  // async createUser(input: CreateUserInput): Promise<User> {
+  //   try {
+  //     const user = await this.repository.create(input);
+
+  //     void publishUserCreatedEvent({
+  //       id: user.id,
+  //       email: user.email,
+  //       userName: user.userName,
+  //       createdAt: user.createdAt.toISOString(),
+  //       updatedAt: user.updatedAt.toISOString(),
+  //     });
+
+  //     return user;
+  //   } catch (error) {
+  //     if (error instanceof UniqueConstraintError) {
+  //       throw new HttpError(409, 'User already exists');
+  //     }
+  //     throw error;
+  //   }
+  // }
+
   async createUser(input: CreateUserInput): Promise<User> {
     try {
       const user = await this.repository.create(input);
@@ -34,9 +54,10 @@ class UserService {
 
       return user;
     } catch (error) {
-      if (error instanceof UniqueConstraintError) {
+      if (error instanceof mongoose.Error && 'code' in error && error.code === 11000) {
         throw new HttpError(409, 'User already exists');
       }
+
       throw error;
     }
   }

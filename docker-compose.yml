@@ -13,19 +13,31 @@ services:
     networks:
       - bus_booking-network
 
+  # user-db:
+  #   image: postgres:16
+  #   container_name: bus_booking-user-db
+  #   environment:
+  #     POSTGRES_DB: ${USER_DB_NAME:-bus_booking_user_service}
+  #     POSTGRES_USER: ${USER_DB_USER:-bus_booking_user}
+  #     POSTGRES_PASSWORD: ${USER_DB_PASSWORD:-bus_booking_user_password}
+  #   ports:
+  #     - "${USER_DB_PORT:-5432}:5432"
+  #   volumes:
+  #     - user-db-data:/var/lib/postgresql/data
+  #   networks:
+  #     - bus_booking-network
+
   user-db:
-    image: postgres:16
+    image: mongo:7
     container_name: bus_booking-user-db
-    environment:
-      POSTGRES_DB: ${USER_DB_NAME:-bus_booking_user_service}
-      POSTGRES_USER: ${USER_DB_USER:-bus_booking_user}
-      POSTGRES_PASSWORD: ${USER_DB_PASSWORD:-bus_booking_user_password}
     ports:
-      - "${USER_DB_PORT:-5432}:5432"
+      - "${MONGO_PORT:-27017}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-password}
     volumes:
-      - user-db-data:/var/lib/postgresql/data
-    networks:
-      - bus_booking-network
+      - mongo-data:/data/db
+
 
   inventory-db:
     image: postgres:16
@@ -97,7 +109,7 @@ services:
 
 volumes:
   rabbitmq-data:
-  user-db-data:
+  mongo-data:
   auth-db-data:
   inventory-db-data:
   booking-db-data:
