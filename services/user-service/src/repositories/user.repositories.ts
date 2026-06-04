@@ -1,74 +1,79 @@
-import { Op, type WhereOptions } from 'sequelize';
-
 import { CreateUserInput, User } from '../types/user.js';
 import { AuthUserRegisteredPayload } from '@bus-booking/common';
-import { UserModel } from '../db/index.js';
 
-const toDomainUser = (model: UserModel): User => ({
-  id: model.id,
-  email: model.email,
-  userName: model.userName,
-  createdAt: model.createdAt,
-  updatedAt: model.updatedAt,
-});
+import { UserModel } from '../db/models/user.model.js';
 
 export class UserRepository {
   async findById(id: string): Promise<User | null> {
-    const user = await UserModel.findByPk(id);
-    return user ? toDomainUser(user) : null;
+    return await UserModel.findOne({
+      id,
+    }).lean();
   }
 
   async findAll(): Promise<User[]> {
-    const users = await UserModel.findAll({
-      order: [['userName', 'ASC']],
-    });
-    return users.map(toDomainUser);
+    return await UserModel.find()
+      .sort({
+        userName: 1,
+      })
+      .lean();
   }
 
   async create(data: CreateUserInput): Promise<User> {
-    const user = await UserModel.create(data);
-    return toDomainUser(user);
+    return await UserModel.create(data);
   }
 
   async searchByQuery(
     query: string,
-    options: { limit?: number; excludeIds?: string[] } = {},
+    options: {
+      limit?: number;
+      excludeIds?: string[];
+    } = {},
   ): Promise<User[]> {
-    const where: WhereOptions = {
-      [Op.or]: [
-        { userName: { [Op.iLike]: `%${query}%` } },
-        { email: { [Op.iLike]: `%${query}%` } },
+    const filter: any = {
+      $or: [
+        {
+          userName: {
+            $regex: query,
+            $options: 'i',
+          },
+        },
+        {
+          email: {
+            $regex: query,
+            $options: 'i',
+          },
+        },
       ],
     };
 
-    if (options.excludeIds && options.excludeIds.length > 0) {
-      Object.assign(where, {
-        [Op.and]: [{ id: { [Op.notIn]: options.excludeIds } }],
-      });
+    if (options.excludeIds?.length) {
+      filter.id = {
+        $nin: options.excludeIds,
+      };
     }
 
-    const users = await UserModel.findAll({
-      where,
-      order: [['userName', 'ASC']],
-      limit: options.limit ?? 10,
-    });
-
-    return users.map(toDomainUser);
+    return await UserModel.find(filter)
+      .sort({
+        userName: 1,
+      })
+      .limit(options.limit ?? 10)
+      .lean();
   }
 
   async upsertFromAuthEvent(payload: AuthUserRegisteredPayload): Promise<User> {
-    const [user] = await UserModel.upsert(
+    return await UserModel.findOneAndUpdate(
       {
         id: payload.id,
+      },
+      {
         email: payload.email,
         userName: payload.userName,
-        createdAt: new Date(payload.createdAt),
-        updatedAt: new Date(payload.createdAt),
       },
-      { returning: true },
-    );
-
-    return toDomainUser(user);
+      {
+        upsert: true,
+        new: true,
+      },
+    ).lean();
   }
 }
 

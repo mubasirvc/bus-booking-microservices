@@ -1,53 +1,27 @@
-import { DataTypes, Model } from 'sequelize';
+import mongoose from 'mongoose';
 
-import type { Optional } from 'sequelize';
-
-import { sequelize } from '../sequelize.js';
-import { User } from '../../types/user.js';
-
-export type UserCreationAttributes = Optional<User, 'id' | 'createdAt' | 'updatedAt'>;
-
-export class UserModel extends Model<User, UserCreationAttributes> implements User {
-  declare id: string;
-  declare email: string;
-  declare userName: string;
-  declare createdAt: Date;
-  declare updatedAt: Date;
-}
-
-UserModel.init(
+const userSchema = new mongoose.Schema(
   {
     id: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: String,
+      required: true,
       unique: true,
-      validate: {
-        isEmail: true,
-      },
     },
+
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+
     userName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
+      type: String,
+      required: true,
     },
   },
   {
-    sequelize,
-    tableName: 'users',
+    timestamps: true,
   },
 );
+
+export const UserModel = mongoose.model('User', userSchema);
