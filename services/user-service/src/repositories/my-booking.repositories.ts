@@ -1,6 +1,11 @@
 import { MyBookingModel } from '../db/index.js';
 
 export class MyBookingRepository {
+  async create(payload: any) {
+  const booking = new MyBookingModel(payload);
+    return await booking.save();
+  }
+
   async findByUserId(userId: string, status?: string, page = 1, limit = 10) {
     const filter: any = {
       userId,

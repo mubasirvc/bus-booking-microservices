@@ -7,6 +7,10 @@ export class MyBookingService {
     return await myBookingRepository.findByUserId(userId, status, page, limit);
   }
 
+  async createBooking(payload: any) {
+    return await myBookingRepository.create(payload);
+  }
+
   async getBookingDetails(userId: string, bookingId: string) {
     const booking = await myBookingRepository.findByBookingId(userId, bookingId);
 

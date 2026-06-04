@@ -23,6 +23,7 @@
     "@bus-booking/common": "workspace:^",
     "@grpc/grpc-js": "^1.14.3",
     "@grpc/proto-loader": "^0.8.1",
+     "amqplib": "^2.0.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
+    "@types/amqplib": "^0.10.8",
     "@types/express": "^5.0.5",
     "@types/helmet": "^4.0.0",
     "tsc-alias": "^1.8.16"

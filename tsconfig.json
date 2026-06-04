@@ -9,7 +9,7 @@
         { "path": "./services/user-service" },
         { "path": "./services/gateway-service" },
         { "path": "./services/auth-service" },
-        { "path": "./services/inventory-service" },
+        { "path": "./services/inventory-services" },
         { "path": "./services/booking-service" },
         { "path": "./services/payment-service" }
     ]

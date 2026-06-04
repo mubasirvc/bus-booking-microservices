@@ -2,7 +2,7 @@ export interface Booking {
   id: string;
   userId: string;
   tripId: string;
-  seatCount: number;
+  seats: string[];
   totalAmount: number;
   status?: 'PENDING' | 'CANCELLED' | 'CONFIRMED';
   createdAt: Date;

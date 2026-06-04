@@ -13,6 +13,7 @@ import { logger } from '../utils/logger.js';
 import paymentGrpcService from './payment-grpc.service.js';
 
 import { client } from '../config/redis.js';
+import { publishBookingCreated } from '../messaging/event-publishing.js';
 
 class BookingService {
   constructor(private readonly repository: BookingRepository) {}
@@ -35,16 +36,36 @@ class BookingService {
     let seatsReserved = false;
 
     try {
-      const reservation = await inventoryGrpcService.reserveSeats(input.tripId, input.seatCount);
+      const reservation = await inventoryGrpcService.reserveSeats(input.tripId, input.seats.length);
 
       seatsReserved = true;
 
-      const totalAmount = reservation.fare * input.seatCount;
+      const totalAmount = reservation.fare * input.seats.length;
+
+      logger.info(
+        `Reserved ${input.seats.length} seats for trip ${input.tripId}. Remaining seats: ${reservation.remainingSeats}`,
+      );
 
       const booking = await this.repository.create({
         ...input,
         totalAmount,
-        status: 'PENDING',
+        status: BookingStatus.PENDING,
+      });
+
+      // publish booking created event for other services now for user service to store booking history
+
+      publishBookingCreated({
+        bookingId: booking.id,
+        userId: booking.userId,
+        tripId: booking.tripId,
+        seats: booking.seats,
+        status: booking.status!,
+        totalPrice: totalAmount,
+        busId: reservation.busId,
+        busName: reservation.busName,
+        source: reservation.source,
+        destination: reservation.destination,
+        travelDate: reservation.travelDate,
       });
 
       const payment = await paymentGrpcService.createPayment(booking.id, input.userId, totalAmount);
@@ -64,7 +85,7 @@ class BookingService {
       };
     } catch (error) {
       if (seatsReserved) {
-        await inventoryGrpcService.releaseSeats(input.tripId, input.seatCount);
+        await inventoryGrpcService.releaseSeats(input.tripId, input.seats.length);
       }
 
       throw error;
@@ -102,7 +123,7 @@ class BookingService {
   async searchBookings(params: {
     userId?: string;
     tripId?: string;
-    status?: string;
+    status?: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
   }): Promise<Booking[]> {
     return this.repository.search(params);
   }
@@ -118,7 +139,7 @@ class BookingService {
       throw new HttpError(400, 'Booking already cancelled');
     }
 
-    await inventoryGrpcService.releaseSeats(booking.tripId, booking.seatCount);
+    await inventoryGrpcService.releaseSeats(booking.tripId, booking.seats.length);
 
     const cancelled = await this.repository.cancelBooking(id);
 
@@ -162,9 +183,9 @@ class BookingService {
     // release seats only when cancelled
 
     if (status === 'CANCELLED') {
-      await inventoryGrpcService.releaseSeats(booking.tripId, booking.seatCount);
+      await inventoryGrpcService.releaseSeats(booking.tripId, booking.seats.length);
 
-      logger.info(`Released ${booking.seatCount} seats for trip ${booking.tripId}`);
+      logger.info(`Released ${booking.seats.length} seats for trip ${booking.tripId}`);
     }
 
     return updated;

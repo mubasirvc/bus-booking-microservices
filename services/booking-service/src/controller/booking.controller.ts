@@ -8,6 +8,7 @@ import {
   SearchBookingsQuery,
   UpdateBookingBody,
 } from '../validation/booking.schema.js';
+import { BookingStatus } from '../types/booking.js';
 
 export const getBooking: AsyncHandler = async (req, res, next) => {
   try {
@@ -35,7 +36,10 @@ export const createBooking: AsyncHandler = async (req, res, next) => {
   try {
     const payload = req.body as CreateBookingBody;
 
-    const booking = await bookingService.createBooking(payload);
+    const booking = await bookingService.createBooking({
+      ...payload,
+      status: BookingStatus.PENDING,
+    });
 
     res.status(201).json({
       data: booking,

@@ -40,6 +40,11 @@ message ReserveSeatsResponse {
   bool success = 1;
   int32 remainingSeats = 2;
   double fare = 3;
+  string busName = 4;
+  string busId = 5;
+  string source = 6;
+  string destination = 7;
+  string travelDate = 8
 }
 
 message ReleaseSeatsRequest {
