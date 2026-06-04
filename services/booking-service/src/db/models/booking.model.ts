@@ -2,7 +2,7 @@ import { DataTypes, Model, type Optional } from 'sequelize';
 
 import { sequelize } from '../sequelize.js';
 
-import { Booking } from '../../types/booking.js';
+import { Booking, BookingStatus } from '../../types/booking.js';
 
 export type BookingCreationAttributes = Optional<
   Booking,
@@ -13,9 +13,9 @@ export class BookingModel extends Model<Booking, BookingCreationAttributes> impl
   declare id: string;
   declare userId: string;
   declare tripId: string;
-  declare seatCount: number;
+  declare seats: string[];
   declare totalAmount: number;
-  declare status: 'PENDING' | 'CANCELLED' | 'CONFIRMED';
+  declare status: BookingStatus;
   declare createdAt: Date;
   declare updatedAt: Date;
 }
@@ -39,8 +39,8 @@ BookingModel.init(
       allowNull: false,
     },
 
-    seatCount: {
-      type: DataTypes.INTEGER,
+    seats: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false,
     },
 

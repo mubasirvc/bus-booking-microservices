@@ -11,6 +11,7 @@ const envSchema = z.object({
   INVENTORY_GRPC_HOST: z.string().default('localhost:50051'),
   PAYMENT_GRPC_HOST: z.string().default('localhost:50053'),
   REDIS_URL: z.string().default('redis://localhost:6379'),
+  RABBITMQ_URL: z.string().optional(),
 });
 
 type EnvType = z.infer<typeof envSchema>;

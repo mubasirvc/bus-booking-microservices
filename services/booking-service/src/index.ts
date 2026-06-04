@@ -9,10 +9,12 @@ import './config/redis.js';
 
 import grpc from '@grpc/grpc-js';
 import grpcServer from './grpc/server.js';
+import { initPublisher } from './messaging/event-publishing.js';
 
 const main = async () => {
   try {
     await initializeDatabase();
+    await initPublisher();
 
     const app = createApp();
     const server = createServer(app);

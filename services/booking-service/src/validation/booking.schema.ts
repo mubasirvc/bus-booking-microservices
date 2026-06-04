@@ -5,12 +5,9 @@ export const createBookingSchema = z.object({
 
   tripId: z.string().uuid(),
 
-  seatCount: z
-    .union([z.string(), z.number()])
-    .transform((value) => Number(value))
-    .refine((value) => Number.isInteger(value) && value > 0, {
-      message: 'Seat count must be greater than zero',
-    }),
+  seats: z.array(z.string()).min(1, {
+    message: 'At least one seat must be booked',
+  }),
 
   totalAmount: z
     .union([z.string(), z.number()])

@@ -5,11 +5,13 @@ import { initializeDatabase } from './db/mongoose.js';
 import { createServer } from 'node:http';
 import { startAuthEventConsumer } from './messaging/auth-consumer.js';
 import { initMessaging } from './messaging/event-publisher.js';
+import { startBookingEventConsumer } from './messaging/booking-consumer.js';
 
 const main = async () => {
   try {
     await initializeDatabase();
     await startAuthEventConsumer();
+    await startBookingEventConsumer();
     await initMessaging();
 
     const app = createApp();

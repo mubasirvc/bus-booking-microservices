@@ -2,12 +2,13 @@ import { type WhereOptions } from 'sequelize';
 
 import { BookingModel } from '../db/models/booking.model.js';
 import { Booking, BookingStatus, CreateBookingInput, UpdateBookingInput } from '../types/booking.js';
+import { publishBookingCreated } from '../messaging/event-publishing.js';
 
 const toDomainBooking = (model: BookingModel): Booking => ({
   id: model.id,
   userId: model.userId,
   tripId: model.tripId,
-  seatCount: model.seatCount,
+  seats: model.seats,
   totalAmount: Number(model.totalAmount),
   status: model.status,
   createdAt: model.createdAt,

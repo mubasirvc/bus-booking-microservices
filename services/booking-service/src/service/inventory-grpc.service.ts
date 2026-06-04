@@ -4,6 +4,11 @@ type ReserveSeatsResponse = {
   success: boolean;
   remainingSeats: number;
   fare: number;
+  busName: string;
+  busId: string;
+  source: string;
+  destination: string;
+  travelDate: string;
 };
 
 class InventoryGrpcService {
