@@ -1,13 +1,14 @@
 import {
- BOOKING_CREATED_ROUTING_KEY,
- BOOKING_EVENTS_EXCHANGE,
- BookingCreatedPayload,
+  BOOKING_CREATED_ROUTING_KEY,
+  BOOKING_EVENTS_EXCHANGE,
+  BOOKING_UPDATED_ROUTING_KEY,
+  BookingCreatedPayload,
+  BookingUpdatedPayload,
 } from '@bus-booking/common';
 
 import { connect, type Channel, type ChannelModel } from 'amqplib';
 import { env } from '../config/env.js';
 import { logger } from '../utils/logger.js';
-
 
 let connectionRef: ChannelModel | null = null;
 let channel: Channel | null = null;
@@ -61,6 +62,31 @@ export const publishBookingCreated = (payload: BookingCreatedPayload) => {
 
   if (!published) {
     logger.warn({ event }, 'Failed to publish booking created event');
+  }
+};
+
+export const publishBookingUpdated = (payload: BookingUpdatedPayload) => {
+  if (!channel) {
+    logger.warn('RabbitMQ channel is not initialized. Cannot publish message.');
+    return;
+  }
+
+  const event = {
+    type: BOOKING_UPDATED_ROUTING_KEY,
+    payload,
+    occuredAt: new Date().toISOString(),
+    metadata: { version: 1 },
+  };
+
+  const published = channel.publish(
+    BOOKING_EVENTS_EXCHANGE,
+    BOOKING_UPDATED_ROUTING_KEY,
+    Buffer.from(JSON.stringify(event)),
+    { contentType: 'application/json', persistent: true },
+  );
+
+  if (!published) {
+    logger.warn({ event }, 'Failed to publish booking updated event');
   }
 };
 

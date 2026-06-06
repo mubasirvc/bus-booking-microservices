@@ -21,7 +21,7 @@ const bookingSchema = z.object({
 
   tripId: z.string().uuid(),
 
-  seatCount: z.number(),
+  seats: z.array(z.string().uuid()),
 
   totalAmount: z.number(),
 
@@ -224,7 +224,7 @@ registry.registerPath({
 
             tripId: '660e8400-e29b-41d4-a716-446655440000',
 
-            seatCount: 2,
+            seats: ['u-1', 'u-2'],
 
             totalAmount: 2400,
           },

@@ -41,7 +41,7 @@ export interface BookingDto {
   id: string;
   userId: string;
   tripId: string;
-  seatCount: number;
+  seats: string[];
   totalAmount: number;
   status: string;
   createdAt: string;
@@ -59,7 +59,7 @@ export interface BookingListResponse {
 export interface CreateBookingPayload {
   userId: string;
   tripId: string;
-  seatCount: number;
+  seats: string[];
   totalAmount: number;
 }
 

@@ -19,14 +19,14 @@ export const createBookingSchema = z.object({
     example: '660e8400-e29b-41d4-a716-446655440000',
   }),
 
-  seatCount: z.coerce.number().int().positive().openapi({
-    example: 2,
+  seats: z.array(z.string()).min(1).openapi({
+    example: ['u-1', 'u-2'],
   }),
 
   totalAmount: z.coerce.number().positive().openapi({
     example: 2400,
   }),
-});
+}); 
 
 // ======================================================
 // UPDATE BOOKING
