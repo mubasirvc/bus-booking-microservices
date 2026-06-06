@@ -42,7 +42,9 @@ class TripService {
 
     return this.repository.create({
       ...input,
+      bookedSeats: [],
       availableSeats: bus.totalSeats,
+      status: 'ACTIVE',
     });
   }
 

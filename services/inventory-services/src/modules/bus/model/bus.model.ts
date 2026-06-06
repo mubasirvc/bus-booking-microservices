@@ -1,22 +1,22 @@
-import { DataTypes, Model, Optional } from "sequelize";
-import { Bus } from "../types/bus.types.js";
-import { sequelize } from "../../../db/sequelize.js";
-
+import { DataTypes, Model, Optional } from 'sequelize';
+import { sequelize } from '../../../db/sequelize.js';
+import { BusWithSeats } from '../types/bus.types.js';
 
 type BusCreationAttributes = Optional<
-  Bus,
-  "id" | "createdAt" | "updatedAt"
+  BusWithSeats,
+  'id' | 'createdAt' | 'updatedAt'
 >;
 
 export class BusModel
-  extends Model<Bus, BusCreationAttributes>
-  implements Bus
+  extends Model<BusWithSeats, BusCreationAttributes>
+  implements BusWithSeats
 {
   declare id: string;
   declare name: string;
   declare busNumber: string;
   declare type: string;
   declare totalSeats: number;
+  declare seats: { seatNumber: string }[];
   declare createdAt: Date;
   declare updatedAt: Date;
 }
@@ -28,27 +28,39 @@ BusModel.init(
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
+
     name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
+
     busNumber: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
     },
+
     type: {
       type: DataTypes.STRING,
       allowNull: false,
     },
+
     totalSeats: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+
+    seats: {
+      type: DataTypes.JSONB,
+      allowNull: false,
+      defaultValue: [],
+    },
+
     createdAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
+
     updatedAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
@@ -56,6 +68,6 @@ BusModel.init(
   },
   {
     sequelize,
-    tableName: "buses",
-  }
+    tableName: 'buses',
+  },
 );

@@ -33,7 +33,7 @@ message GetAvailableSeatsResponse {
 
 message ReserveSeatsRequest {
   string tripId = 1;
-  int32 seatCount = 2;
+  repeated string seatNumbers = 2;
 }
 
 message ReserveSeatsResponse {
@@ -49,7 +49,7 @@ message ReserveSeatsResponse {
 
 message ReleaseSeatsRequest {
     string tripId = 1;
-    int32 seatCount = 2;
+    repeated string seatNumbers = 2;
 }
 
 message ReleaseSeatsResponse {

@@ -36,7 +36,7 @@ class BookingService {
     let seatsReserved = false;
 
     try {
-      const reservation = await inventoryGrpcService.reserveSeats(input.tripId, input.seats.length);
+      const reservation = await inventoryGrpcService.reserveSeats(input.tripId, input.seats);
 
       seatsReserved = true;
 
@@ -48,9 +48,9 @@ class BookingService {
         status: BookingStatus.PENDING,
       });
 
-      // publish booking created event for other services now for user service to store booking histor
-
-      const payload = {
+      // publish booking created event for other services now for user service to store booking history
+      
+      publishBookingCreated({
         bookingId: booking.id,
         userId: booking.userId,
         tripId: booking.tripId,
@@ -62,9 +62,7 @@ class BookingService {
         source: reservation.source,
         destination: reservation.destination,
         travelDate: reservation.travelDate,
-      };
-
-      publishBookingCreated(payload);
+      });
 
       const payment = await paymentGrpcService.createPayment(booking.id, input.userId, totalAmount);
 
@@ -83,7 +81,7 @@ class BookingService {
       };
     } catch (error) {
       if (seatsReserved) {
-        await inventoryGrpcService.releaseSeats(input.tripId, input.seats.length);
+        await inventoryGrpcService.releaseSeats(input.tripId, input.seats);
       }
 
       throw error;
@@ -137,7 +135,7 @@ class BookingService {
       throw new HttpError(400, 'Booking already cancelled');
     }
 
-    await inventoryGrpcService.releaseSeats(booking.tripId, booking.seats.length);
+    await inventoryGrpcService.releaseSeats(booking.tripId, booking.seats);
 
     const cancelled = await this.repository.cancelBooking(id);
 
@@ -185,7 +183,7 @@ class BookingService {
     // release seats only when cancelled
 
     if (status === 'CANCELLED') {
-      await inventoryGrpcService.releaseSeats(booking.tripId, booking.seats.length);
+      await inventoryGrpcService.releaseSeats(booking.tripId, booking.seats);
 
       logger.info(`Released ${booking.seats.length} seats for trip ${booking.tripId}`);
     }

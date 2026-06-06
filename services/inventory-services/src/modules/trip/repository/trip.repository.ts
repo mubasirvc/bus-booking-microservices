@@ -1,9 +1,12 @@
 import { type WhereOptions } from 'sequelize';
 
 import { TripModel } from '../model/trip.model.js';
-import { Trip, CreateTripInput, UpdateTripInput } from '../types/trip.types.js';
+import {
+  UpdateTripInput,
+  TripWithBookedSeats,
+} from '../types/trip.types.js';
 
-const toDomainTrip = (model: TripModel): Trip => ({
+const toDomainTrip = (model: TripModel): TripWithBookedSeats => ({
   id: model.id,
   busId: model.busId,
   routeId: model.routeId,
@@ -11,6 +14,7 @@ const toDomainTrip = (model: TripModel): Trip => ({
   departureTime: model.departureTime,
   arrivalTime: model.arrivalTime,
   availableSeats: model.availableSeats,
+  bookedSeats: model.bookedSeats,
   fare: Number(model.fare),
   status: model.status,
   createdAt: model.createdAt,
@@ -18,13 +22,13 @@ const toDomainTrip = (model: TripModel): Trip => ({
 });
 
 export class TripRepository {
-  async findById(id: string): Promise<Trip | null> {
+  async findById(id: string): Promise<TripWithBookedSeats | null> {
     const trip = await TripModel.findByPk(id);
 
     return trip ? toDomainTrip(trip) : null;
   }
 
-  async findAll(): Promise<Trip[]> {
+  async findAll(): Promise<TripWithBookedSeats[]> {
     const trips = await TripModel.findAll({
       order: [
         ['travelDate', 'ASC'],
@@ -35,13 +39,13 @@ export class TripRepository {
     return trips.map(toDomainTrip);
   }
 
-  async create(data: CreateTripInput): Promise<Trip> {
+  async create(data: TripWithBookedSeats): Promise<TripWithBookedSeats> {
     const trip = await TripModel.create(data);
 
     return toDomainTrip(trip);
   }
 
-  async update(id: string, data: UpdateTripInput): Promise<Trip | null> {
+  async update(id: string, data: UpdateTripInput): Promise<TripWithBookedSeats | null> {
     const trip = await TripModel.findByPk(id);
 
     if (!trip) {
@@ -61,7 +65,7 @@ export class TripRepository {
     return deleted > 0;
   }
 
-  async findByRouteAndDate(routeId: string, travelDate: string): Promise<Trip[]> {
+  async findByRouteAndDate(routeId: string, travelDate: string): Promise<TripWithBookedSeats[]> {
     const trips = await TripModel.findAll({
       where: {
         routeId,
@@ -74,7 +78,7 @@ export class TripRepository {
     return trips.map(toDomainTrip);
   }
 
-  async findByBus(busId: string): Promise<Trip[]> {
+  async findByBus(busId: string): Promise<TripWithBookedSeats[]> {
     const trips = await TripModel.findAll({
       where: { busId },
       order: [
@@ -91,7 +95,7 @@ export class TripRepository {
     busId?: string;
     travelDate?: string;
     status?: string;
-  }): Promise<Trip[]> {
+  }): Promise<TripWithBookedSeats[]> {
     const where: WhereOptions = {};
 
     if (params.routeId) {
@@ -140,9 +144,16 @@ export class TripRepository {
     return updated[0] > 0;
   }
 
-  async updateAvailableSeats(tripId: string, availableSeats: number): Promise<void> {
+  async updateSeatState(
+    tripId: string,
+    availableSeats: number,
+    bookedSeats: string[],
+  ): Promise<void> {
     await TripModel.update(
-      { availableSeats },
+      {
+        availableSeats,
+        bookedSeats,
+      },
       {
         where: {
           id: tripId,

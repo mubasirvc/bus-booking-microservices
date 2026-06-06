@@ -2,14 +2,15 @@ import { type WhereOptions } from 'sequelize';
 
 import { BusModel } from '../model/bus.model.js';
 
-import { Bus, CreateBusInput, UpdateBusInput } from '../types/bus.types.js';
+import { Bus,  BusWithSeats,  UpdateBusInput } from '../types/bus.types.js';
 
-const toDomainBus = (model: BusModel): Bus => ({
+const toDomainBus = (model: BusModel): BusWithSeats => ({
   id: model.id,
   name: model.name,
   busNumber: model.busNumber,
   type: model.type,
   totalSeats: model.totalSeats,
+  seats: model.seats,
   createdAt: model.createdAt,
   updatedAt: model.updatedAt,
 });
@@ -29,7 +30,7 @@ export class BusRepository {
     return buses.map(toDomainBus);
   }
 
-  async create(data: CreateBusInput): Promise<Bus> {
+  async create(data: BusWithSeats): Promise<BusWithSeats> {
     const bus = await BusModel.create(data);
 
     return toDomainBus(bus);
