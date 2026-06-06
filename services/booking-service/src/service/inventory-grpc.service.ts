@@ -28,29 +28,30 @@ class InventoryGrpcService {
     });
   }
 
-  async reserveSeats(tripId: string, seatCount: number) {
+  async reserveSeats(tripId: string, seatNumbers: string[]): Promise<ReserveSeatsResponse> {
     return new Promise<ReserveSeatsResponse>((resolve, reject) => {
       inventoryClient.ReserveSeats(
         {
           tripId,
-          seatCount,
+          seatNumbers,
         },
-        (err: any, response: any) => {
+        (err: any, response: ReserveSeatsResponse) => {
           if (err) {
             return reject(err);
           }
+
           resolve(response);
         },
       );
     });
   }
-
-  async releaseSeats(tripId: string, seatCount: number): Promise<{ success: boolean }> {
+  
+  async releaseSeats(tripId: string, seatNumbers: string[]): Promise<{ success: boolean }> {
     return new Promise<{ success: boolean }>((resolve, reject) => {
       inventoryClient.ReleaseSeats(
         {
           tripId,
-          seatCount,
+          seatNumbers,
         },
         (err: any, response: { success: boolean }) => {
           if (err) {

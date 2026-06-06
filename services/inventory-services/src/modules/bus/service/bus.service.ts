@@ -28,7 +28,12 @@ class BusService {
     }
 
     try {
-      return await this.repository.create(input);
+      const seats = Array.from({ length: input.totalSeats }, (_, index) => ({
+        seatNumber: 'S' + String(index + 1)
+      }));
+
+      return await this.repository.create({ ...input, seats });
+      
     } catch (error) {
       if (error instanceof UniqueConstraintError) {
         throw new HttpError(409, 'Bus number already exists');

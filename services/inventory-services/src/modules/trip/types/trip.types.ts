@@ -1,32 +1,30 @@
 export interface Trip {
-  id: string;
+  id?: string;
   busId: string;
   routeId: string;
   travelDate: string;
-  availableSeats?: number;
+  availableSeats: number;
   departureTime: string;
   arrivalTime: string;
   fare: number;
   status: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
+
+export interface TripWithBookedSeats extends Trip {
+  bookedSeats: string[];
+}
+
 
 export type CreateTripInput = Omit<
   Trip,
-  'id' | 'status' | 'createdAt' | 'updatedAt' 
+  'id' | 'availableSeats' | 'bookedSeats' | 'status' | 'createdAt' | 'updatedAt'
 >;
 
 export type UpdateTripInput = Partial<
   Pick<
     Trip,
-    | 'busId'
-    | 'routeId'
-    | 'travelDate'
-    | 'departureTime'
-    | 'arrivalTime'
-    | 'fare'
-    | 'status'
-    | 'availableSeats'
+    'busId' | 'routeId' | 'travelDate' | 'departureTime' | 'arrivalTime' | 'fare' | 'status'
   >
 >;

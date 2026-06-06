@@ -1,7 +1,8 @@
 import { MyBookingModel } from '../db/index.js';
+import { MyBookingPayload } from '../types/user.js';
 
 export class MyBookingRepository {
-  async create(payload: any) {
+  async create(payload: MyBookingPayload) {
     const booking = new MyBookingModel(payload);
     return await booking.save();
   }

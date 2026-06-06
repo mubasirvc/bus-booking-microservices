@@ -2,11 +2,11 @@ import { DataTypes, Model, type Optional } from 'sequelize';
 import { sequelize } from '../../../db/sequelize.js';
 import { BusModel } from '../../bus/index.js';
 import { RouteModel } from '../../route/index.js';
-import { Trip } from '../types/trip.types.js';
+import { Trip, TripWithBookedSeats } from '../types/trip.types.js';
 
-export type TripCreationAttributes = Optional<Trip, 'id' | 'status' | 'createdAt' | 'updatedAt'>;
+export type TripCreationAttributes = Optional<TripWithBookedSeats, 'id' | 'status' | 'createdAt' | 'updatedAt'>;
 
-export class TripModel extends Model<Trip, TripCreationAttributes> implements Trip {
+export class TripModel extends Model<TripWithBookedSeats, TripCreationAttributes> implements TripWithBookedSeats {
   declare id: string;
   declare busId: string;
   declare routeId: string;
@@ -15,6 +15,7 @@ export class TripModel extends Model<Trip, TripCreationAttributes> implements Tr
   declare departureTime: string;
   declare arrivalTime: string;
   declare fare: number;
+  declare bookedSeats: string[];
   declare status: string;
   declare createdAt: Date;
   declare updatedAt: Date;
@@ -64,6 +65,11 @@ TripModel.init(
     fare: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
+    },
+    bookedSeats: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: false,
+      defaultValue: [],
     },
     status: {
       type: DataTypes.ENUM('ACTIVE', 'CANCELLED', 'COMPLETED'),
