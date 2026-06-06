@@ -2,7 +2,7 @@ import { MyBookingModel } from '../db/index.js';
 
 export class MyBookingRepository {
   async create(payload: any) {
-  const booking = new MyBookingModel(payload);
+    const booking = new MyBookingModel(payload);
     return await booking.save();
   }
 
@@ -47,6 +47,20 @@ export class MyBookingRepository {
       userId,
       bookingId,
     }).lean();
+  }
+
+  async updateBookingByStatus(bookingId: string, status: string) {
+    return await MyBookingModel.findOneAndUpdate(
+      {
+        bookingId,
+      },
+      {
+        status,
+      },
+      {
+        new: true,
+      },
+    ).lean();
   }
 }
 

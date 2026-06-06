@@ -3,6 +3,7 @@ import { HttpError } from '@bus-booking/common';
 import { TripRepository, tripRepository } from '../repository/trip.repository.js';
 import { busRepository, BusRepository } from '../../bus/repository/bus.repository.js';
 import { routeRepository, RouteRepository } from '../../route/repository/route.repository.js';
+import { logger } from '../../../utils/logger.js';
 
 class TripGrpcService {
   constructor(
@@ -48,7 +49,7 @@ class TripGrpcService {
 
     await this.repository.updateAvailableSeats(tripId, remainingSeats);
 
-    return {
+    const data = {
       success: true,
       remainingSeats,
       fare: trip.fare,
@@ -58,6 +59,8 @@ class TripGrpcService {
       destination: route.destination,
       travelDate: trip.travelDate,
     };
+    
+    return data;
   }
 
   async releaseSeats(tripId: string, seatCount: number) {

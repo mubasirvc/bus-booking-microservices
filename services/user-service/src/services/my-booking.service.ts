@@ -20,6 +20,16 @@ export class MyBookingService {
 
     return booking;
   }
+
+  async updateBookingStatus(bookingId: string, status: string) {
+    const booking = await myBookingRepository.updateBookingByStatus(bookingId, status);
+
+    if (!booking) {
+      throw new HttpError(404, 'Booking not found');
+    }
+
+    return booking;
+  }
 }
 
 export const myBookingService = new MyBookingService();

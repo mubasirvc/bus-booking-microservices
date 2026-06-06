@@ -13,7 +13,7 @@ import { logger } from '../utils/logger.js';
 import paymentGrpcService from './payment-grpc.service.js';
 
 import { client } from '../config/redis.js';
-import { publishBookingCreated } from '../messaging/event-publishing.js';
+import { publishBookingCreated, publishBookingUpdated } from '../messaging/event-publishing.js';
 
 class BookingService {
   constructor(private readonly repository: BookingRepository) {}
@@ -42,19 +42,15 @@ class BookingService {
 
       const totalAmount = reservation.fare * input.seats.length;
 
-      logger.info(
-        `Reserved ${input.seats.length} seats for trip ${input.tripId}. Remaining seats: ${reservation.remainingSeats}`,
-      );
-
       const booking = await this.repository.create({
         ...input,
         totalAmount,
         status: BookingStatus.PENDING,
       });
 
-      // publish booking created event for other services now for user service to store booking history
+      // publish booking created event for other services now for user service to store booking histor
 
-      publishBookingCreated({
+      const payload = {
         bookingId: booking.id,
         userId: booking.userId,
         tripId: booking.tripId,
@@ -66,7 +62,9 @@ class BookingService {
         source: reservation.source,
         destination: reservation.destination,
         travelDate: reservation.travelDate,
-      });
+      };
+
+      publishBookingCreated(payload);
 
       const payment = await paymentGrpcService.createPayment(booking.id, input.userId, totalAmount);
 
@@ -147,6 +145,10 @@ class BookingService {
       throw new HttpError(404, 'Booking not found');
     }
 
+    //publish booking updated events
+
+    publishBookingUpdated({ bookingId: id, status: BookingStatus.CANCELLED });
+
     return cancelled;
   }
 
@@ -186,6 +188,14 @@ class BookingService {
       await inventoryGrpcService.releaseSeats(booking.tripId, booking.seats.length);
 
       logger.info(`Released ${booking.seats.length} seats for trip ${booking.tripId}`);
+    }
+
+    //publish booking updated event for other services now for user service to update booking history
+    if (status === 'CANCELLED' || status === 'CONFIRMED') {
+      publishBookingUpdated({
+        bookingId: id,
+        status,
+      });
     }
 
     return updated;

@@ -88,6 +88,7 @@ class UserService {
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
     });
+
     return user;
   }
 }

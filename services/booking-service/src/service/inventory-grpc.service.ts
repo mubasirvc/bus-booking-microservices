@@ -39,7 +39,6 @@ class InventoryGrpcService {
           if (err) {
             return reject(err);
           }
-
           resolve(response);
         },
       );
