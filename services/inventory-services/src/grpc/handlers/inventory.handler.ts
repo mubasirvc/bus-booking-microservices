@@ -1,4 +1,6 @@
+import { deprecate } from 'node:util';
 import { tripGrpcService } from '../../modules/trip/service/trip-grpc.services.js';
+import { tripService } from '../../modules/trip/service/trip.service.js';
 
 export const inventoryHandlers = {
   async GetAvailableSeats(call: any, callback: any) {
@@ -16,20 +18,39 @@ export const inventoryHandlers = {
   },
 
   async ReserveSeats(call: any, callback: any) {
-    const { tripId, seatNumbers  } = call.request;
+    const { tripId, seatNumbers } = call.request;
 
-    const result = await tripGrpcService.reserveSeats(tripId, seatNumbers );
+    const result = await tripGrpcService.reserveSeats(tripId, seatNumbers);
 
     callback(null, result);
   },
 
   async ReleaseSeats(call: any, callback: any) {
     try {
-      const { tripId, seatNumbers  } = call.request;
+      const { tripId, seatNumbers } = call.request;
 
-      const result = await tripGrpcService.releaseSeats(tripId, seatNumbers );
+      const result = await tripGrpcService.releaseSeats(tripId, seatNumbers);
 
       callback(null, result);
+    } catch (error) {
+      callback(error);
+    }
+  },
+
+  async getTripById(call: any, callback: any) {
+    try {
+      const { tripId } = call.request;
+
+      const trip = await tripService.getTripById(tripId);
+
+      const data = {
+        tripId: trip.id,
+        travelDate: trip.travelDate,
+        departureTime: trip.departureTime,
+        arrivalTime: trip.arrivalTime,
+      };
+
+      callback(null, data);
     } catch (error) {
       callback(error);
     }

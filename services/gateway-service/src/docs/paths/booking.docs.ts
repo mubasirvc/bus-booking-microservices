@@ -6,6 +6,7 @@ import {
   bookingIdParamsSchema,
   bookingStatusEnum,
   createBookingSchema,
+  getAllBookingsQuerySchema,
   searchBookingsQuerySchema,
   updateBookingSchema,
 } from '../../validation/booking.schema';
@@ -32,6 +33,14 @@ const bookingSchema = z.object({
   updatedAt: z.string(),
 });
 
+
+const paginationMetaSchema = z.object({
+  page: z.number(),
+  limit: z.number(),
+  total: z.number(),
+  totalPages: z.number(),
+});
+
 // ======================================================
 // GET /bookings
 // ======================================================
@@ -51,6 +60,10 @@ registry.registerPath({
     },
   ],
 
+  request: {
+    query: getAllBookingsQuerySchema,
+  },
+
   responses: {
     200: {
       description: 'Bookings fetched successfully',
@@ -61,6 +74,8 @@ registry.registerPath({
             success: z.boolean(),
 
             data: z.array(bookingSchema),
+           
+            pagination: paginationMetaSchema,
           }),
         },
       },
@@ -101,6 +116,7 @@ registry.registerPath({
             success: z.boolean(),
 
             data: z.array(bookingSchema),
+            pagination: paginationMetaSchema,
           }),
         },
       },
@@ -141,6 +157,7 @@ registry.registerPath({
             success: z.boolean(),
 
             data: z.array(bookingSchema),
+            pagination: paginationMetaSchema,
           }),
         },
       },

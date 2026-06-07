@@ -34,6 +34,10 @@ export const searchBookingsQuerySchema = z.object({
 
   tripId: z.string().uuid().optional(),
 
+  page: z.string().optional(),
+
+  limit: z.string().optional(),
+
   status: z.enum(['PENDING', 'CONFIRMED', 'CANCELLED']).optional(),
 });
 

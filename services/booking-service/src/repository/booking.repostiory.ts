@@ -1,8 +1,12 @@
 import { type WhereOptions } from 'sequelize';
 
 import { BookingModel } from '../db/models/booking.model.js';
-import { Booking, BookingStatus, CreateBookingInput, UpdateBookingInput } from '../types/booking.js';
-import { publishBookingCreated } from '../messaging/event-publishing.js';
+import {
+  Booking,
+  BookingStatus,
+  CreateBookingInput,
+  UpdateBookingInput,
+} from '../types/booking.js';
 
 const toDomainBooking = (model: BookingModel): Booking => ({
   id: model.id,
@@ -22,12 +26,25 @@ export class BookingRepository {
     return booking ? toDomainBooking(booking) : null;
   }
 
-  async findAll(): Promise<Booking[]> {
-    const bookings = await BookingModel.findAll({
+  async findAll(page: number, limit: number) {
+    const offset = (page - 1) * limit;
+
+    const result = await BookingModel.findAndCountAll({
+      limit,
+      offset,
       order: [['createdAt', 'DESC']],
     });
 
-    return bookings.map(toDomainBooking);
+    return {
+      data: result.rows.map(toDomainBooking),
+
+      pagination: {
+        page,
+        limit,
+        total: result.count,
+        totalPages: Math.ceil(result.count / limit),
+      },
+    };
   }
 
   async create(data: CreateBookingInput): Promise<Booking> {
@@ -65,33 +82,49 @@ export class BookingRepository {
     return bookings.map(toDomainBooking);
   }
 
-  async search(params: { userId?: string; tripId?: string; status?: string }): Promise<Booking[]> {
+  async search(params: {
+    userId?: string;
+    tripId?: string;
+    status?: string;
+    page?: number;
+    limit?: number;
+  }) {
     const where: WhereOptions = {};
 
     if (params.userId) {
-      Object.assign(where, {
-        userId: params.userId,
-      });
+      where.userId = params.userId;
     }
 
     if (params.tripId) {
-      Object.assign(where, {
-        tripId: params.tripId,
-      });
+      where.tripId = params.tripId;
     }
 
     if (params.status) {
-      Object.assign(where, {
-        status: params.status,
-      });
+      where.status = params.status;
     }
 
-    const bookings = await BookingModel.findAll({
+    const page = params.page || 1;
+    const limit = params.limit || 10;
+
+    const offset = (page - 1) * limit;
+
+    const result = await BookingModel.findAndCountAll({
       where,
+      limit,
+      offset,
       order: [['createdAt', 'DESC']],
     });
 
-    return bookings.map(toDomainBooking);
+    return {
+      data: result.rows.map(toDomainBooking),
+
+      pagination: {
+        page,
+        limit,
+        total: result.count,
+        totalPages: Math.ceil(result.count / limit),
+      },
+    };
   }
 
   async cancelBooking(id: string): Promise<Booking | null> {
@@ -108,21 +141,24 @@ export class BookingRepository {
     return toDomainBooking(booking);
   }
 
-  async updateBookingStatus(
-    id: string,
-    status: BookingStatus,
-  ): Promise<Booking | null> {
-    const booking = await BookingModel.findByPk(id);
+  async updateBookingStatus(id: string, status: BookingStatus): Promise<Booking | null> {
+    const [affectedRows] = await BookingModel.update(
+      { status },
+      {
+        where: {
+          id,
+          status: BookingStatus.PENDING,
+        },
+      },
+    );
 
-    if (!booking) {
+    if (affectedRows === 0) {
       return null;
     }
 
-    await booking.update({
-      status,
-    });
+    const updated = await BookingModel.findByPk(id);
 
-    return toDomainBooking(booking);
+    return updated ? toDomainBooking(updated) : null;
   }
 }
 

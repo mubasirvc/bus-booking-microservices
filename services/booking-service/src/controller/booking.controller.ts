@@ -6,7 +6,6 @@ import {
   BookingIdParams,
   CreateBookingBody,
   SearchBookingsQuery,
-  UpdateBookingBody,
 } from '../validation/booking.schema.js';
 import { BookingStatus } from '../types/booking.js';
 
@@ -24,7 +23,11 @@ export const getBooking: AsyncHandler = async (req, res, next) => {
 
 export const getAllBookings: AsyncHandler = async (req, res, next) => {
   try {
-    const bookings = await bookingService.getAllBookings();
+    const page = Number(req.query.page) || 1;
+
+    const limit = Number(req.query.limit) || 10;
+
+    const bookings = await bookingService.getAllBookings(page, limit);
 
     res.json({ data: bookings });
   } catch (error) {
@@ -44,20 +47,6 @@ export const createBooking: AsyncHandler = async (req, res, next) => {
     res.status(201).json({
       data: booking,
     });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const updateBooking: AsyncHandler = async (req, res, next) => {
-  try {
-    const { id } = req.params as unknown as BookingIdParams;
-
-    const payload = req.body as UpdateBookingBody;
-
-    const booking = await bookingService.updateBooking(id, payload);
-
-    res.json({ data: booking });
   } catch (error) {
     next(error);
   }
@@ -93,13 +82,19 @@ export const searchBookings: AsyncHandler = async (req, res, next) => {
   try {
     const query = req.query as unknown as SearchBookingsQuery;
 
-    const bookings = await bookingService.searchBookings({
+    const page = Number(query.page) || 1;
+
+    const limit = Number(query.limit) || 10;
+
+    const result = await bookingService.searchBookings({
       userId: query.userId,
       tripId: query.tripId,
       status: query.status,
+      page,
+      limit,
     });
 
-    res.json({ data: bookings });
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -107,9 +102,11 @@ export const searchBookings: AsyncHandler = async (req, res, next) => {
 
 export const cancelBooking: AsyncHandler = async (req, res, next) => {
   try {
+    const userId = req.user?.id;
+
     const { id } = req.params as unknown as BookingIdParams;
 
-    const booking = await bookingService.cancelBooking(id);
+    const booking = await bookingService.cancelBooking(id, userId);
 
     res.json({ data: booking });
   } catch (error) {

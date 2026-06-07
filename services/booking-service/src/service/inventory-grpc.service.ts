@@ -11,6 +11,13 @@ type ReserveSeatsResponse = {
   travelDate: string;
 };
 
+type TripDetails = {
+  tripId: string;
+  travelDate: string;
+  departureTime: string;
+  arrivalTime: string;
+};
+
 class InventoryGrpcService {
   async getAvailableSeats(tripId: string) {
     return new Promise<number>((resolve, reject) => {
@@ -23,6 +30,21 @@ class InventoryGrpcService {
           }
 
           resolve(response.availableSeats);
+        },
+      );
+    });
+  }
+
+  async getTripById(tripId: string) {
+    return new Promise<TripDetails>((resolve, reject) => {
+      inventoryClient.getTripById(
+        { tripId },
+
+        (err: any, response: TripDetails) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(response);
         },
       );
     });
@@ -45,7 +67,7 @@ class InventoryGrpcService {
       );
     });
   }
-  
+
   async releaseSeats(tripId: string, seatNumbers: string[]): Promise<{ success: boolean }> {
     return new Promise<{ success: boolean }>((resolve, reject) => {
       inventoryClient.ReleaseSeats(

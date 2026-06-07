@@ -9,7 +9,6 @@ import {
   getBooking,
   getBookingsByUser,
   searchBookings,
-  updateBooking,
 } from '../controller/booking.controller.js';
 
 import {
@@ -56,15 +55,6 @@ bookingRoutes.post(
 );
 
 bookingRoutes.patch(
-  '/:id',
-  validateRequest({
-    params: bookingIdParamsSchema,
-    body: updateBookingSchema,
-  }),
-  asyncHandler(updateBooking),
-);
-
-bookingRoutes.patch(
   '/:id/cancel',
   validateRequest({
     params: bookingIdParamsSchema,
@@ -72,10 +62,10 @@ bookingRoutes.patch(
   asyncHandler(cancelBooking),
 );
 
-bookingRoutes.delete(
-  '/:id',
-  validateRequest({
-    params: bookingIdParamsSchema,
-  }),
-  asyncHandler(deleteBooking),
-);
+// bookingRoutes.delete(
+//   '/:id',
+//   validateRequest({
+//     params: bookingIdParamsSchema,
+//   }),
+//   asyncHandler(deleteBooking),
+// );
