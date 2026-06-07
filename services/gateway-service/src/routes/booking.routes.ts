@@ -61,15 +61,15 @@ bookingRouter.post(
   asyncHandler(createBooking),
 );
 
-bookingRouter.patch(
-  '/:id',
+// bookingRouter.patch(
+//   '/:id',
   
-  validateRequest({
-    params: bookingIdParamsSchema,
-    body: updateBookingSchema,
-  }),
-  asyncHandler(updateBooking),
-);
+//   validateRequest({
+//     params: bookingIdParamsSchema,
+//     body: updateBookingSchema,
+//   }),
+//   asyncHandler(updateBooking),
+// );
 
 bookingRouter.patch(
   '/:id/cancel',
@@ -80,11 +80,11 @@ bookingRouter.patch(
   asyncHandler(cancelBooking),
 );
 
-bookingRouter.delete(
-  '/:id',
+// bookingRouter.delete(
+//   '/:id',
   
-  validateRequest({
-    params: bookingIdParamsSchema,
-  }),
-  asyncHandler(deleteBooking),
-);
+//   validateRequest({
+//     params: bookingIdParamsSchema,
+//   }),
+//   asyncHandler(deleteBooking),
+// );

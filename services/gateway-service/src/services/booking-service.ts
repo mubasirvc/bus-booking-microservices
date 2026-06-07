@@ -71,6 +71,8 @@ export interface SearchBookingsParams {
   userId?: string;
   tripId?: string;
   status?: string;
+  page?: number;
+  limit?: number;
 }
 
 export const bookingProxyService = {
@@ -84,9 +86,12 @@ export const bookingProxyService = {
     }
   },
 
-  async getAllBookings(): Promise<BookingListResponse> {
+  async getAllBookings(page: number, limit: number): Promise<BookingListResponse> {
     try {
-      const response = await client.get<BookingListResponse>('/bookings', authHeader);
+      const response = await client.get<BookingListResponse>('/bookings', {
+        headers: authHeader.headers,
+        params: { page, limit },
+      });
 
       return response.data;
     } catch (error) {

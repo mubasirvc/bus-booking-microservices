@@ -23,7 +23,10 @@ export const getBooking: AsyncHandler = async (req, res, next) => {
 
 export const getAllBookings: AsyncHandler = async (req, res, next) => {
   try {
-    const response = await bookingProxyService.getAllBookings();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const response = await bookingProxyService.getAllBookings(page, limit);
 
     res.json(response);
   } catch (error) {
@@ -84,8 +87,10 @@ export const cancelBooking: AsyncHandler = async (req, res, next) => {
 export const searchBookings: AsyncHandler = async (req, res, next) => {
   try {
     const query = searchBookingsQuerySchema.parse(req.query);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
 
-    const response = await bookingProxyService.searchBookings(query);
+    const response = await bookingProxyService.searchBookings({ ...query, page, limit } );
 
     res.json(response);
   } catch (error) {
