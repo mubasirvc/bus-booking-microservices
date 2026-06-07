@@ -33,6 +33,14 @@ const bookingSchema = z.object({
   updatedAt: z.string(),
 });
 
+
+const paginationMetaSchema = z.object({
+  page: z.number(),
+  limit: z.number(),
+  total: z.number(),
+  totalPages: z.number(),
+});
+
 // ======================================================
 // GET /bookings
 // ======================================================
@@ -66,6 +74,8 @@ registry.registerPath({
             success: z.boolean(),
 
             data: z.array(bookingSchema),
+           
+            pagination: paginationMetaSchema,
           }),
         },
       },
@@ -106,6 +116,7 @@ registry.registerPath({
             success: z.boolean(),
 
             data: z.array(bookingSchema),
+            pagination: paginationMetaSchema,
           }),
         },
       },
@@ -146,6 +157,7 @@ registry.registerPath({
             success: z.boolean(),
 
             data: z.array(bookingSchema),
+            pagination: paginationMetaSchema,
           }),
         },
       },
