@@ -4,7 +4,6 @@ import {
   Booking,
   BookingStatus,
   CreateBookingInput,
-  UpdateBookingInput,
 } from '../types/booking.js';
 
 import { BookingRepository, bookingRepository } from '../repository/booking.repostiory.js';
@@ -12,8 +11,8 @@ import inventoryGrpcService from './inventory-grpc.service.js';
 import { logger } from '../utils/logger.js';
 import paymentGrpcService from './payment-grpc.service.js';
 
-import { client } from '../config/redis.js';
 import { publishBookingCreated, publishBookingUpdated } from '../messaging/event-publishing.js';
+import { getRedisClient } from '../config/redis.js';
 
 class BookingService {
   constructor(private readonly repository: BookingRepository) {}
@@ -49,7 +48,7 @@ class BookingService {
       });
 
       // publish booking created event for other services now for user service to store booking history
-      
+
       publishBookingCreated({
         bookingId: booking.id,
         userId: booking.userId,
@@ -66,11 +65,13 @@ class BookingService {
 
       const payment = await paymentGrpcService.createPayment(booking.id, input.userId, totalAmount);
 
+      const client = getRedisClient();
+
       await client.set(
         `booking:${booking.id}`,
         booking.id,
         'EX',
-        900, // 15 minutes
+        600, // 10 minutes
       );
 
       logger.info(`Booking timer started for ${booking.id}`);
@@ -86,22 +87,6 @@ class BookingService {
 
       throw error;
     }
-  }
-
-  async updateBooking(id: string, input: UpdateBookingInput): Promise<Booking> {
-    const existing = await this.repository.findById(id);
-
-    if (!existing) {
-      throw new HttpError(404, 'Booking not found');
-    }
-
-    const updated = await this.repository.update(id, input);
-
-    if (!updated) {
-      throw new HttpError(404, 'Booking not found');
-    }
-
-    return updated;
   }
 
   async deleteBooking(id: string): Promise<void> {
@@ -120,89 +105,114 @@ class BookingService {
     userId?: string;
     tripId?: string;
     status?: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
-  }): Promise<Booking[]> {
+    page?: number;
+    limit?: number;
+  }) {
     return this.repository.search(params);
   }
 
-  async cancelBooking(id: string): Promise<Booking> {
-    const booking = await this.repository.findById(id);
+  async cancelBooking(bookingId: string, userId: string): Promise<Booking> {
+    const booking = await this.repository.findById(bookingId);
 
     if (!booking) {
       throw new HttpError(404, 'Booking not found');
+    }
+
+    if (booking.userId !== userId) {
+      throw new HttpError(403, 'Unauthorized');
     }
 
     if (booking.status === BookingStatus.CANCELLED) {
       throw new HttpError(400, 'Booking already cancelled');
     }
 
-    await inventoryGrpcService.releaseSeats(booking.tripId, booking.seats);
+    const trip = await inventoryGrpcService.getTripById(booking.tripId);
 
-    const cancelled = await this.repository.cancelBooking(id);
+    const now = new Date();
 
-    if (!cancelled) {
-      throw new HttpError(404, 'Booking not found');
+    if (trip.departureTime && trip.departureTime <= String(now)) {
+      throw new HttpError(400, 'Cannot cancel after departure');
     }
 
-    //publish booking updated events
+    const client = getRedisClient();
 
-    publishBookingUpdated({ bookingId: id, status: BookingStatus.CANCELLED });
+    await client.del(`booking:${bookingId}`);
 
-    return cancelled;
+    await inventoryGrpcService.releaseSeats(booking.tripId, booking.seats);
+
+    const cancelled = await this.repository.cancelBooking(bookingId);
+
+    publishBookingUpdated({
+      bookingId,
+      status: BookingStatus.CANCELLED,
+    });
+
+    return cancelled!;
   }
 
-  async updateBookingStatus(id: string, status: BookingStatus): Promise<Booking> {
+  async updateBookingStatus(id: string, newStatus: BookingStatus): Promise<Booking> {
     const booking = await this.repository.findById(id);
 
     if (!booking) {
       throw new HttpError(404, 'Booking not found');
     }
 
-    // avoid duplicate webhook updates
-    if (booking.status === status) {
-      logger.info(`Booking ${id} already ${status}`);
+    // Ignore duplicate updates
+    if (booking.status === newStatus) {
+      logger.info(`Booking ${id} already ${newStatus}`);
 
       return booking;
     }
 
-    const updated = await this.repository.updateBookingStatus(id, status);
+    // Terminal states
+    if (booking.status === BookingStatus.CONFIRMED || booking.status === BookingStatus.CANCELLED) {
+      logger.warn(`Ignoring transition ${booking.status} -> ${newStatus}`);
+
+      return booking;
+    }
+
+    // Only PENDING can transition
+    if (booking.status !== BookingStatus.PENDING) {
+      logger.warn(`Invalid current status ${booking.status}`);
+
+      return booking;
+    }
+
+    // Only allow:
+    // PENDING -> CONFIRMED
+    // PENDING -> CANCELLED
+
+    if (newStatus !== BookingStatus.CONFIRMED && newStatus !== BookingStatus.CANCELLED) {
+      logger.warn(`Invalid target status ${newStatus}`);
+
+      return booking;
+    }
+
+    const updated = await this.repository.updateBookingStatus(id, newStatus);
 
     if (!updated) {
-      throw new HttpError(404, 'Failed to update booking');
+      throw new HttpError(500, 'Failed to update booking');
     }
 
-    logger.info(`Booking ${id} updated to ${status}`);
+    const client = getRedisClient();
 
-    // if booking is confirmed, remove the expiry timer
+    // Remove timer for any final state
+    await client.del(`booking:${id}`);
 
-    if (status === 'CONFIRMED') {
-      await client.del(`booking:${id}`);
-
-      logger.info(`Booking timer removed: ${id}`);
-    }
-
-    // release seats only when cancelled
-
-    if (status === 'CANCELLED') {
+    if (newStatus === BookingStatus.CANCELLED) {
       await inventoryGrpcService.releaseSeats(booking.tripId, booking.seats);
 
-      logger.info(`Released ${booking.seats.length} seats for trip ${booking.tripId}`);
+      logger.info(`Released ${booking.seats.length} seats`);
     }
 
-    //publish booking updated event for other services now for user service to update booking history
-    if (status === 'CANCELLED' || status === 'CONFIRMED') {
-      publishBookingUpdated({
-        bookingId: id,
-        status,
-      });
-    }
+    publishBookingUpdated({
+      bookingId: id,
+      status: newStatus,
+    });
+
+    logger.info(`Booking ${id} updated to ${newStatus}`);
 
     return updated;
-  }
-
-  async getSeats(tripId: number): Promise<number> {
-    const seats = await inventoryGrpcService.getAvailableSeats(tripId.toString());
-
-    return seats;
   }
 }
 

@@ -21,6 +21,12 @@ service InventoryService {
   ) returns (
     ReleaseSeatsResponse
   );
+
+  rpc GetTripById(
+    GetTripByIdRequest
+  ) returns (
+    GetTripByIdResponse
+  );
 }
 
 message GetAvailableSeatsRequest {
@@ -54,4 +60,15 @@ message ReleaseSeatsRequest {
 
 message ReleaseSeatsResponse {
     bool success = 1;
+}
+
+message GetTripByIdRequest{
+   string tripId = 1;
+}
+
+message GetTripByIdResponse{
+ string tripId = 1;
+ string travelDate = 2;
+ string departureTime = 3;
+ string arrivalTime = 4;
 }
