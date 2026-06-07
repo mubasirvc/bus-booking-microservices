@@ -1,16 +1,43 @@
 import RedisImport from 'ioredis';
 import { logger } from '../utils/logger.js';
+
 const Redis = (RedisImport as any).default || RedisImport;
 
- const client = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+let client: InstanceType<typeof Redis> | null = null;
 
-client.on('connect', () => {
-  logger.info('Redis connected');
-});
+export const connectRedis = async () => {
+  if (client) {
+    return client;
+  }
 
-client.on('error', (err: any) => {
-  console.log(err);
-  logger.error('Redis error', err);
-});
+  client = new Redis(
+    process.env.REDIS_URL || 'redis://localhost:6379'
+  );
 
-export { client };
+  client.on('connect', () => {
+    logger.info('Redis connected');
+  });
+
+  client.on('error', (err: any) => {
+    logger.error({ err }, 'Redis error');
+  });
+
+  return client;
+};
+
+export const getRedisClient = () => {
+  if (!client) {
+    throw new Error(
+      'Redis is not initialized. Call connectRedis() first.'
+    );
+  }
+
+  return client;
+};
+
+export const closeRedis = async () => {
+  if (!client) return;
+
+  await client.quit();
+  client = null;
+};

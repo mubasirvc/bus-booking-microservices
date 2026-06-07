@@ -3,18 +3,18 @@ import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
 import { initializeDatabase } from './db/sequelize.js';
 import { createServer } from 'node:http';
-import './jobs/booking-expiry.listener.js';
-
-import './config/redis.js';
-
 import grpc from '@grpc/grpc-js';
 import grpcServer from './grpc/server.js';
 import { initPublisher } from './messaging/event-publishing.js';
+import { connectRedis } from './config/redis.js';
+import { startExpiryListener } from './jobs/booking-expiry.listener.js';
 
 const main = async () => {
   try {
     await initializeDatabase();
     await initPublisher();
+    await connectRedis();
+    await startExpiryListener();
 
     const app = createApp();
     const server = createServer(app);
@@ -27,7 +27,7 @@ const main = async () => {
       logger.info({ port }, 'Booking service is running');
     });
 
-     // gRPC server
+    // gRPC server
     grpcServer.bindAsync(`0.0.0.0:${grpcPort}`, grpc.ServerCredentials.createInsecure(), () => {
       grpcServer.start();
 
