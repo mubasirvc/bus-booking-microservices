@@ -6,6 +6,7 @@ import {
   bookingIdParamsSchema,
   bookingStatusEnum,
   createBookingSchema,
+  getAllBookingsQuerySchema,
   searchBookingsQuerySchema,
   updateBookingSchema,
 } from '../../validation/booking.schema';
@@ -50,6 +51,10 @@ registry.registerPath({
       bearerAuth: [],
     },
   ],
+
+  request: {
+    query: getAllBookingsQuerySchema,
+  },
 
   responses: {
     200: {

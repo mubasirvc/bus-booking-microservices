@@ -20,7 +20,7 @@ export const createBookingSchema = z.object({
   }),
 
   seats: z.array(z.string()).min(1).openapi({
-    example: ['u-1', 'u-2'],
+    example: ['s1', 's2'],
   }),
 
   totalAmount: z.coerce.number().positive().openapi({
@@ -76,6 +76,24 @@ export const searchBookingsQuerySchema = z.object({
   status: bookingStatusEnum.optional().openapi({
     example: 'CONFIRMED',
   }),
+
+  page: z.coerce.number().positive().optional().openapi({
+    example: 1,
+  }),
+
+  limit: z.coerce.number().positive().optional().openapi({
+    example: 10,
+  }),
+});
+
+export const  getAllBookingsQuerySchema = z.object({
+  page: z.coerce.number().positive().optional().openapi({
+    example: 1,
+  }),
+
+  limit: z.coerce.number().positive().optional().openapi({
+    example: 10,
+  }),
 });
 
 // ======================================================
@@ -88,4 +106,6 @@ export type UpdateBookingBody = z.infer<typeof updateBookingSchema>;
 
 export type BookingIdParams = z.infer<typeof bookingIdParamsSchema>;
 
-export type SearchBookingsQuery = z.infer<typeof searchBookingsQuerySchema>;
+export type SearchBookingsQuery = z.infer<typeof searchBookingsQuerySchema>;3
+
+export type GetAllBookingsQuery = z.infer<typeof getAllBookingsQuerySchema>;

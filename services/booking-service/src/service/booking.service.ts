@@ -1,10 +1,7 @@
 import { HttpError } from '@bus-booking/common';
+import { PaginatedResponse } from '@bus-booking/common';
 
-import {
-  Booking,
-  BookingStatus,
-  CreateBookingInput,
-} from '../types/booking.js';
+import { Booking, BookingStatus, CreateBookingInput } from '../types/booking.js';
 
 import { BookingRepository, bookingRepository } from '../repository/booking.repostiory.js';
 import inventoryGrpcService from './inventory-grpc.service.js';
@@ -27,8 +24,8 @@ class BookingService {
     return booking;
   }
 
-  async getAllBookings(): Promise<Booking[]> {
-    return this.repository.findAll();
+  async getAllBookings(page: number, limit: number): Promise<PaginatedResponse<Booking>> {
+    return this.repository.findAll(page, limit);
   }
 
   async createBooking(input: CreateBookingInput): Promise<any> {
@@ -107,7 +104,7 @@ class BookingService {
     status?: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
     page?: number;
     limit?: number;
-  }) {
+  }): Promise<PaginatedResponse<Booking>> {
     return this.repository.search(params);
   }
 

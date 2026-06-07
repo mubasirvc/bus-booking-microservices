@@ -20,19 +20,31 @@ const toDomainBooking = (model: BookingModel): Booking => ({
 });
 
 export class BookingRepository {
-  
   async findById(id: string): Promise<Booking | null> {
     const booking = await BookingModel.findByPk(id);
 
     return booking ? toDomainBooking(booking) : null;
   }
 
-  async findAll(): Promise<Booking[]> {
-    const bookings = await BookingModel.findAll({
+  async findAll(page: number, limit: number) {
+    const offset = (page - 1) * limit;
+
+    const result = await BookingModel.findAndCountAll({
+      limit,
+      offset,
       order: [['createdAt', 'DESC']],
     });
 
-    return bookings.map(toDomainBooking);
+    return {
+      data: result.rows.map(toDomainBooking),
+
+      pagination: {
+        page,
+        limit,
+        total: result.count,
+        totalPages: Math.ceil(result.count / limit),
+      },
+    };
   }
 
   async create(data: CreateBookingInput): Promise<Booking> {
