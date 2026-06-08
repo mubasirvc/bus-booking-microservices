@@ -1,11 +1,13 @@
-import { type WhereOptions } from 'sequelize';
+import { Op, type WhereOptions } from 'sequelize';
 
 import { BusModel } from '../model/bus.model.js';
 
-import { Bus,  BusWithSeats,  UpdateBusInput } from '../types/bus.types.js';
+import { Bus, BusWithSeats, UpdateBusInput } from '../types/bus.types.js';
+import { PaginatedResponse } from '@bus-booking/common';
 
 const toDomainBus = (model: BusModel): BusWithSeats => ({
   id: model.id,
+  operatorId: model.operatorId,
   name: model.name,
   busNumber: model.busNumber,
   type: model.type,
@@ -22,12 +24,27 @@ export class BusRepository {
     return bus ? toDomainBus(bus) : null;
   }
 
-  async findAll(): Promise<Bus[]> {
-    const buses = await BusModel.findAll({
+  async findAll(params: { page: number; limit: number }): Promise<PaginatedResponse<Bus>> {
+    const { page, limit } = params;
+
+    const offset = (page - 1) * limit;
+
+    const result = await BusModel.findAndCountAll({
+      limit,
+      offset,
       order: [['name', 'ASC']],
     });
 
-    return buses.map(toDomainBus);
+    return {
+      data: result.rows.map(toDomainBus),
+
+      pagination: {
+        page,
+        limit,
+        total: result.count,
+        totalPages: Math.ceil(result.count / limit),
+      },
+    };
   }
 
   async create(data: BusWithSeats): Promise<BusWithSeats> {
@@ -36,8 +53,13 @@ export class BusRepository {
     return toDomainBus(bus);
   }
 
-  async update(id: string, data: UpdateBusInput): Promise<Bus | null> {
-    const bus = await BusModel.findByPk(id);
+  async update(id: string, operatorId: string, data: UpdateBusInput): Promise<Bus | null> {
+    const bus = await BusModel.findOne({
+      where: {
+        id,
+        operatorId,
+      },
+    });
 
     if (!bus) {
       return null;
@@ -64,12 +86,19 @@ export class BusRepository {
     return bus ? toDomainBus(bus) : null;
   }
 
-  async search(params: { name?: string; type?: string }): Promise<Bus[]> {
+  async search(params: {
+    name?: string;
+    type?: string;
+    page: number;
+    limit: number;
+  }): Promise<PaginatedResponse<Bus>> {
     const where: WhereOptions = {};
 
     if (params.name) {
       Object.assign(where, {
-        name: params.name,
+        name: {
+          [Op.iLike]: `%${params.name}%`,
+        },
       });
     }
 
@@ -79,12 +108,52 @@ export class BusRepository {
       });
     }
 
-    const buses = await BusModel.findAll({
+    const page = params.page;
+    const limit = params.limit;
+
+    const offset = (page - 1) * limit;
+
+    const result = await BusModel.findAndCountAll({
       where,
+      limit,
+      offset,
       order: [['name', 'ASC']],
     });
 
-    return buses.map(toDomainBus);
+    return {
+      data: result.rows.map(toDomainBus),
+
+      pagination: {
+        page,
+        limit,
+        total: result.count,
+        totalPages: Math.ceil(result.count / limit),
+      },
+    };
+  }
+
+  async findByOperator(operatorId: string, page = 1, limit = 10): Promise<PaginatedResponse<Bus>> {
+    const offset = (page - 1) * limit;
+
+    const result = await BusModel.findAndCountAll({
+      where: {
+        operatorId,
+      },
+      limit,
+      offset,
+      order: [['name', 'ASC']],
+    });
+
+    return {
+      data: result.rows.map(toDomainBus),
+
+      pagination: {
+        page,
+        limit,
+        total: result.count,
+        totalPages: Math.ceil(result.count / limit),
+      },
+    };
   }
 }
 

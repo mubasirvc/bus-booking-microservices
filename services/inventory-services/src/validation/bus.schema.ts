@@ -43,6 +43,21 @@ export const searchBusesQuerySchema = z.object({
   name: z.string().trim().min(1).optional(),
 
   type: z.string().trim().min(1).optional(),
+
+  page: z.union([z.string(), z.number()]).optional(),
+
+  limit: z.union([z.string(), z.number()]).optional(),
+});
+
+export const listBusQuerySchema = z.object({
+  page: z.union([z.string(), z.number()]).optional(),
+  limit: z.union([z.string(), z.number()]).optional(),
+});
+
+export const getAllBusesQuerySchema = z.object({
+  page: z.union([z.string(), z.number()]).optional(),
+
+  limit: z.union([z.string(), z.number()]).optional(),
 });
 
 export type CreateBusBody = z.infer<typeof createBusSchema>;
@@ -52,3 +67,7 @@ export type UpdateBusBody = z.infer<typeof updateBusSchema>;
 export type BusIdParams = z.infer<typeof busIdParamsSchema>;
 
 export type SearchBusesQuery = z.infer<typeof searchBusesQuerySchema>;
+
+export type GetAllBusesQuery = z.infer<typeof getAllBusesQuerySchema>;
+
+export type ListBusQuery = z.infer<typeof listBusQuerySchema>;

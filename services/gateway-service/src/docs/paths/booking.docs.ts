@@ -271,55 +271,55 @@ registry.registerPath({
 // PATCH /bookings/{id}
 // ======================================================
 
-registry.registerPath({
-  method: 'patch',
+// registry.registerPath({
+//   method: 'patch',
 
-  path: '/bookings/{id}',
+//   path: '/bookings/{id}',
 
-  tags: ['Bookings'],
+//   tags: ['Bookings'],
 
-  summary: 'Update booking',
+//   summary: 'Update booking',
 
-  security: [
-    {
-      bearerAuth: [],
-    },
-  ],
+//   security: [
+//     {
+//       bearerAuth: [],
+//     },
+//   ],
 
-  request: {
-    params: bookingIdParamsSchema,
+//   request: {
+//     params: bookingIdParamsSchema,
 
-    body: {
-      required: true,
+//     body: {
+//       required: true,
 
-      content: {
-        'application/json': {
-          schema: updateBookingSchema,
+//       content: {
+//         'application/json': {
+//           schema: updateBookingSchema,
 
-          example: {
-            status: 'CONFIRMED',
-          },
-        },
-      },
-    },
-  },
+//           example: {
+//             status: 'CONFIRMED',
+//           },
+//         },
+//       },
+//     },
+//   },
 
-  responses: {
-    200: {
-      description: 'Booking updated successfully',
+//   responses: {
+//     200: {
+//       description: 'Booking updated successfully',
 
-      content: {
-        'application/json': {
-          schema: z.object({
-            success: z.boolean(),
+//       content: {
+//         'application/json': {
+//           schema: z.object({
+//             success: z.boolean(),
 
-            data: bookingSchema,
-          }),
-        },
-      },
-    },
-  },
-});
+//             data: bookingSchema,
+//           }),
+//         },
+//       },
+//     },
+//   },
+// });
 
 // ======================================================
 // PATCH /bookings/{id}/cancel
@@ -371,44 +371,44 @@ registry.registerPath({
 // DELETE /bookings/{id}
 // ======================================================
 
-registry.registerPath({
-  method: 'delete',
+// registry.registerPath({
+//   method: 'delete',
 
-  path: '/bookings/{id}',
+//   path: '/bookings/{id}',
 
-  tags: ['Bookings'],
+//   tags: ['Bookings'],
 
-  summary: 'Delete booking',
+//   summary: 'Delete booking',
 
-  security: [
-    {
-      bearerAuth: [],
-    },
-  ],
+//   security: [
+//     {
+//       bearerAuth: [],
+//     },
+//   ],
 
-  request: {
-    params: bookingIdParamsSchema,
-  },
+//   request: {
+//     params: bookingIdParamsSchema,
+//   },
 
-  responses: {
-    200: {
-      description: 'Booking deleted successfully',
+//   responses: {
+//     200: {
+//       description: 'Booking deleted successfully',
 
-      content: {
-        'application/json': {
-          schema: z.object({
-            success: z.boolean(),
+//       content: {
+//         'application/json': {
+//           schema: z.object({
+//             success: z.boolean(),
 
-            message: z.string(),
-          }),
+//             message: z.string(),
+//           }),
 
-          example: {
-            success: true,
+//           example: {
+//             success: true,
 
-            message: 'Booking deleted successfully',
-          },
-        },
-      },
-    },
-  },
-});
+//             message: 'Booking deleted successfully',
+//           },
+//         },
+//       },
+//     },
+//   },
+// });

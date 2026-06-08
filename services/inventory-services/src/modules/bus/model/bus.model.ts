@@ -13,6 +13,7 @@ export class BusModel
 {
   declare id: string;
   declare name: string;
+  declare operatorId: string;
   declare busNumber: string;
   declare type: string;
   declare totalSeats: number;
@@ -28,7 +29,10 @@ BusModel.init(
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-
+    operatorId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,

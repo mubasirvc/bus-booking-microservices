@@ -6,6 +6,7 @@ import {
   deleteBus,
   getAllBuses,
   getBus,
+  getMyBuses,
   searchBuses,
   updateBus,
 } from '../modules/bus/controller/bus.controller.js';
@@ -13,18 +14,25 @@ import {
 import {
   busIdParamsSchema,
   createBusSchema,
+  listBusQuerySchema,
   searchBusesQuerySchema,
   updateBusSchema,
 } from '../validation/bus.schema.js';
 
 export const busRoutes: Router = Router();
 
-busRoutes.get('/', asyncHandler(getAllBuses));
+busRoutes.get('/', validateRequest({ query: listBusQuerySchema }), asyncHandler(getAllBuses));
 
 busRoutes.get(
   '/search',
   validateRequest({ query: searchBusesQuerySchema }),
   asyncHandler(searchBuses),
+);
+
+busRoutes.get(
+  '/my-buses',
+  validateRequest({ query: listBusQuerySchema }),
+  asyncHandler(getMyBuses),
 );
 
 busRoutes.get('/:id', validateRequest({ params: busIdParamsSchema }), asyncHandler(getBus));

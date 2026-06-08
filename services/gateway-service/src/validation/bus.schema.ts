@@ -78,6 +78,24 @@ export const searchBusesQuerySchema = z.object({
   type: z.string().trim().min(1).optional().openapi({
     example: 'AC Sleeper',
   }),
+
+  page: z.coerce.number().int().positive().optional().openapi({
+    example: 1,
+  }),
+
+  limit: z.coerce.number().int().positive().optional().openapi({
+    example: 10,
+  }),
+});
+
+export const listBusQuerySchema = z.object({
+  page: z.coerce.number().int().positive().optional().openapi({
+    example: 1,
+  }),
+
+  limit: z.coerce.number().int().positive().optional().openapi({
+    example: 10,
+  }),
 });
 
 // ======================================================
