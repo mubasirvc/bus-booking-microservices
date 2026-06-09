@@ -15,6 +15,7 @@ import './paths/bus.docs';
 import './paths/route.docs';
 import './paths/trip.docs';
 import './paths/booking.docs';
+import './paths/payment.docs';
 
 
 export function setupSwagger(app: Express) {
