@@ -1,3 +1,4 @@
+import { ListRoutesQuery } from '../../validation/routes.schema';
 import { client, authHeader, handleAxiosError } from './client';
 
 export interface RouteDto {
@@ -33,9 +34,12 @@ export interface UpdateRoutePayload {
 }
 
 export const routeProxyService = {
-  async getAllRoutes(): Promise<RouteListResponse> {
+  async getAllRoutes(params: ListRoutesQuery): Promise<RouteListResponse> {
     try {
-      const response = await client.get<RouteListResponse>('/routes', authHeader);
+      const response = await client.get<RouteListResponse>('/routes', {
+        headers: authHeader.headers,
+        params,
+      });
 
       return response.data;
     } catch (error) {
@@ -45,17 +49,21 @@ export const routeProxyService = {
 
   async getRouteById(id: string): Promise<RouteResponse> {
     try {
-      const response = await client.get<RouteResponse>(`/routes/${id}`, authHeader);
+      const response = await client.get<RouteResponse>(`/routes/${id}`, {
+        headers: authHeader.headers,
+      });
 
       return response.data;
     } catch (error) {
       return handleAxiosError(error);
-    }
+    } 
   },
 
   async createRoute(payload: CreateRoutePayload): Promise<RouteResponse> {
     try {
-      const response = await client.post<RouteResponse>('/routes', payload, authHeader);
+      const response = await client.post<RouteResponse>('/routes', payload, {
+        headers: authHeader.headers,
+      });
 
       return response.data;
     } catch (error) {
@@ -65,7 +73,9 @@ export const routeProxyService = {
 
   async updateRoute(id: string, payload: UpdateRoutePayload): Promise<RouteResponse> {
     try {
-      const response = await client.patch<RouteResponse>(`/routes/${id}`, payload, authHeader);
+      const response = await client.patch<RouteResponse>(`/routes/${id}`, payload, {
+        headers: authHeader.headers,
+      });
 
       return response.data;
     } catch (error) {
@@ -75,7 +85,9 @@ export const routeProxyService = {
 
   async deleteRoute(id: string): Promise<{ message: string }> {
     try {
-      const response = await client.delete<{ message: string }>(`/routes/${id}`, authHeader);
+      const response = await client.delete<{ message: string }>(`/routes/${id}`, {
+        headers: authHeader.headers,
+      });
 
       return response.data;
     } catch (error) {
@@ -102,7 +114,9 @@ export const routeProxyService = {
     try {
       const response = await client.get<{
         data: string[];
-      }>('/routes/sources', authHeader);
+      }>('/routes/sources', {
+        headers: authHeader.headers,
+      });
 
       return response.data;
     } catch (error) {
@@ -116,7 +130,9 @@ export const routeProxyService = {
     try {
       const response = await client.get<{
         data: string[];
-      }>('/routes/destinations', authHeader);
+      }>('/routes/destinations', {
+        headers: authHeader.headers,
+      });
 
       return response.data;
     } catch (error) {

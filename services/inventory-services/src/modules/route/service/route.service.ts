@@ -1,4 +1,4 @@
-import { HttpError } from '@bus-booking/common';
+import { HttpError, PaginatedResponse } from '@bus-booking/common';
 
 import {
   RouteRepository,
@@ -24,8 +24,8 @@ class RouteService {
     return route;
   }
 
-  async getAllRoutes(): Promise<Route[]> {
-    return this.repository.findAll();
+  async getAllRoutes(page: number, limit: number): Promise<PaginatedResponse<Route>> {
+    return this.repository.findAll(page, limit);
   }
 
   async createRoute(input: CreateRouteInput): Promise<Route> {
@@ -134,14 +134,22 @@ class RouteService {
     }
   }
 
-  async searchRoutes(query: string): Promise<Route[]> {
+  async searchRoutes(query: string, page: number, limit: number): Promise<PaginatedResponse<Route>> {
     const value = query.trim();
 
     if (!value) {
-      return [];
+      return {
+        data: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          totalPages: 0,
+        },
+      };
     }
 
-    return this.repository.searchByCity(value);
+    return this.repository.searchByCity(value, page, limit);
   }
 
   async getRoutesBySource(source: string): Promise<Route[]> {

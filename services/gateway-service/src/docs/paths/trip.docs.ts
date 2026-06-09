@@ -4,6 +4,7 @@ import { registry } from '../registry';
 
 import {
   createTripSchema,
+  listTripsQuerySchema,
   searchTripsQuerySchema,
   tripIdParamsSchema,
   tripStatusEnum,
@@ -36,6 +37,13 @@ const tripSchema = z.object({
   updatedAt: z.string(),
 });
 
+const paginationMetaSchema = z.object({
+  page: z.number(),
+  limit: z.number(),
+  total: z.number(),
+  totalPages: z.number(),
+});
+
 // ======================================================
 // GET /trips
 // ======================================================
@@ -55,6 +63,10 @@ registry.registerPath({
     },
   ],
 
+ request: {
+    query: listTripsQuerySchema,
+  },
+
   responses: {
     200: {
       description: 'Trips fetched successfully',
@@ -65,6 +77,7 @@ registry.registerPath({
             success: z.boolean(),
 
             data: z.array(tripSchema),
+            pagination: paginationMetaSchema,
           }),
         },
       },
@@ -105,6 +118,8 @@ registry.registerPath({
             success: z.boolean(),
 
             data: z.array(tripSchema),
+
+            pagination: paginationMetaSchema,
           }),
         },
       },

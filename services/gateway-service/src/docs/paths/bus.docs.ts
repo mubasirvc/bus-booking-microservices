@@ -70,6 +70,10 @@ registry.registerPath({
     },
   ],
 
+   request: {
+    query: listBusQuerySchema,
+  },
+
   responses: {
     200: {
       description: 'Buses fetched successfully',

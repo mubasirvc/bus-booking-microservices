@@ -1,3 +1,4 @@
+import { ListTripsQuery } from '../../validation/trip.schema';
 import { client, authHeader, handleAxiosError } from './client';
 
 export interface TripDto {
@@ -59,9 +60,12 @@ export const tripProxyService = {
     }
   },
 
-  async getAllTrips(): Promise<TripListResponse> {
+  async getAllTrips(query?: ListTripsQuery): Promise<TripListResponse> {
     try {
-      const response = await client.get<TripListResponse>('/trips', authHeader);
+      const response = await client.get<TripListResponse>('/trips', {
+        headers: authHeader.headers,
+        params: query,
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error);

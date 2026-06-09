@@ -112,6 +112,24 @@ export const searchTripsQuerySchema = z.object({
   status: tripStatusEnum.optional().openapi({
     example: 'ACTIVE',
   }),
+
+  page: z.string().optional().openapi({
+    example: '1',
+  }), 
+
+  limit: z.string().optional().openapi({
+    example: '10',
+  }),
+});
+
+export const listTripsQuerySchema = z.object({
+  page: z.string().optional().openapi({
+    example: '1',
+  }),
+
+  limit: z.string().optional().openapi({
+    example: '10',
+  }),
 });
 
 // ======================================================
@@ -125,3 +143,5 @@ export type UpdateTripBody = z.infer<typeof updateTripSchema>;
 export type TripIdParams = z.infer<typeof tripIdParamsSchema>;
 
 export type SearchTripsQuery = z.infer<typeof searchTripsQuerySchema>;
+
+export type ListTripsQuery = z.infer<typeof listTripsQuerySchema>;
