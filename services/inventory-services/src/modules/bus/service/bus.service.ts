@@ -61,6 +61,15 @@ class BusService {
       throw new HttpError(400, 'Total seats must be greater than zero');
     }
 
+    if (input.totalSeats && input.totalSeats !== existing.totalSeats) {
+
+      const seats = Array.from({ length: input.totalSeats }, (_, index) => ({
+        seatNumber: 'S' + String(index + 1),
+      }));
+     
+      input = { ...input, seats };
+    }
+
     try {
       const updated = await this.repository.update(id, operatorId, input);
 

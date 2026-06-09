@@ -19,4 +19,4 @@ export interface Bus {
 
 export type CreateBusInput = Omit<Bus, 'id' | 'createdAt' | 'updatedAt'>;
 
-export type UpdateBusInput = Partial<Pick<Bus, 'name' | 'busNumber' | 'type' | 'totalSeats'>>;
+export type UpdateBusInput = Partial<Pick<BusWithSeats, 'name' | 'busNumber' | 'type' | 'totalSeats' | 'seats'>>;

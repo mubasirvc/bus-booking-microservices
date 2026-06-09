@@ -1,6 +1,5 @@
 import { AuthUserRegisteredPayload, HttpError } from '@bus-booking/common';
 import mongoose from 'mongoose';
-import { publishUserCreatedEvent } from '../messaging/event-publisher.js';
 import { UserRepository, userRepository } from '../repositories/user.repositories.js';
 import { CreateUserInput, User } from '../types/user.js';
 
@@ -43,15 +42,6 @@ class UserService {
   async createUser(input: CreateUserInput): Promise<User> {
     try {
       const user = await this.repository.create(input);
-
-      void publishUserCreatedEvent({
-        id: user.id,
-        email: user.email,
-        userName: user.userName,
-        createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt.toISOString(),
-      });
-
       return user;
     } catch (error) {
       if (error instanceof mongoose.Error && 'code' in error && error.code === 11000) {
@@ -80,15 +70,6 @@ class UserService {
 
   async syncFromAuthUser(payload: AuthUserRegisteredPayload): Promise<User> {
     const user = await this.repository.upsertFromAuthEvent(payload);
-
-    void publishUserCreatedEvent({
-      id: user.id,
-      email: user.email,
-      userName: user.userName,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt.toISOString(),
-    });
-
     return user;
   }
 }

@@ -39,7 +39,8 @@ export const getAllBuses: AsyncHandler = async (req, res, next) => {
 
 export const getMyBuses: AsyncHandler = async (req, res, next) => {
   try {
-    const operatorId = req.headers['x-user-id'] as string;
+    // const operatorId = req.headers['x-user-id'] as string;
+    const operatorId = 'be8597fe-44f0-4e1e-b273-dafc2b0f4101'
 
     const page = Number(req.query.page) || 1;
 
@@ -56,7 +57,9 @@ export const getMyBuses: AsyncHandler = async (req, res, next) => {
 export const createBus: AsyncHandler = async (req, res, next) => {
   try {
     const payload = req.body as CreateBusBody;
-    const operatorId = req.headers['x-user-id'] as string;
+    // const operatorId = req.headers['x-user-id'] as string;
+        const operatorId = 'be8597fe-44f0-4e1e-b273-dafc2b0f4101'
+
     const bus = await busService.createBus({ ...payload, operatorId });
 
     res.status(201).json({ data: bus });
@@ -70,7 +73,9 @@ export const updateBus: AsyncHandler = async (req, res, next) => {
     const { id } = req.params as unknown as BusIdParams;
 
     const payload = req.body as UpdateBusBody;
-    const operatorId = req.headers['x-user-id'] as string;
+    //const operatorId = req.headers['x-user-id'] as string;
+        const operatorId = 'be8597fe-44f0-4e1e-b273-dafc2b0f4101'
+
 
     const bus = await busService.updateBus(id,  operatorId, payload);
 
