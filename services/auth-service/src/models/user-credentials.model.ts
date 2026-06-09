@@ -1,11 +1,14 @@
 import { DataTypes, Model, type Optional } from "sequelize";
 import { sequelize } from "../db/sequelize.js";
+import { UserRole } from "../types/auth.js";
 
 export interface UserCredentialsAttributes {
   id: string;
   email: string;
   userName: string;
   passwordHash: string;
+  role: UserRole;
+  isVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,6 +26,8 @@ export class UserCredentials
   declare email: string;
   declare userName: string;
   declare passwordHash: string;
+  declare role: UserRole;
+  declare isVerified: boolean;
   declare createdAt: Date;
   declare updatedAt: Date;
 }
@@ -49,6 +54,16 @@ UserCredentials.init(
     userName: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    role: {
+      type: DataTypes.ENUM("ADMIN", "CUSTOMER", "OPERATOR"),
+      allowNull: false,
+      defaultValue: "CUSTOMER",
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
     createdAt: {
       type: DataTypes.DATE,

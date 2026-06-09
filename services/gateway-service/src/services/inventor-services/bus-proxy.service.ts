@@ -44,6 +44,12 @@ export interface ListBusParams {
   limit?: number;
 }
 
+export interface User{
+  id: string;
+  email?: string;
+  role?: 'ADMIN' | 'CUSTOMER' | 'OPERATOR';
+}
+
 export const busProxyService = {
   async getAllBuses(params: ListBusParams) {
     try {
@@ -61,7 +67,11 @@ export const busProxyService = {
   async getMyBuses(params: ListBusParams) {
     try {
       const response = await client.get('/buses/my-buses', {
-        headers: authHeader.headers,
+        headers: {
+          ...authHeader.headers,
+          // 'X-User-Id': user.id,
+          // 'X-User-Role': user.role,
+        },
         params,
       });
 
@@ -73,7 +83,13 @@ export const busProxyService = {
 
   async createBus(payload: CreateBusPayload) {
     try {
-      const response = await client.post('/buses', payload, authHeader);
+      const response = await client.post('/buses', payload, {
+        headers: {
+          ...authHeader.headers,
+          // 'X-User-Id': user.id,
+          // 'X-User-Role': user.role,
+        },
+      });
 
       return response.data;
     } catch (error) {
@@ -83,7 +99,13 @@ export const busProxyService = {
 
   async updateBus(id: string, payload: UpdateBusPayload) {
     try {
-      const response = await client.patch(`/buses/${id}`, payload, authHeader);
+      const response = await client.patch(`/buses/${id}`, payload, {
+        headers: {
+          ...authHeader.headers,
+          // 'X-User-Id': user.id,
+          // 'X-User-Role': user.role,
+        },
+      });
 
       return response.data;
     } catch (error) {
@@ -106,7 +128,13 @@ export const busProxyService = {
 
   async deleteBus(id: string) {
     try {
-      const response = await client.delete(`/buses/${id}`, authHeader);
+      const response = await client.delete(`/buses/${id}`, {
+        headers: {
+          ...authHeader.headers,
+          // 'X-User-Id': user.id,
+          // 'X-User-Role': user.role,
+        },
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error);

@@ -1,6 +1,6 @@
 import { AsyncHandler } from '@bus-booking/common';
 
-import { inventoryProxyService } from '../../services/inventory-proxy.service';
+import { routeProxyService } from '../../services/inventor-services/route-proxy.service';
 
 import {
   createRouteSchema,
@@ -10,13 +10,12 @@ import {
   type SearchRoutesQuery,
 } from '../../validation/routes.schema';
 
-/* GET /routes/:id */
 
 export const getRoute: AsyncHandler = async (req, res, next) => {
   try {
     const { id } = routeIdParamsSchema.parse(req.params);
 
-    const response = await inventoryProxyService.getRouteById(id);
+    const response = await routeProxyService.getRouteById(id);
 
     res.json(response);
   } catch (error) {
@@ -24,11 +23,10 @@ export const getRoute: AsyncHandler = async (req, res, next) => {
   }
 };
 
-/* GET /routes */
 
 export const getAllRoutes: AsyncHandler = async (req, res, next) => {
   try {
-    const response = await inventoryProxyService.getAllRoutes();
+    const response = await routeProxyService.getAllRoutes();
 
     res.json(response);
   } catch (error) {
@@ -36,13 +34,12 @@ export const getAllRoutes: AsyncHandler = async (req, res, next) => {
   }
 };
 
-/* POST /routes */
 
 export const createRoute: AsyncHandler = async (req, res, next) => {
   try {
     const payload = createRouteSchema.parse(req.body);
 
-    const response = await inventoryProxyService.createRoute(payload);
+    const response = await routeProxyService.createRoute(payload);
 
     res.status(201).json(response);
   } catch (error) {
@@ -51,7 +48,6 @@ export const createRoute: AsyncHandler = async (req, res, next) => {
 };
 
 
-/* PATCH /routes/:id */
 
 export const updateRoute: AsyncHandler = async (req, res, next) => {
   try {
@@ -59,7 +55,7 @@ export const updateRoute: AsyncHandler = async (req, res, next) => {
 
     const payload = updateRouteSchema.parse(req.body);
 
-    const response = await inventoryProxyService.updateRoute(id, payload);
+    const response = await routeProxyService.updateRoute(id, payload);
 
     res.json(response);
   } catch (error) {
@@ -68,13 +64,12 @@ export const updateRoute: AsyncHandler = async (req, res, next) => {
 };
 
 
-/* DELETE /routes/:id */
 
 export const deleteRoute: AsyncHandler = async (req, res, next) => {
   try {
     const { id } = routeIdParamsSchema.parse(req.params);
 
-    const response = await inventoryProxyService.deleteRoute(id);
+    const response = await routeProxyService.deleteRoute(id);
 
     res.json(response);
   } catch (error) {
@@ -83,13 +78,12 @@ export const deleteRoute: AsyncHandler = async (req, res, next) => {
 };
 
 
-/* GET /routes/search */
 
 export const searchRoutes: AsyncHandler = async (req, res, next) => {
   try {
     const parsedQuery: SearchRoutesQuery = searchRoutesQuerySchema.parse(req.query);
 
-    const response = await inventoryProxyService.searchRoutes(parsedQuery.query);
+    const response = await routeProxyService.searchRoutes(parsedQuery.query);
 
     res.json(response);
   } catch (error) {
@@ -98,11 +92,10 @@ export const searchRoutes: AsyncHandler = async (req, res, next) => {
 };
 
 
-/* GET /routes/sources */
 
 export const getSources: AsyncHandler = async (req, res, next) => {
   try {
-    const response = await inventoryProxyService.getSources();
+    const response = await routeProxyService.getSources();
 
     res.json(response);
   } catch (error) {
@@ -110,12 +103,9 @@ export const getSources: AsyncHandler = async (req, res, next) => {
   }
 };
 
-
-/* GET /routes/destinations */
-
 export const getDestinations: AsyncHandler = async (req, res, next) => {
   try {
-    const response = await inventoryProxyService.getDestinations();
+    const response = await routeProxyService.getDestinations();
 
     res.json(response);
   } catch (error) {

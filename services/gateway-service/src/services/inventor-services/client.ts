@@ -13,21 +13,11 @@ export const authHeader = {
   },
 } as const;
 
-const resolvedMessage = (
-  status: number,
-  data: unknown,
-): string => {
-  if (
-    typeof data === 'object' &&
-    data &&
-    'message' in data
-  ) {
+const resolvedMessage = (status: number, data: unknown): string => {
+  if (typeof data === 'object' && data && 'message' in data) {
     const message = (data as Record<string, unknown>).message;
 
-    if (
-      typeof message === 'string' &&
-      message.trim().length > 0
-    ) {
+    if (typeof message === 'string' && message.trim().length > 0) {
       return message;
     }
   }
@@ -37,21 +27,13 @@ const resolvedMessage = (
     : 'An error occurred while processing the request';
 };
 
-export const handleAxiosError = (
-  error: unknown,
-): never => {
+export const handleAxiosError = (error: unknown): never => {
   if (!axios.isAxiosError(error) || !error.response) {
-    throw new HttpError(
-      500,
-      'Inventory service is unavailable',
-    );
+    throw new HttpError(500, 'Inventory service is unavailable');
   }
 
   throw new HttpError(
     error.response.status,
-    resolvedMessage(
-      error.response.status,
-      error.response.data,
-    ),
+    resolvedMessage(error.response.status, error.response.data),
   );
 };

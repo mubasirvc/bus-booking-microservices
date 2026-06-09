@@ -332,8 +332,9 @@ registry.registerPath({
 
           example: {
             name: 'Updated KSRTC Express',
-
             totalSeats: 45,
+            type: 'Non AC Sleeper',
+            busNumber: 'KA01AB1234',
           },
         },
       },
