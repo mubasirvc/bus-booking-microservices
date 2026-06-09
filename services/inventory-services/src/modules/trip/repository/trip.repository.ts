@@ -1,10 +1,8 @@
 import { type WhereOptions } from 'sequelize';
 
 import { TripModel } from '../model/trip.model.js';
-import {
-  UpdateTripInput,
-  TripWithBookedSeats,
-} from '../types/trip.types.js';
+import { UpdateTripInput, TripWithBookedSeats } from '../types/trip.types.js';
+import { PaginatedResponse } from '@bus-booking/common/src/types/index.js';
 
 const toDomainTrip = (model: TripModel): TripWithBookedSeats => ({
   id: model.id,
@@ -28,15 +26,27 @@ export class TripRepository {
     return trip ? toDomainTrip(trip) : null;
   }
 
-  async findAll(): Promise<TripWithBookedSeats[]> {
-    const trips = await TripModel.findAll({
+  async findAll(page: number, limit: number): Promise<PaginatedResponse<TripWithBookedSeats>> {
+    const offset = (page - 1) * limit;
+
+    const result = await TripModel.findAndCountAll({
       order: [
         ['travelDate', 'ASC'],
         ['departureTime', 'ASC'],
       ],
+      limit,
+      offset,
     });
 
-    return trips.map(toDomainTrip);
+    return {
+      data: result.rows.map(toDomainTrip),
+      pagination: {
+        page,
+        limit,
+        total: result.count,
+        totalPages: Math.ceil(result.count / limit),
+      },
+    };
   }
 
   async create(data: TripWithBookedSeats): Promise<TripWithBookedSeats> {
@@ -78,16 +88,32 @@ export class TripRepository {
     return trips.map(toDomainTrip);
   }
 
-  async findByBus(busId: string): Promise<TripWithBookedSeats[]> {
-    const trips = await TripModel.findAll({
+  async findByBus(
+    busId: string,
+    page: number,
+    limit: number,
+  ): Promise<PaginatedResponse<TripWithBookedSeats>> {
+    const offset = (page - 1) * limit;
+
+    const result = await TripModel.findAndCountAll({
       where: { busId },
       order: [
         ['travelDate', 'ASC'],
         ['departureTime', 'ASC'],
       ],
+      limit,
+      offset,
     });
 
-    return trips.map(toDomainTrip);
+    return {
+      data: result.rows.map(toDomainTrip),
+      pagination: {
+        page,
+        limit,
+        total: result.count,
+        totalPages: Math.ceil(result.count / limit),
+      },
+    };
   }
 
   async search(params: {
@@ -95,7 +121,9 @@ export class TripRepository {
     busId?: string;
     travelDate?: string;
     status?: string;
-  }): Promise<TripWithBookedSeats[]> {
+    page: number;
+    limit: number;
+  }): Promise<PaginatedResponse<TripWithBookedSeats>> {
     const where: WhereOptions = {};
 
     if (params.routeId) {
@@ -122,15 +150,25 @@ export class TripRepository {
       });
     }
 
-    const trips = await TripModel.findAll({
+    const result = await TripModel.findAndCountAll({
       where,
       order: [
         ['travelDate', 'ASC'],
         ['departureTime', 'ASC'],
       ],
+      limit: params.limit,
+      offset: (params.page - 1) * params.limit,
     });
 
-    return trips.map(toDomainTrip);
+    return {
+      data: result.rows.map(toDomainTrip),
+      pagination: {
+        page: params.page,
+        limit: params.limit,
+        total: result.count,
+        totalPages: Math.ceil(result.count / params.limit),
+      },
+    };
   }
 
   async updateStatus(id: string, status: string): Promise<boolean> {

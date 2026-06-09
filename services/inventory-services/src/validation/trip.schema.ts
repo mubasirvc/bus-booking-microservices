@@ -73,6 +73,15 @@ export const searchTripsQuerySchema = z.object({
   travelDate: z.string().date().optional(),
 
   status: z.enum(['ACTIVE', 'CANCELLED', 'COMPLETED']).optional(),
+
+  page: z.string().optional(),
+
+  limit: z.string().optional(),
+});
+
+export const listTripsQuerySchema = z.object({
+  page: z.string().optional(),
+  limit: z.string().optional(),
 });
 
 /* ---------------------------------- */
@@ -86,3 +95,5 @@ export type UpdateTripBody = z.infer<typeof updateTripSchema>;
 export type TripIdParams = z.infer<typeof tripIdParamsSchema>;
 
 export type SearchTripsQuery = z.infer<typeof searchTripsQuerySchema>;
+
+export type ListTripsQuery = z.infer<typeof listTripsQuerySchema>;

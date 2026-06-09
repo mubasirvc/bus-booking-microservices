@@ -1,4 +1,4 @@
-import { HttpError } from '@bus-booking/common';
+import { HttpError, PaginatedResponse } from '@bus-booking/common';
 
 import { Trip, CreateTripInput, UpdateTripInput } from '../types/trip.types.js';
 
@@ -21,8 +21,8 @@ class TripService {
     return trip;
   }
 
-  async getAllTrips(): Promise<Trip[]> {
-    return this.repository.findAll();
+  async getAllTrips(page: number, limit: number): Promise<PaginatedResponse<Trip>> {
+    return this.repository.findAll(page, limit);
   }
 
   async createTrip(input: CreateTripInput): Promise<Trip> {
@@ -89,14 +89,16 @@ class TripService {
     busId?: string;
     travelDate?: string;
     status?: string;
-  }): Promise<Trip[]> {
+    page: number;
+    limit: number;
+  }): Promise<PaginatedResponse<Trip>> {
     return this.repository.search(params);
   }
 
   async getTripsByRouteAndDate(routeId: string, travelDate: string): Promise<Trip[]> {
     return this.repository.findByRouteAndDate(routeId, travelDate);
   }
-
+ 
   async cancelTrip(id: string): Promise<void> {
     const updated = await this.repository.cancelTrip(id);
 
