@@ -3,6 +3,7 @@ import {tripProxyService} from '../../services/inventor-services/trip-proxy.serv
 
 import {
   createTripSchema,
+  listTripsQuerySchema,
   searchTripsQuerySchema,
   tripIdParamsSchema,
   updateTripSchema,
@@ -20,7 +21,8 @@ export const getTrip: AsyncHandler = async (req, res, next) => {
 
 export const getAllTrips: AsyncHandler = async (req, res, next) => {
   try {
-    const response = await tripProxyService.getAllTrips();
+    const query = listTripsQuerySchema.parse(req.query);
+    const response = await tripProxyService.getAllTrips(query);
     res.json(response);
   } catch (error) {
     next(error);

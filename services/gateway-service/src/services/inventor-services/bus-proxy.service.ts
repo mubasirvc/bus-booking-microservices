@@ -51,7 +51,7 @@ export interface User{
 }
 
 export const busProxyService = {
-  async getAllBuses(params: ListBusParams) {
+  async getAllBuses(params?: ListBusParams) {
     try {
       const response = await client.get('/buses', {
         headers: authHeader.headers,
