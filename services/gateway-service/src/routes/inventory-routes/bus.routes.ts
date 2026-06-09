@@ -8,6 +8,7 @@ import {
   deleteBus,
   getAllBuses,
   getBus,
+  getMyBuses,
   searchBuses,
   updateBus,
 } from '../../controllers/inventory-controllers/bus.controller.js';
@@ -15,6 +16,7 @@ import {
 import {
   busIdParamsSchema,
   createBusSchema,
+  listBusQuerySchema,
   searchBusesQuerySchema,
   updateBusSchema,
 } from '../../validation/bus.schema.js';
@@ -28,6 +30,13 @@ busRouter.get(
   
   validateRequest({ query: searchBusesQuerySchema }),
   asyncHandler(searchBuses),
+);
+
+busRouter.get(
+  '/my-buses',
+  
+  validateRequest({ query: listBusQuerySchema }),
+  asyncHandler(getMyBuses),
 );
 
 busRouter.get(

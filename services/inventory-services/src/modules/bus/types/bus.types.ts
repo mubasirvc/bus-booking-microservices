@@ -9,6 +9,7 @@ export interface BusWithSeats extends Bus {
 export interface Bus {
   id?: string;
   name: string;
+  operatorId: string;
   busNumber: string;
   type: string;
   totalSeats: number;

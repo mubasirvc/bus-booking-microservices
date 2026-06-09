@@ -5,6 +5,7 @@ import { registry } from '../registry';
 import {
   busIdParamsSchema,
   createBusSchema,
+  listBusQuerySchema,
   searchBusesQuerySchema,
   updateBusSchema,
 } from '../../validation/bus.schema';
@@ -41,6 +42,13 @@ const busSchema = z.object({
   updatedAt: z.string().datetime().openapi({
     example: '2026-05-17T10:00:00Z',
   }),
+});
+
+const paginationMetaSchema = z.object({
+  page: z.number(),
+  limit: z.number(),
+  total: z.number(),
+  totalPages: z.number(),
 });
 
 // ======================================================
@@ -134,6 +142,48 @@ registry.registerPath({
             success: z.boolean(),
 
             data: z.array(busSchema),
+            pagination: paginationMetaSchema,
+          }),
+        },
+      },
+    },
+  },
+});
+
+// ======================================================
+// GET /buses/my-buses
+// ======================================================
+
+registry.registerPath({
+  method: 'get',
+
+  path: '/buses/my-buses',
+
+  tags: ['Buses'],
+
+  summary: 'Get my buses',
+
+  security: [
+    {
+      bearerAuth: [],
+    },
+  ],
+
+  request: {
+    query: listBusQuerySchema,
+  },
+
+  responses: {
+    200: {
+      description: 'My buses fetched successfully',
+
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.boolean(),
+          
+            data: z.array(busSchema),
+            pagination: paginationMetaSchema
           }),
         },
       },

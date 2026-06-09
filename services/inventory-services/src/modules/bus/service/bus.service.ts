@@ -1,4 +1,4 @@
-import { HttpError } from '@bus-booking/common';
+import { HttpError, PaginatedResponse } from '@bus-booking/common';
 import { UniqueConstraintError } from 'sequelize';
 
 import { Bus, CreateBusInput, UpdateBusInput } from '../types/bus.types.js';
@@ -18,8 +18,8 @@ class BusService {
     return bus;
   }
 
-  async getAllBuses(): Promise<Bus[]> {
-    return this.repository.findAll();
+  async getAllBuses(params: { page: number; limit: number }): Promise<PaginatedResponse<Bus>> {
+    return this.repository.findAll(params);
   }
 
   async createBus(input: CreateBusInput): Promise<Bus> {
@@ -29,11 +29,10 @@ class BusService {
 
     try {
       const seats = Array.from({ length: input.totalSeats }, (_, index) => ({
-        seatNumber: 'S' + String(index + 1)
+        seatNumber: 'S' + String(index + 1),
       }));
 
       return await this.repository.create({ ...input, seats });
-      
     } catch (error) {
       if (error instanceof UniqueConstraintError) {
         throw new HttpError(409, 'Bus number already exists');
@@ -43,7 +42,15 @@ class BusService {
     }
   }
 
-  async updateBus(id: string, input: UpdateBusInput): Promise<Bus> {
+  async getBusesByOperator(
+    operatorId: string,
+    page = 1,
+    limit = 10,
+  ): Promise<PaginatedResponse<Bus>> {
+    return this.repository.findByOperator(operatorId, page, limit);
+  }
+
+  async updateBus(id: string, operatorId: string, input: UpdateBusInput): Promise<Bus> {
     const existing = await this.repository.findById(id);
 
     if (!existing) {
@@ -55,7 +62,7 @@ class BusService {
     }
 
     try {
-      const updated = await this.repository.update(id, input);
+      const updated = await this.repository.update(id, operatorId, input);
 
       if (!updated) {
         throw new HttpError(404, 'Bus not found');
@@ -79,7 +86,12 @@ class BusService {
     }
   }
 
-  async searchBuses(params: { name?: string; type?: string }): Promise<Bus[]> {
+  async searchBuses(params: {
+    name?: string;
+    type?: string;
+    page: number;
+    limit: number;
+  }): Promise<PaginatedResponse<Bus>> {
     return this.repository.search(params);
   }
 }
