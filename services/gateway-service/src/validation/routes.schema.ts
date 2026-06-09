@@ -58,6 +58,24 @@ export const searchRoutesQuerySchema = z.object({
   query: z.string().trim().min(2).max(255).openapi({
     example: 'Bangalore',
   }),
+
+  page: z.coerce.number().int().positive().default(1).openapi({
+    example: 1,
+  }), 
+
+  limit: z.coerce.number().int().positive().max(100).default(10).openapi({
+    example: 10,
+  }),
+});
+
+export const listRoutesQuerySchema = z.object({
+  page: z.coerce.number().int().positive().default(1).openapi({
+    example: 1,
+  }),
+
+  limit: z.coerce.number().int().positive().max(100).default(10).openapi({
+    example: 10,
+  }),
 });
 
 // ======================================================
@@ -71,3 +89,5 @@ export type UpdateRouteBody = z.infer<typeof updateRouteSchema>;
 export type RouteIdParams = z.infer<typeof routeIdParamsSchema>;
 
 export type SearchRoutesQuery = z.infer<typeof searchRoutesQuerySchema>;
+
+export type ListRoutesQuery = z.infer<typeof listRoutesQuerySchema>;

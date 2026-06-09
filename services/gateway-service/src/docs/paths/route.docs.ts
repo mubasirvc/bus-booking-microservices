@@ -4,6 +4,7 @@ import { registry } from '../registry';
 
 import {
   createRouteSchema,
+  listRoutesQuerySchema,
   routeIdParamsSchema,
   searchRoutesQuerySchema,
   updateRouteSchema,
@@ -29,6 +30,13 @@ const routeSchema = z.object({
   updatedAt: z.string(),
 });
 
+const paginationMetaSchema = z.object({
+  page: z.number(),
+  limit: z.number(),
+  total: z.number(),
+  totalPages: z.number(),
+});
+
 // ======================================================
 // GET /routes
 // ======================================================
@@ -48,6 +56,10 @@ registry.registerPath({
     },
   ],
 
+   request: {
+      query: listRoutesQuerySchema,
+    },
+
   responses: {
     200: {
       description: 'Routes fetched successfully',
@@ -58,6 +70,7 @@ registry.registerPath({
             success: z.boolean(),
 
             data: z.array(routeSchema),
+            pagination: paginationMetaSchema,
           }),
         },
       },
@@ -98,6 +111,7 @@ registry.registerPath({
             success: z.boolean(),
 
             data: z.array(routeSchema),
+            pagination: paginationMetaSchema,
           }),
         },
       },
@@ -322,7 +336,8 @@ registry.registerPath({
 
           example: {
             distanceKm: 160,
-
+            source: 'Bangalore',
+            destination: 'Mysore',
             durationMinutes: 200,
           },
         },

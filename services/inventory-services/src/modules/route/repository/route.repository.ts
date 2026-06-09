@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 
 import { RouteModel } from '../model/route.model.js';
 import { CreateRouteInput, Route, UpdateRouteInput } from '../types/route.types.js';
+import { PaginatedResponse } from '@bus-booking/common';
 
 const toDomainRoute = (model: RouteModel): Route => ({
   id: model.id,
@@ -19,15 +20,27 @@ export class RouteRepository {
     return route ? toDomainRoute(route) : null;
   }
 
-  async findAll(): Promise<Route[]> {
-    const routes = await RouteModel.findAll({
+  async findAll(page: number, limit: number): Promise<PaginatedResponse<Route>> {
+    const offset = (page - 1) * limit;
+
+    const result = await RouteModel.findAndCountAll({
       order: [
         ['source', 'ASC'],
         ['destination', 'ASC'],
       ],
+      limit,
+      offset,
     });
 
-    return routes.map(toDomainRoute);
+    return {
+      data: result.rows.map(toDomainRoute),
+      pagination: {
+        page,
+        limit,
+        total: result.count,
+        totalPages: Math.ceil(result.count / limit),
+      },
+    };
   }
 
   async create(data: CreateRouteInput): Promise<Route> {
@@ -63,10 +76,7 @@ export class RouteRepository {
     return count > 0;
   }
 
-  async findBySourceAndDestination(
-    source: string,
-    destination: string,
-  ): Promise<Route | null> {
+  async findBySourceAndDestination(source: string, destination: string): Promise<Route | null> {
     const route = await RouteModel.findOne({
       where: {
         source: { [Op.iLike]: source.trim() },
@@ -103,8 +113,14 @@ export class RouteRepository {
     return routes.map(toDomainRoute);
   }
 
-  async searchByCity(query: string): Promise<Route[]> {
-    const routes = await RouteModel.findAll({
+  async searchByCity(
+    query: string,
+    page: number,
+    limit: number,
+  ): Promise<PaginatedResponse<Route>> {
+    const offset = (page - 1) * limit;
+
+    const result = await RouteModel.findAndCountAll({
       where: {
         [Op.or]: [
           {
@@ -123,9 +139,19 @@ export class RouteRepository {
         ['source', 'ASC'],
         ['destination', 'ASC'],
       ],
+      limit,
+      offset,
     });
 
-    return routes.map(toDomainRoute);
+    return {
+      data: result.rows.map(toDomainRoute),
+      pagination: {
+        page,
+        limit,
+        total: result.count,
+        totalPages: Math.ceil(result.count / limit),
+      },
+    };
   }
 
   async findDistinctSources(): Promise<string[]> {

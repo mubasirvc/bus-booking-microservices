@@ -8,6 +8,8 @@ import {
   updateRouteSchema,
   searchRoutesQuerySchema,
   type SearchRoutesQuery,
+  ListRoutesQuery,
+  listRoutesQuerySchema,
 } from '../../validation/routes.schema';
 
 
@@ -26,7 +28,8 @@ export const getRoute: AsyncHandler = async (req, res, next) => {
 
 export const getAllRoutes: AsyncHandler = async (req, res, next) => {
   try {
-    const response = await routeProxyService.getAllRoutes();
+    const query: ListRoutesQuery = listRoutesQuerySchema.parse(req.query);
+    const response = await routeProxyService.getAllRoutes(query);
 
     res.json(response);
   } catch (error) {

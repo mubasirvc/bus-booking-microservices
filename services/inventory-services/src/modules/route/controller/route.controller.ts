@@ -23,7 +23,10 @@ export const getRoute: AsyncHandler = async (req, res, next) => {
 
 export const getAllRoutes: AsyncHandler = async (req, res, next) => {
   try {
-    const routes = await routeService.getAllRoutes();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const routes = await routeService.getAllRoutes(page, limit);
 
     res.json({ data: routes });
   } catch (error) {
@@ -73,8 +76,10 @@ export const deleteRoute: AsyncHandler = async (req, res, next) => {
 export const searchRoutes: AsyncHandler = async (req, res, next) => {
   try {
     const { query } = req.query as unknown as SearchRoutesQuery;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
 
-    const routes = await routeService.searchRoutes(query);
+    const routes = await routeService.searchRoutes(query, page, limit);
 
     res.json({ data: routes });
   } catch (error) {
