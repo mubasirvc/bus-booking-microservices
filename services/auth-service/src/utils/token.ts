@@ -1,6 +1,7 @@
 import { env } from "../config/env.js";
 import bcrypt from "bcrypt";
 import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
+import { UserRole } from "../types/auth.js";
 
 const ACCESS_TOKEN: Secret = env.JWT_SECRET;
 const REFRESH_TOKEN: Secret = env.JWT_REFRESH_SECRET;
@@ -26,6 +27,7 @@ export const verifyPassword = async (
 export interface AccessTokenPayload {
   sub: string; // userId
   email: string;
+  role: UserRole;
 }
 
 export interface RefreshTokenPayload {

@@ -8,6 +8,7 @@ import { env } from '../config/env';
 interface AccessTokenClaims {
   sub: string;
   email?: string;
+  role?: 'ADMIN' | 'CUSTOMER' | 'OPERATOR';
 }
 
 const parseAuthorizationHeader = (value: string | undefined): string => {
@@ -32,6 +33,7 @@ const toAuthenticatedUser = (claims: AccessTokenClaims): AuthenticatedUser => {
   return {
     id: claims.sub,
     email: claims.email,
+    role: claims.role,
   };
 };
 

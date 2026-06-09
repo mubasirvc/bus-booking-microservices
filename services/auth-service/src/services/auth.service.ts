@@ -33,15 +33,17 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
         email: input.email,
         userName: input.userName,
         passwordHash,
+        role: input.role,
+        isVerified: false,
       },
-      { transaction },
+      { transaction }
     );
 
     const refreshTokenRecord = await createRefreshToken(user.id, transaction);
 
     await transaction.commit();
 
-    const accessToken = signAccessToken({ sub: user.id, email: user.email });
+    const accessToken = signAccessToken({ sub: user.id, email: user.email, role: user.role });
     const refreshToken = signRefreshToken({
       sub: user.id,
       tokenId: refreshTokenRecord.tokenId,
@@ -51,6 +53,7 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
       id: user.id,
       email: user.email,
       userName: user.userName,
+      role: user.role,
       createdAt: user.createdAt.toISOString(),
     };
 
@@ -80,12 +83,11 @@ export const login = async (input: LoginInput): Promise<AuthTokens> => {
 
   const refreshTokenRecord = await createRefreshToken(credential.id);
 
-  const accessToken = signAccessToken({ sub: credential.id, email: credential.email });
+  const accessToken = signAccessToken({ sub: credential.id, email: credential.email, role: credential.role });
   const refreshToken = signRefreshToken({
     sub: credential.id,
     tokenId: refreshTokenRecord.tokenId,
   });
-
   return {
     accessToken,
     refreshToken,
@@ -119,7 +121,7 @@ export const refreshTokens = async (token: string): Promise<AuthTokens> => {
   const newTokenRecord = await createRefreshToken(credential.id);
 
   return {
-    accessToken: signAccessToken({ sub: credential.id, email: credential.email }),
+    accessToken: signAccessToken({ sub: credential.id, email: credential.email, role: credential.role }),
     refreshToken: signRefreshToken({ sub: credential.id, tokenId: newTokenRecord.tokenId }),
   };
 };
