@@ -33,8 +33,8 @@ routeRouter.get('/destinations',  asyncHandler(getDestinations));
 
 routeRouter.get('/:id', validateRequest({ params: routeIdParamsSchema,}),asyncHandler(getRoute),);
 
-routeRouter.post('/', validateRequest({   body: createRouteSchema, }), asyncHandler(createRoute));
+routeRouter.post('/', requireAuth, validateRequest({   body: createRouteSchema, }), asyncHandler(createRoute));
 
-routeRouter.patch('/:id',validateRequest({  params: routeIdParamsSchema,  body: updateRouteSchema,}),asyncHandler(updateRoute),);
+routeRouter.patch('/:id',requireAuth, validateRequest({  params: routeIdParamsSchema,  body: updateRouteSchema,}),asyncHandler(updateRoute),);
 
-routeRouter.delete('/:id',  validateRequest({   params: routeIdParamsSchema, }), asyncHandler(deleteRoute),);
+routeRouter.delete('/:id',  requireAuth, validateRequest({   params: routeIdParamsSchema, }), asyncHandler(deleteRoute),);

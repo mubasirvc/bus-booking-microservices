@@ -1,5 +1,6 @@
+import { AuthenticatedUser } from '@bus-booking/common';
 import { ListTripsQuery } from '../../validation/trip.schema';
-import { client, authHeader, handleAxiosError } from './client';
+import { client, authHeader, handleAxiosError, buildInternalHeaders } from './client';
 
 export interface TripDto {
   id: string;
@@ -49,7 +50,6 @@ export interface SearchTripsParams {
 }
 
 
-
 export const tripProxyService = {
   async getTripById(id: string): Promise<TripResponse> {
     try {
@@ -72,39 +72,47 @@ export const tripProxyService = {
     }
   },
 
-  async createTrip(payload: CreateTripPayload): Promise<TripResponse> {
+  async createTrip(user: AuthenticatedUser, payload: CreateTripPayload): Promise<TripResponse> {
     try {
-      const response = await client.post<TripResponse>('/trips', payload, authHeader);
+      const response = await client.post<TripResponse>('/trips', payload, {
+        headers: buildInternalHeaders(user),
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error);
     }
   },
 
-  async updateTrip(id: string, payload: UpdateTripPayload): Promise<TripResponse> {
+  async updateTrip(user: AuthenticatedUser, id: string, payload: UpdateTripPayload): Promise<TripResponse> {
     try {
-      const response = await client.patch<TripResponse>(`/trips/${id}`, payload, authHeader);
+      const response = await client.patch<TripResponse>(`/trips/${id}`, payload, {
+        headers: buildInternalHeaders(user),
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error);
     }
   },
 
-  async deleteTrip(id: string): Promise<{ message: string }> {
+  async deleteTrip(user: AuthenticatedUser, id: string): Promise<{ message: string }> {
     try {
-      const response = await client.delete<{ message: string }>(`/trips/${id}`, authHeader);
+      const response = await client.delete<{ message: string }>(`/trips/${id}`, {
+        headers: buildInternalHeaders(user),
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error);
     }
   },
 
-  async cancelTrip(id: string): Promise<{ message: string }> {
+  async cancelTrip(user: AuthenticatedUser, id: string): Promise<{ message: string }> {
     try {
       const response = await client.patch<{ message: string }>(
         `/trips/${id}/cancel`,
         {},
-        authHeader,
+        {
+          headers: buildInternalHeaders(user),
+        },
       );
       return response.data;
     } catch (error) {

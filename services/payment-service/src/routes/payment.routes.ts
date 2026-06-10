@@ -1,4 +1,4 @@
-import { asyncHandler, validateRequest } from '@bus-booking/common';
+import { asyncHandler, Role, validateRequest } from '@bus-booking/common';
 import { createPayment, paymentWebhook } from '../controllers/payment.controller.js';
 import { createPaymentSchema, paymentWebhookSchema } from '../validation/paymet.schema.js';
 
@@ -6,9 +6,22 @@ import { Router } from 'express';
 
 export const paymentRoutes: Router = Router();
 
+import { requireRole } from '../middleware/require-role.js';
+
 paymentRoutes.post(
   '/create-order',
-  validateRequest({ body: createPaymentSchema }),
+  requireRole(Role.USER),
+  validateRequest({
+    body: createPaymentSchema,
+  }),
   asyncHandler(createPayment),
 );
-paymentRoutes.post('/webhook', validateRequest({ body: paymentWebhookSchema }), asyncHandler(paymentWebhook));
+
+paymentRoutes.post(
+  '/webhook',
+  requireRole(Role.USER),
+  validateRequest({
+    body: paymentWebhookSchema,
+  }),
+  asyncHandler(paymentWebhook),
+);

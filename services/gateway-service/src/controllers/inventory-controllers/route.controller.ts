@@ -11,6 +11,7 @@ import {
   ListRoutesQuery,
   listRoutesQuerySchema,
 } from '../../validation/routes.schema';
+import { getAuthenticatedUser } from '../../utils/auth';
 
 
 export const getRoute: AsyncHandler = async (req, res, next) => {
@@ -41,8 +42,8 @@ export const getAllRoutes: AsyncHandler = async (req, res, next) => {
 export const createRoute: AsyncHandler = async (req, res, next) => {
   try {
     const payload = createRouteSchema.parse(req.body);
-
-    const response = await routeProxyService.createRoute(payload);
+const user = getAuthenticatedUser(req);
+    const response = await routeProxyService.createRoute(user, payload);
 
     res.status(201).json(response);
   } catch (error) {
@@ -58,7 +59,8 @@ export const updateRoute: AsyncHandler = async (req, res, next) => {
 
     const payload = updateRouteSchema.parse(req.body);
 
-    const response = await routeProxyService.updateRoute(id, payload);
+    const user = getAuthenticatedUser(req);
+    const response = await routeProxyService.updateRoute(user, id, payload);
 
     res.json(response);
   } catch (error) {
@@ -71,8 +73,9 @@ export const updateRoute: AsyncHandler = async (req, res, next) => {
 export const deleteRoute: AsyncHandler = async (req, res, next) => {
   try {
     const { id } = routeIdParamsSchema.parse(req.params);
+    const user = getAuthenticatedUser(req);
 
-    const response = await routeProxyService.deleteRoute(id);
+    const response = await routeProxyService.deleteRoute(user, id);
 
     res.json(response);
   } catch (error) {

@@ -1,5 +1,6 @@
+import { AuthenticatedUser } from '@bus-booking/common/src/http/auth';
 import { ListRoutesQuery } from '../../validation/routes.schema';
-import { client, authHeader, handleAxiosError } from './client';
+import { client, authHeader, handleAxiosError, buildInternalHeaders } from './client';
 
 export interface RouteDto {
   id: string;
@@ -47,6 +48,19 @@ export const routeProxyService = {
     }
   },
 
+   async searchRoutes(query: string): Promise<RouteListResponse> {
+    try {
+      const response = await client.get<RouteListResponse>('/routes/search', {
+        headers: authHeader.headers,
+        params: { query },
+      });
+
+      return response.data;
+    } catch (error) {
+      return handleAxiosError(error);
+    }
+  },
+
   async getRouteById(id: string): Promise<RouteResponse> {
     try {
       const response = await client.get<RouteResponse>(`/routes/${id}`, {
@@ -59,10 +73,10 @@ export const routeProxyService = {
     } 
   },
 
-  async createRoute(payload: CreateRoutePayload): Promise<RouteResponse> {
+  async createRoute(user: AuthenticatedUser, payload: CreateRoutePayload): Promise<RouteResponse> {
     try {
       const response = await client.post<RouteResponse>('/routes', payload, {
-        headers: authHeader.headers,
+        headers: buildInternalHeaders(user),
       });
 
       return response.data;
@@ -71,10 +85,10 @@ export const routeProxyService = {
     }
   },
 
-  async updateRoute(id: string, payload: UpdateRoutePayload): Promise<RouteResponse> {
+  async updateRoute(user: AuthenticatedUser, id: string, payload: UpdateRoutePayload): Promise<RouteResponse> {
     try {
       const response = await client.patch<RouteResponse>(`/routes/${id}`, payload, {
-        headers: authHeader.headers,
+        headers: buildInternalHeaders(user),
       });
 
       return response.data;
@@ -83,10 +97,10 @@ export const routeProxyService = {
     }
   },
 
-  async deleteRoute(id: string): Promise<{ message: string }> {
+  async deleteRoute(user: AuthenticatedUser, id: string): Promise<{ message: string }> {
     try {
       const response = await client.delete<{ message: string }>(`/routes/${id}`, {
-        headers: authHeader.headers,
+        headers: buildInternalHeaders(user),
       });
 
       return response.data;
@@ -95,18 +109,7 @@ export const routeProxyService = {
     }
   },
 
-  async searchRoutes(query: string): Promise<RouteListResponse> {
-    try {
-      const response = await client.get<RouteListResponse>('/routes/search', {
-        headers: authHeader.headers,
-        params: { query },
-      });
-
-      return response.data;
-    } catch (error) {
-      return handleAxiosError(error);
-    }
-  },
+ 
 
   async getSources(): Promise<{
     data: string[];

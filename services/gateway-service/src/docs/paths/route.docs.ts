@@ -50,12 +50,6 @@ registry.registerPath({
 
   summary: 'Get all routes',
 
-  security: [
-    {
-      bearerAuth: [],
-    },
-  ],
-
    request: {
       query: listRoutesQuerySchema,
     },
@@ -91,12 +85,6 @@ registry.registerPath({
 
   summary: 'Search routes',
 
-  security: [
-    {
-      bearerAuth: [],
-    },
-  ],
-
   request: {
     query: searchRoutesQuerySchema,
   },
@@ -131,12 +119,6 @@ registry.registerPath({
   tags: ['Routes'],
 
   summary: 'Get available route sources',
-
-  security: [
-    {
-      bearerAuth: [],
-    },
-  ],
 
   responses: {
     200: {
@@ -174,11 +156,6 @@ registry.registerPath({
 
   summary: 'Get available route destinations',
 
-  security: [
-    {
-      bearerAuth: [],
-    },
-  ],
 
   responses: {
     200: {
@@ -215,12 +192,6 @@ registry.registerPath({
   tags: ['Routes'],
 
   summary: 'Get route by id',
-
-  security: [
-    {
-      bearerAuth: [],
-    },
-  ],
 
   request: {
     params: routeIdParamsSchema,

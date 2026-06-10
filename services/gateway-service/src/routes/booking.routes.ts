@@ -23,11 +23,11 @@ import {
 
 export const bookingRouter: Router = Router();
 
-bookingRouter.get('/',  asyncHandler(getAllBookings));
+bookingRouter.get('/', requireAuth, asyncHandler(getAllBookings));
 
 bookingRouter.get(
   '/search',
-  
+  requireAuth,
   validateRequest({
     query: searchBookingsQuerySchema,
   }),
@@ -36,7 +36,7 @@ bookingRouter.get(
 
 bookingRouter.get(
   '/user',
-  
+  requireAuth,
   validateRequest({
     query: searchBookingsQuerySchema,
   }),
@@ -45,7 +45,7 @@ bookingRouter.get(
 
 bookingRouter.get(
   '/:id',
-  
+  requireAuth,
   validateRequest({
     params: bookingIdParamsSchema,
   }),
@@ -54,7 +54,7 @@ bookingRouter.get(
 
 bookingRouter.post(
   '/',
-  
+  requireAuth,
   validateRequest({
     body: createBookingSchema,
   }),
@@ -63,7 +63,7 @@ bookingRouter.post(
 
 // bookingRouter.patch(
 //   '/:id',
-  
+//   requireAuth,
 //   validateRequest({
 //     params: bookingIdParamsSchema,
 //     body: updateBookingSchema,
@@ -73,7 +73,7 @@ bookingRouter.post(
 
 bookingRouter.patch(
   '/:id/cancel',
-  
+  requireAuth,
   validateRequest({
     params: bookingIdParamsSchema,
   }),
@@ -82,7 +82,7 @@ bookingRouter.patch(
 
 // bookingRouter.delete(
 //   '/:id',
-  
+//   requireAuth,
 //   validateRequest({
 //     params: bookingIdParamsSchema,
 //   }),
