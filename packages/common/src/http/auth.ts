@@ -1,7 +1,13 @@
 export interface AuthenticatedUser {
   id: string;
   email?: string;
-  role: 'ADMIN' | 'CUSTOMER' | 'OPERATOR';
+  role: Role;
+}
+
+export enum Role {
+  USER = 'USER',
+  OPERATOR = 'OPERATOR',
+  ADMIN = 'ADMIN',
 }
 
 export const USER_ID_HEADER = 'x-user-id';
