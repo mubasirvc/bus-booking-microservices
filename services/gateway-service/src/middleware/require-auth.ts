@@ -8,7 +8,7 @@ import { env } from '../config/env';
 interface AccessTokenClaims {
   sub: string;
   email?: string;
-  role?: 'ADMIN' | 'CUSTOMER' | 'OPERATOR';
+  role: 'ADMIN' | 'CUSTOMER' | 'OPERATOR';
 }
 
 const parseAuthorizationHeader = (value: string | undefined): string => {

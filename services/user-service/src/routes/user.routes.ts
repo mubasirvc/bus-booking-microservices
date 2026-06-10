@@ -18,5 +18,5 @@ userRoutes.get(
 );
 userRoutes.get('/:id', validateRequest({ params: userIdParamsSchema }), asyncHandler(getUser));
 userRoutes.post('/', validateRequest({ body: createUserSchema }), asyncHandler(createUser));
-userRoutes.get('/', getMyBookings);
-userRoutes.get('/:bookingId', getBookingDetails);
+userRoutes.get('/my-bookings', asyncHandler(getMyBookings));
+userRoutes.get('/my-bookings/:bookingId', asyncHandler(getBookingDetails));
