@@ -1,4 +1,4 @@
-import { asyncHandler, validateRequest } from '@bus-booking/common';
+import { asyncHandler, Role, validateRequest } from '@bus-booking/common';
 import { Router } from 'express';
 
 import {
@@ -17,21 +17,24 @@ import {
   searchBookingsQuerySchema,
   updateBookingSchema,
 } from '../validation/booking.schema.js';
+import { requireRole } from '../middleware/require-role.js';
 
 export const bookingRoutes: Router = Router();
 
-bookingRoutes.get('/', asyncHandler(getAllBookings));
-
 bookingRoutes.get(
   '/search',
+  requireRole(Role.ADMIN, Role.OPERATOR),
   validateRequest({
     query: searchBookingsQuerySchema,
   }),
   asyncHandler(searchBookings),
 );
 
+bookingRoutes.get('/', requireRole(Role.ADMIN), asyncHandler(getAllBookings));
+
 bookingRoutes.get(
   '/user',
+  requireRole(Role.USER, Role.ADMIN),
   validateRequest({
     query: searchBookingsQuerySchema,
   }),
@@ -40,6 +43,7 @@ bookingRoutes.get(
 
 bookingRoutes.get(
   '/:id',
+  requireRole(Role.ADMIN, Role.USER, Role.OPERATOR),
   validateRequest({
     params: bookingIdParamsSchema,
   }),
@@ -48,6 +52,7 @@ bookingRoutes.get(
 
 bookingRoutes.post(
   '/',
+  requireRole(Role.USER),
   validateRequest({
     body: createBookingSchema,
   }),
@@ -56,6 +61,7 @@ bookingRoutes.post(
 
 bookingRoutes.patch(
   '/:id/cancel',
+  requireRole(Role.USER, Role.ADMIN),
   validateRequest({
     params: bookingIdParamsSchema,
   }),
@@ -64,6 +70,7 @@ bookingRoutes.patch(
 
 // bookingRoutes.delete(
 //   '/:id',
+//   requireRole('ADMIN'),
 //   validateRequest({
 //     params: bookingIdParamsSchema,
 //   }),

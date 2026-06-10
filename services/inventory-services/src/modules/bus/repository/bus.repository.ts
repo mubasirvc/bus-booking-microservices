@@ -24,7 +24,7 @@ export class BusRepository {
     return bus ? toDomainBus(bus) : null;
   }
 
-  async findAll(params: { page: number; limit: number }): Promise<PaginatedResponse<Bus>> {
+  async findAll(params: { page: number; limit: number }): Promise<PaginatedResponse<Bus | null>> {
     const { page, limit } = params;
 
     const offset = (page - 1) * limit;

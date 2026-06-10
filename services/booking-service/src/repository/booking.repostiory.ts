@@ -7,6 +7,7 @@ import {
   CreateBookingInput,
   UpdateBookingInput,
 } from '../types/booking.js';
+import { PaginatedResponse } from '@bus-booking/common';
 
 const toDomainBooking = (model: BookingModel): Booking => ({
   id: model.id,
@@ -73,27 +74,39 @@ export class BookingRepository {
     return deleted > 0;
   }
 
-  async findByUserId(userId: string): Promise<Booking[]> {
-    const bookings = await BookingModel.findAll({
+  async findByUserId(
+    userId: string,
+    page = 1,
+    limit = 10,
+  ): Promise<PaginatedResponse<Booking | null>> {
+    const offset = (page - 1) * limit;
+
+    const result = await BookingModel.findAndCountAll({
       where: { userId },
+      limit,
+      offset,
       order: [['createdAt', 'DESC']],
     });
 
-    return bookings.map(toDomainBooking);
+    return {
+      data: result.rows.map(toDomainBooking),
+
+      pagination: {
+        page,
+        limit,
+        total: result.count,
+        totalPages: Math.ceil(result.count / limit),
+      },
+    };
   }
 
   async search(params: {
-    userId?: string;
     tripId?: string;
     status?: string;
     page?: number;
     limit?: number;
-  }) {
+  }): Promise<PaginatedResponse<Booking | null>> {
     const where: WhereOptions = {};
-
-    if (params.userId) {
-      where.userId = params.userId;
-    }
 
     if (params.tripId) {
       where.tripId = params.tripId;
@@ -105,7 +118,6 @@ export class BookingRepository {
 
     const page = params.page || 1;
     const limit = params.limit || 10;
-
     const offset = (page - 1) * limit;
 
     const result = await BookingModel.findAndCountAll({

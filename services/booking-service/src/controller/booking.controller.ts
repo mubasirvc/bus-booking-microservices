@@ -68,9 +68,13 @@ export const deleteBooking: AsyncHandler = async (req, res, next) => {
 
 export const getBookingsByUser: AsyncHandler = async (req, res, next) => {
   try {
-    const query = req.query as unknown as SearchBookingsQuery;
+    const userId = req.headers['x-user-id'] as string;
 
-    const bookings = await bookingService.getBookingsByUser(query.userId!);
+    const page = Number(req.query.page) || 1;
+
+    const limit = Number(req.query.limit) || 10;
+
+    const bookings = await bookingService.getBookingsByUser(userId, page, limit);
 
     res.json({ data: bookings });
   } catch (error) {
@@ -87,7 +91,6 @@ export const searchBookings: AsyncHandler = async (req, res, next) => {
     const limit = Number(query.limit) || 10;
 
     const result = await bookingService.searchBookings({
-      userId: query.userId,
       tripId: query.tripId,
       status: query.status,
       page,
