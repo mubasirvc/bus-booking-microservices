@@ -82,9 +82,11 @@ export interface SearchBookingsParams {
 }
 
 export const bookingProxyService = {
-  async getBookingById(id: string): Promise<BookingResponse> {
+  async getBookingById(user: AuthenticatedUser, id: string): Promise<BookingResponse> {
     try {
-      const response = await client.get<BookingResponse>(`/bookings/${id}`, authHeader);
+      const response = await client.get<BookingResponse>(`/bookings/${id}`, {
+        headers: buildInternalHeaders(user),
+      });
 
       return response.data;
     } catch (error) {
@@ -92,10 +94,14 @@ export const bookingProxyService = {
     }
   },
 
-  async getAllBookings(page: number, limit: number): Promise<BookingListResponse> {
+  async getAllBookings(
+    user: AuthenticatedUser,
+    page: number,
+    limit: number,
+  ): Promise<BookingListResponse> {
     try {
       const response = await client.get<BookingListResponse>('/bookings', {
-        headers: authHeader.headers,
+        headers: buildInternalHeaders(user),
         params: { page, limit },
       });
 
@@ -105,9 +111,14 @@ export const bookingProxyService = {
     }
   },
 
-  async createBooking(payload: CreateBookingPayload): Promise<BookingResponse> {
+  async createBooking(
+    user: AuthenticatedUser,
+    payload: CreateBookingPayload,
+  ): Promise<BookingResponse> {
     try {
-      const response = await client.post<BookingResponse>('/bookings', payload, authHeader);
+      const response = await client.post<BookingResponse>('/bookings', payload, {
+        headers: buildInternalHeaders(user),
+      });
 
       return response.data;
     } catch (error) {
@@ -115,9 +126,15 @@ export const bookingProxyService = {
     }
   },
 
-  async updateBooking(id: string, payload: UpdateBookingPayload): Promise<BookingResponse> {
+  async updateBooking(
+    user: AuthenticatedUser,
+    id: string,
+    payload: UpdateBookingPayload,
+  ): Promise<BookingResponse> {
     try {
-      const response = await client.patch<BookingResponse>(`/bookings/${id}`, payload, authHeader);
+      const response = await client.patch<BookingResponse>(`/bookings/${id}`, payload, {
+        headers: buildInternalHeaders(user),
+      });
 
       return response.data;
     } catch (error) {
@@ -125,11 +142,11 @@ export const bookingProxyService = {
     }
   },
 
-  async deleteBooking(id: string): Promise<{ message: string }> {
+  async deleteBooking(user: AuthenticatedUser, id: string): Promise<{ message: string }> {
     try {
       const response = await client.delete<{
         message: string;
-      }>(`/bookings/${id}`, authHeader);
+      }>(`/bookings/${id}`, { headers: buildInternalHeaders(user) });
 
       return response.data;
     } catch (error) {
@@ -137,13 +154,11 @@ export const bookingProxyService = {
     }
   },
 
-  async cancelBooking(id: string): Promise<BookingResponse> {
+  async cancelBooking(user: AuthenticatedUser, id: string): Promise<BookingResponse> {
     try {
-      const response = await client.patch<BookingResponse>(
-        `/bookings/${id}/cancel`,
-        {},
-        authHeader,
-      );
+      const response = await client.patch<BookingResponse>(`/bookings/${id}/cancel`, {
+        headers: buildInternalHeaders(user),
+      });
 
       return response.data;
     } catch (error) {
@@ -151,10 +166,13 @@ export const bookingProxyService = {
     }
   },
 
-  async searchBookings(params: SearchBookingsParams): Promise<BookingListResponse> {
+  async searchBookings(
+    user: AuthenticatedUser,
+    params: SearchBookingsParams,
+  ): Promise<BookingListResponse> {
     try {
       const response = await client.get<BookingListResponse>('/bookings/search', {
-        headers: authHeader.headers,
+        headers: buildInternalHeaders(user),
         params,
       });
 
