@@ -1,6 +1,6 @@
 import { asyncHandler, validateRequest } from '@bus-booking/common';
 import { createPayment, paymentWebhook } from '../controllers/payment.controller.js';
-import { createPaymentSchema } from '../validation/paymet.schema.js';
+import { createPaymentSchema, paymentWebhookSchema } from '../validation/paymet.schema.js';
 
 import { Router } from 'express';
 
@@ -11,4 +11,4 @@ paymentRoutes.post(
   validateRequest({ body: createPaymentSchema }),
   asyncHandler(createPayment),
 );
-paymentRoutes.post('/webhook', asyncHandler(paymentWebhook));
+paymentRoutes.post('/webhook', validateRequest({ body: paymentWebhookSchema }), asyncHandler(paymentWebhook));

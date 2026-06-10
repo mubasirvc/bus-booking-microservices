@@ -217,3 +217,206 @@ registry.registerPath({
 //     },
 //   },
 // });
+
+
+// ======================================================
+// Shared Schemas
+// ======================================================
+
+const myBookingSchema = z.object({
+  bookingId: z.string().uuid().openapi({
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  }),
+
+  tripId: z.string().uuid().openapi({
+    example: '550e8400-e29b-41d4-a716-446655440001',
+  }),
+
+  userId: z.string().uuid().openapi({
+    example: '550e8400-e29b-41d4-a716-446655440002',
+  }),
+
+  seats: z.array(z.string()).openapi({
+    example: ['A1', 'A2'],
+  }),
+
+  totalFare: z.number().openapi({
+    example: 1200,
+  }),
+
+  status: z.enum([
+    'PENDING',
+    'CONFIRMED',
+    'CANCELLED',
+  ]),
+
+  createdAt: z.string().datetime().openapi({
+    example: '2026-06-10T10:00:00Z',
+  }),
+
+  updatedAt: z.string().datetime().openapi({
+    example: '2026-06-10T10:05:00Z',
+  }),
+});
+
+const paginationMetaSchema = z.object({
+  page: z.number(),
+  limit: z.number(),
+  total: z.number(),
+  totalPages: z.number(),
+});
+
+// ======================================================
+// GET /my-bookings
+// ======================================================
+
+registry.registerPath({
+  method: 'get',
+
+  path: '/users/my-bookings',
+
+  tags: ['Users'],
+
+  summary: 'Get user bookings',
+
+  security: [
+    {
+      bearerAuth: [],
+    },
+  ],
+
+  request: {
+    query: z.object({
+      status: z
+        .enum(['PENDING', 'CONFIRMED', 'CANCELLED'])
+        .optional(),
+
+      page: z.coerce.number().optional(),
+
+      limit: z.coerce.number().optional(),
+    }),
+  },
+
+  responses: {
+    200: {
+      description: 'Bookings fetched successfully',
+
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.boolean(),
+
+            data: z.array(myBookingSchema),
+
+            pagination: paginationMetaSchema,
+          }),
+
+          example: {
+            success: true,
+
+            data: [
+              {
+                bookingId:
+                  '550e8400-e29b-41d4-a716-446655440000',
+
+                tripId:
+                  '550e8400-e29b-41d4-a716-446655440001',
+
+                userId:
+                  '550e8400-e29b-41d4-a716-446655440002',
+
+                seats: ['A1', 'A2'],
+
+                totalFare: 1200,
+
+                status: 'CONFIRMED',
+
+                createdAt: '2026-06-10T10:00:00Z',
+
+                updatedAt: '2026-06-10T10:05:00Z',
+              },
+            ],
+
+            pagination: {
+              page: 1,
+              limit: 10,
+              total: 1,
+              totalPages: 1,
+            },
+          },
+        },
+      },
+    },
+  },
+});
+
+// ======================================================
+// GET /my-bookings/{bookingId}
+// ======================================================
+
+registry.registerPath({
+  method: 'get',
+
+  path: '/users/my-bookings/{bookingId}',
+
+  tags: ['Users'],
+
+  summary: 'Get booking details',
+
+  security: [
+    {
+      bearerAuth: [],
+    },
+  ],
+
+  request: {
+    params: z.object({
+      bookingId: z.string().uuid(),
+    }),
+  },
+
+  responses: {
+    200: {
+      description: 'Booking fetched successfully',
+
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.boolean(),
+
+            data: myBookingSchema,
+          }),
+
+          example: {
+            success: true,
+
+            data: {
+              bookingId:
+                '550e8400-e29b-41d4-a716-446655440000',
+
+              tripId:
+                '550e8400-e29b-41d4-a716-446655440001',
+
+              userId:
+                '550e8400-e29b-41d4-a716-446655440002',
+
+              seats: ['A1', 'A2'],
+
+              totalFare: 1200,
+
+              status: 'CONFIRMED',
+
+              createdAt: '2026-06-10T10:00:00Z',
+
+              updatedAt: '2026-06-10T10:05:00Z',
+            },
+          },
+        },
+      },
+    },
+
+    404: {
+      description: 'Booking not found',
+    },
+  },
+});

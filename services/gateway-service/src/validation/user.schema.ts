@@ -41,4 +41,16 @@ export const searchUsersQuerySchema = z.object({
   exclude: excludeSchema,
 });
 
+export const listUsersQuerySchema = z.object({
+  page: z.coerce.number().int().positive().optional().openapi({
+    example: 1,
+  }),
+
+  limit: z.coerce.number().int().positive().optional().openapi({
+    example: 10,
+  }),
+});
+
+
 export type SearchUsersQuery = z.infer<typeof searchUsersQuerySchema>;
+export type ListUsersQuery = z.infer<typeof listUsersQuerySchema>;
