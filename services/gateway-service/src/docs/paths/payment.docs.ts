@@ -29,11 +29,7 @@ const paymentSchema = z.object({
     example: 1200,
   }),
 
-  status: z.enum([
-    'PENDING',
-    'SUCCESS',
-    'FAILED',
-  ]),
+  status: z.enum(['PENDING', 'SUCCESS', 'FAILED']),
 
   createdAt: z.string().datetime().openapi({
     example: '2026-06-09T10:00:00Z',
@@ -53,8 +49,7 @@ const webhookSchema = z.object({
     payment: z.object({
       entity: z.object({
         id: z.string().openapi({
-          example:
-            'd3e71e93-cf53-4924-b251-f723a1128d78',
+          example: 'd3e71e93-cf53-4924-b251-f723a1128d78',
         }),
 
         order_id: z.string().openapi({
@@ -93,8 +88,7 @@ registry.registerPath({
           schema: createPaymentSchema,
 
           example: {
-            bookingId:
-              '550e8400-e29b-41d4-a716-446655440000',
+            bookingId: '550e8400-e29b-41d4-a716-446655440000',
             amount: 1200,
           },
         },
@@ -139,6 +133,12 @@ registry.registerPath({
   tags: ['Payments'],
 
   summary: 'Payment provider webhook',
+
+  security: [
+    {
+      bearerAuth: [],
+    },
+  ],
 
   request: {
     body: {
