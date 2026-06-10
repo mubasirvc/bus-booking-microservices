@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { HttpError } from '@bus-booking/common';
+import { AuthenticatedUser, HttpError } from '@bus-booking/common';
 
 import { env } from '../config/env.js';
 
@@ -13,6 +13,12 @@ const authHeader = {
     'X-Internal-Token': env.INTERNAL_API_TOKEN,
   },
 } as const;
+
+export const buildInternalHeaders = (user: AuthenticatedUser) => ({
+  'X-Internal-Token': env.INTERNAL_API_TOKEN,
+  'X-User-Id': user.id,
+  'X-User-Role': user.role,
+});
 
 const resolveMessage = (status: number, data: unknown): string => {
   if (typeof data === 'object' && data && 'message' in data) {
@@ -66,9 +72,13 @@ export interface CreatePaymentPayload {
 }
 
 export const paymentProxyService = {
-  async createOrder(payload: CreatePaymentPayload) {
+  async createOrder(user: AuthenticatedUser, payload: CreatePaymentPayload) {
     try {
-      const response = await client.post('/payments/create-order', payload, authHeader);
+      const response = await client.post('/payments/create-order', payload, {
+        headers: {
+          ...buildInternalHeaders(user),
+        },
+      });
 
       return response.data;
     } catch (error) {
@@ -76,9 +86,13 @@ export const paymentProxyService = {
     }
   },
 
-  async webhook(payload: unknown) {
+  async webhook(user: AuthenticatedUser, payload: unknown) {
     try {
-      const response = await client.post('/payments/webhook', payload, authHeader);
+      const response = await client.post('/payments/webhook', payload, {
+        headers: {
+          ...buildInternalHeaders(user),
+        },
+      });
 
       return response.data;
     } catch (error) {
