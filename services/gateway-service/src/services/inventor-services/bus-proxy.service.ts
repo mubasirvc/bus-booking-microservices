@@ -1,4 +1,5 @@
-import { client, authHeader, handleAxiosError } from './client';
+import { AuthenticatedUser } from '@bus-booking/common/src/http/auth';
+import { client, authHeader, handleAxiosError, buildInternalHeaders } from './client';
 
 export interface BusDto {
   id: string;
@@ -51,10 +52,10 @@ export interface User{
 }
 
 export const busProxyService = {
-  async getAllBuses(params?: ListBusParams) {
+  async getAllBuses(user: AuthenticatedUser, params?: ListBusParams) {
     try {
       const response = await client.get('/buses', {
-        headers: authHeader.headers,
+        headers: buildInternalHeaders(user),
         params,
       });
 
@@ -64,14 +65,10 @@ export const busProxyService = {
     }
   },
 
-  async getMyBuses(params: ListBusParams) {
+  async getMyBuses(user: AuthenticatedUser, params: ListBusParams) {
     try {
       const response = await client.get('/buses/my-buses', {
-        headers: {
-          ...authHeader.headers,
-          // 'X-User-Id': user.id,
-          // 'X-User-Role': user.role,
-        },
+        headers: buildInternalHeaders(user),
         params,
       });
 
@@ -81,14 +78,10 @@ export const busProxyService = {
     }
   },
 
-  async createBus(payload: CreateBusPayload) {
+  async createBus(user: AuthenticatedUser, payload: CreateBusPayload) {
     try {
       const response = await client.post('/buses', payload, {
-        headers: {
-          ...authHeader.headers,
-          // 'X-User-Id': user.id,
-          // 'X-User-Role': user.role,
-        },
+        headers: buildInternalHeaders(user),
       });
 
       return response.data;
@@ -97,14 +90,10 @@ export const busProxyService = {
     }
   },
 
-  async updateBus(id: string, payload: UpdateBusPayload) {
+  async updateBus(user: AuthenticatedUser, id: string, payload: UpdateBusPayload) {
     try {
       const response = await client.patch(`/buses/${id}`, payload, {
-        headers: {
-          ...authHeader.headers,
-          // 'X-User-Id': user.id,
-          // 'X-User-Role': user.role,
-        },
+        headers: buildInternalHeaders(user),
       });
 
       return response.data;
@@ -113,10 +102,10 @@ export const busProxyService = {
     }
   },
 
-  async searchBuses(params: SearchBusesParams) {
+  async searchBuses(user: AuthenticatedUser, params: SearchBusesParams) {
     try {
       const response = await client.get('/buses/search', {
-        headers: authHeader.headers,
+        headers: buildInternalHeaders(user),
         params,
       });
 
@@ -126,14 +115,10 @@ export const busProxyService = {
     }
   },
 
-  async deleteBus(id: string) {
+  async deleteBus(user: AuthenticatedUser, id: string) {
     try {
       const response = await client.delete(`/buses/${id}`, {
-        headers: {
-          ...authHeader.headers,
-          // 'X-User-Id': user.id,
-          // 'X-User-Role': user.role,
-        },
+        headers: buildInternalHeaders(user),
       });
       return response.data;
     } catch (error) {
@@ -141,9 +126,11 @@ export const busProxyService = {
     }
   },
 
-  async getBusById(id: string) {
+  async getBusById(user: AuthenticatedUser, id: string) {
     try {
-      const response = await client.get(`/buses/${id}`, authHeader);
+      const response = await client.get(`/buses/${id}`, {
+        headers: buildInternalHeaders(user),
+      });
       return response.data;
     } catch (error) {
       return handleAxiosError(error);

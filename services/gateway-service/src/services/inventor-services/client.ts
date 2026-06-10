@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { HttpError } from '@bus-booking/common';
+import { AuthenticatedUser, HttpError } from '@bus-booking/common';
 import { env } from '../../config/env';
 
 export const client = axios.create({
@@ -12,6 +12,12 @@ export const authHeader = {
     'X-Internal-Token': env.INTERNAL_API_TOKEN,
   },
 } as const;
+
+export const buildInternalHeaders = (user: AuthenticatedUser) => ({
+  'X-Internal-Token': env.INTERNAL_API_TOKEN,
+  'X-User-Id': user.id,
+  'X-User-Role': user.role,
+});
 
 const resolvedMessage = (status: number, data: unknown): string => {
   if (typeof data === 'object' && data && 'message' in data) {

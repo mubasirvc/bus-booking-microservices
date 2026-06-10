@@ -1,6 +1,6 @@
 import { asyncHandler, validateRequest } from '@bus-booking/common';
 import { Router } from 'express';
-import { } from '../../middleware/require-auth.js';
+import { requireAuth } from '../../middleware/require-auth.js';
 import {
   cancelTrip,
   createTrip,
@@ -34,25 +34,25 @@ tripRouter.get(
 );
 tripRouter.post(
   '/',
-
+requireAuth,
   validateRequest({ body: createTripSchema }),
   asyncHandler(createTrip),
 );
 tripRouter.patch(
   '/:id',
-  
+  requireAuth,
   validateRequest({ params: tripIdParamsSchema, body: updateTripSchema }),
   asyncHandler(updateTrip),
 );
 tripRouter.patch(
   '/:id/cancel',
-  
+  requireAuth,
   validateRequest({ params: tripIdParamsSchema }),
   asyncHandler(cancelTrip),
 );
 tripRouter.delete(
   '/:id',
-  
+  requireAuth,
   validateRequest({ params: tripIdParamsSchema }),
   asyncHandler(deleteTrip),
 );

@@ -1,4 +1,4 @@
-import { asyncHandler, validateRequest } from '@bus-booking/common';
+import { asyncHandler, Role, validateRequest } from '@bus-booking/common';
 import { Router } from 'express';
 
 import {
@@ -21,26 +21,46 @@ import {
 
 export const busRoutes: Router = Router();
 
-busRoutes.get('/', validateRequest({ query: listBusQuerySchema }), asyncHandler(getAllBuses));
+import { requireRole } from '../middleware/require-role.js';
+
+busRoutes.get(
+  '/',
+  requireRole(Role.USER, Role.OPERATOR, Role.ADMIN),
+  validateRequest({ query: listBusQuerySchema }),
+  asyncHandler(getAllBuses),
+);
 
 busRoutes.get(
   '/search',
+  requireRole(Role.USER, Role.OPERATOR, Role.ADMIN),
   validateRequest({ query: searchBusesQuerySchema }),
   asyncHandler(searchBuses),
 );
 
 busRoutes.get(
   '/my-buses',
+  requireRole(Role.OPERATOR, Role.ADMIN),
   validateRequest({ query: listBusQuerySchema }),
   asyncHandler(getMyBuses),
 );
 
-busRoutes.get('/:id', validateRequest({ params: busIdParamsSchema }), asyncHandler(getBus));
+busRoutes.get(
+  '/:id',
+  requireRole(Role.USER, Role.OPERATOR, Role.ADMIN),
+  validateRequest({ params: busIdParamsSchema }),
+  asyncHandler(getBus),
+);
 
-busRoutes.post('/', validateRequest({ body: createBusSchema }), asyncHandler(createBus));
+busRoutes.post(
+  '/',
+  requireRole(Role.OPERATOR, Role.ADMIN),
+  validateRequest({ body: createBusSchema }),
+  asyncHandler(createBus),
+);
 
 busRoutes.patch(
   '/:id',
+  requireRole(Role.OPERATOR, Role.ADMIN),
   validateRequest({
     params: busIdParamsSchema,
     body: updateBusSchema,
@@ -48,4 +68,11 @@ busRoutes.patch(
   asyncHandler(updateBus),
 );
 
-busRoutes.delete('/:id', validateRequest({ params: busIdParamsSchema }), asyncHandler(deleteBus));
+busRoutes.delete(
+  '/:id',
+  requireRole(Role.ADMIN),
+  validateRequest({
+    params: busIdParamsSchema,
+  }),
+  asyncHandler(deleteBus),
+);

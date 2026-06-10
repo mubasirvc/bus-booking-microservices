@@ -57,11 +57,6 @@ registry.registerPath({
 
   summary: 'Get all trips',
 
-  security: [
-    {
-      bearerAuth: [],
-    },
-  ],
 
  request: {
     query: listTripsQuerySchema,
@@ -98,12 +93,6 @@ registry.registerPath({
 
   summary: 'Search trips',
 
-  security: [
-    {
-      bearerAuth: [],
-    },
-  ],
-
   request: {
     query: searchTripsQuerySchema,
   },
@@ -139,12 +128,6 @@ registry.registerPath({
   tags: ['Trips'],
 
   summary: 'Get trip by id',
-
-  security: [
-    {
-      bearerAuth: [],
-    },
-  ],
 
   request: {
     params: tripIdParamsSchema,
