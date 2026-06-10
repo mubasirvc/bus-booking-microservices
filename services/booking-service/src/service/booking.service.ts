@@ -94,17 +94,20 @@ class BookingService {
     }
   }
 
-  async getBookingsByUser(userId: string): Promise<Booking[]> {
-    return this.repository.findByUserId(userId);
+  async getBookingsByUser(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<PaginatedResponse<Booking | null>> {
+    return this.repository.findByUserId(userId, page, limit);
   }
 
   async searchBookings(params: {
-    userId?: string;
     tripId?: string;
     status?: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
     page?: number;
     limit?: number;
-  }): Promise<PaginatedResponse<Booking>> {
+  }): Promise<PaginatedResponse<Booking | null>> {
     return this.repository.search(params);
   }
 

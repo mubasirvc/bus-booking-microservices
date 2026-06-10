@@ -30,8 +30,6 @@ export const bookingIdParamsSchema = z.object({
 });
 
 export const searchBookingsQuerySchema = z.object({
-  userId: z.string().uuid().optional(),
-
   tripId: z.string().uuid().optional(),
 
   page: z.string().optional(),

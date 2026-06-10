@@ -8,6 +8,7 @@ import {
   searchBookingsQuerySchema,
   updateBookingSchema,
 } from '../validation/booking.schema.js';
+import { getAuthenticatedUser } from '../utils/auth.js';
 
 export const getBooking: AsyncHandler = async (req, res, next) => {
   try {
@@ -100,9 +101,12 @@ export const searchBookings: AsyncHandler = async (req, res, next) => {
 
 export const getBookingsByUser: AsyncHandler = async (req, res, next) => {
   try {
+    const user = getAuthenticatedUser(req);
     const query = searchBookingsQuerySchema.parse(req.query);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
 
-    const response = await bookingProxyService.getBookingsByUser(query.userId!);
+    const response = await bookingProxyService.getBookingsByUser(user, page, limit);
 
     res.json(response);
   } catch (error) {
