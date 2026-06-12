@@ -3,7 +3,7 @@ import { AsyncHandler } from '@bus-booking/common';
 import { myBookingService } from '../services/my-booking.service.js';
 
 export const getMyBookings: AsyncHandler = async (req: Request, res: Response) => {
-  const userId = req.headers['x-user-id'] as string
+  const userId = req.user.id as string
 
   const status = req.query.status as string;
 
@@ -20,7 +20,7 @@ export const getMyBookings: AsyncHandler = async (req: Request, res: Response) =
 };
 
 export const getBookingDetails: AsyncHandler = async (req: Request, res: Response) => {
-  const userId = req.headers['x-user-id'] as string
+  const userId = req.user.id as string
 
   const bookingId = req.params.bookingId as string;
 

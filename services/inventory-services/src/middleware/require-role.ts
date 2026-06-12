@@ -1,17 +1,24 @@
-import { HttpError } from '@bus-booking/common';
-import { RequestHandler } from 'express';
-
+import { HttpError, Role } from '@bus-booking/common';
+import type { RequestHandler } from 'express';
 
 export const requireRole =
-  (...roles: string[]): RequestHandler =>
+  (...roles: Role[]): RequestHandler =>
   (req, _res, next) => {
-    const user = req.user;
 
-    if (!user) {
+    const userId = req.header('X-User-Id');
+    const role = req.header('X-User-Role') as Role | undefined;
+
+    if (!userId || !role) {
       return next(new HttpError(401, 'Unauthorized'));
     }
 
-    if (!roles.includes(user.role!)) {
+    req.user = {
+      id: userId,
+      role,
+      email: ''
+    };
+
+    if (!roles.includes(role)) {
       return next(new HttpError(403, 'Forbidden'));
     }
 

@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import type { RequestHandler } from 'express';
 
 import { env } from '../config/env';
+import { logger } from '../utils/logger';
 
 interface AccessTokenClaims {
   sub: string;
@@ -40,7 +41,9 @@ const toAuthenticatedUser = (claims: AccessTokenClaims): AuthenticatedUser => {
 export const requireAuth: RequestHandler = (req, _res, next) => {
   try {
     const token = parseAuthorizationHeader(req.headers.authorization);
+
     const claims = jwt.verify(token, env.JWT_SECRET) as AccessTokenClaims;
+
     req.user = toAuthenticatedUser(claims);
     next();
   } catch (error) {

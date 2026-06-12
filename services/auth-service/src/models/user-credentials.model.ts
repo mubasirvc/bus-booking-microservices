@@ -56,9 +56,9 @@ UserCredentials.init(
       allowNull: false,
     },
     role: {
-      type: DataTypes.ENUM("ADMIN", "CUSTOMER", "OPERATOR"),
+      type: DataTypes.ENUM("ADMIN", "USER", "OPERATOR"),
       allowNull: false,
-      defaultValue: "CUSTOMER",
+      defaultValue: "USER",
     },
     isVerified: {
       type: DataTypes.BOOLEAN,
