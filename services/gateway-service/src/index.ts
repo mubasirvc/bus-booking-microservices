@@ -1,5 +1,6 @@
 import './docs/openapi.js';
 
+import { redisClient } from '@bus-booking/common';
 import { createServer } from 'http';
 import { createApp } from './app.js';
 import { logger } from './utils/logger.js';
@@ -7,6 +8,7 @@ import { env } from './config/env.js';
 
 const main = async () => {
   try {
+
     const app = createApp();
     const server = createServer(app);
 
@@ -19,7 +21,7 @@ const main = async () => {
     const shutdown = () => {
       logger.info('Shutting down gateway service...');
 
-      Promise.all([ ])
+      Promise.all([])
         .catch((error: unknown) => {
           logger.error({ error }, 'Error during shutdown tasks');
         })

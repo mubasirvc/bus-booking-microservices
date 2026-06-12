@@ -1,10 +1,10 @@
 import express, { type Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { registerRoutes } from './routes';
 import { errorHandler } from './middleware/error-handler';
 import { setupSwagger } from './docs/swagger';
-
+import { registerRoutes } from './routes';
+import { apiRateLimiter } from './middleware/rate-limit.middleware';
 
 export const createApp = (): Application => {
   const app = express();
@@ -20,6 +20,7 @@ export const createApp = (): Application => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
+  app.use(apiRateLimiter);
   registerRoutes(app);
   
   setupSwagger(app);

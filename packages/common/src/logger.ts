@@ -27,3 +27,5 @@ export const createLogger = (options: CreateLoggerOptions): Logger => {
     ...rest,
   });
 };
+
+export const logger = createLogger({ name: "common" });

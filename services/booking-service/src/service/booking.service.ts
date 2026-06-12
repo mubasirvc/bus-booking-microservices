@@ -1,4 +1,5 @@
 import { HttpError } from '@bus-booking/common';
+import { redisClient } from '@bus-booking/common';
 import { PaginatedResponse } from '@bus-booking/common';
 
 import { Booking, BookingStatus, CreateBookingInput } from '../types/booking.js';
@@ -9,7 +10,6 @@ import { logger } from '../utils/logger.js';
 import paymentGrpcService from './payment-grpc.service.js';
 
 import { publishBookingCreated, publishBookingUpdated } from '../messaging/event-publishing.js';
-import { getRedisClient } from '../config/redis.js';
 
 class BookingService {
   constructor(private readonly repository: BookingRepository) {}
@@ -62,9 +62,9 @@ class BookingService {
 
       const payment = await paymentGrpcService.createPayment(booking.id, input.userId, totalAmount);
 
-      const client = getRedisClient();
+      // const client = getRedisClient();
 
-      await client.set(
+      await redisClient.set(
         `booking:${booking.id}`,
         booking.id,
         'EX',
@@ -134,9 +134,9 @@ class BookingService {
       throw new HttpError(400, 'Cannot cancel after departure');
     }
 
-    const client = getRedisClient();
+    // const client = getRedisClient();
 
-    await client.del(`booking:${bookingId}`);
+    await redisClient.del(`booking:${bookingId}`);
 
     await inventoryGrpcService.releaseSeats(booking.tripId, booking.seats);
 
@@ -194,10 +194,10 @@ class BookingService {
       throw new HttpError(500, 'Failed to update booking');
     }
 
-    const client = getRedisClient();
+    // const client = getRedisClient();
 
     // Remove timer for any final state
-    await client.del(`booking:${id}`);
+    await redisClient.del(`booking:${id}`);
 
     if (newStatus === BookingStatus.CANCELLED) {
       await inventoryGrpcService.releaseSeats(booking.tripId, booking.seats);
