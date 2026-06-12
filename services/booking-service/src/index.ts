@@ -1,3 +1,4 @@
+import { redisClient } from '@bus-booking/common';
 import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
@@ -6,14 +7,15 @@ import { createServer } from 'node:http';
 import grpc from '@grpc/grpc-js';
 import grpcServer from './grpc/server.js';
 import { initPublisher } from './messaging/event-publishing.js';
-import { connectRedis } from './config/redis.js';
+// import { connectRedis } from '@bus-booking/common';
 import { startExpiryListener } from './jobs/booking-expiry.listener.js';
+
 
 const main = async () => {
   try {
     await initializeDatabase();
     await initPublisher();
-    await connectRedis();
+    // await connectRedis();
     await startExpiryListener();
 
     const app = createApp();

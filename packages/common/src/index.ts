@@ -10,6 +10,7 @@ export * from "./events/event-types";
 export * from "./events/user-events";
 export * from "./events/booking-events";
 export * from "./types";
+export * from "./redis/redis";
 
 export type { Logger } from "pino";
 export { z } from "zod";

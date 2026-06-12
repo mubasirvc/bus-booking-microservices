@@ -18,7 +18,7 @@ class BusService {
     return bus;
   }
 
-  async getAllBuses(params: { page: number; limit: number }): Promise<PaginatedResponse<Bus>> {
+  async getAllBuses(params: { page: number; limit: number }): Promise<PaginatedResponse<Bus | null>> {
     return this.repository.findAll(params);
   }
 
