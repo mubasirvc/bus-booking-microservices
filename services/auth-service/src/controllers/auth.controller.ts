@@ -1,7 +1,13 @@
 import { LoginInput, RegisterInput } from '../types/auth.js';
 import { asyncHandler, HttpError } from '@bus-booking/common';
 import { RequestHandler } from 'express';
-import { login, refreshTokens, register, revokeRefreshToken } from '../services/auth.service.js';
+import {
+  login,
+  refreshTokens,
+  register,
+  revokeRefreshToken,
+  verifyEmail,
+} from '../services/auth.service.js';
 
 export const registerHandler: RequestHandler = asyncHandler(async (req, res) => {
   const payload = req.body as RegisterInput;
@@ -31,4 +37,17 @@ export const revokeHandler: RequestHandler = asyncHandler(async (req, res) => {
   }
   await revokeRefreshToken(userId);
   res.status(204).send();
+});
+
+export const verifyEmailHandler: RequestHandler = asyncHandler(async (req, res) => {
+  const { token } = req.query as {
+    token: string;
+  };
+
+  await verifyEmail(token);
+
+  res.json({
+    success: true,
+    message: 'Email verified successfully',
+  });
 });

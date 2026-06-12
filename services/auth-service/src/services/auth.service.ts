@@ -2,9 +2,11 @@ import { sequelize } from '../db/sequelize.js';
 import { RefreshToken, UserCredentials } from '../models/index.js';
 import { AuthResponse, AuthTokens, LoginInput, RegisterInput } from '../types/auth.js';
 import {
+  generateEmailVerificationToken,
   hashPassword,
   signAccessToken,
   signRefreshToken,
+  verifyEmailVerificationToken,
   verifyPassword,
   verifyRefreshToken,
 } from '../utils/token.js';
@@ -13,6 +15,7 @@ import crypto from 'crypto';
 import { HttpError } from '@bus-booking/common';
 import { logger } from '../utils/logger.js';
 import { publishUserRegistered } from '../messaging/event-publishing.js';
+import { env } from '../config/env.js';
 
 const REFRESH_TOKEN_TTL_DAYS = 30;
 
@@ -33,10 +36,10 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
         email: input.email,
         userName: input.userName,
         passwordHash,
-        role: input.role,
+        role: "USER",
         isVerified: false,
       },
-      { transaction }
+      { transaction },
     );
 
     const refreshTokenRecord = await createRefreshToken(user.id, transaction);
@@ -48,6 +51,20 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
       sub: user.id,
       tokenId: refreshTokenRecord.tokenId,
     });
+
+    const emailVerificationToken = generateEmailVerificationToken({
+      sub: user.id,
+      email: user.email,
+      type: 'email-verification',
+    });
+
+    //from frontend
+    const verificationLink = `${env.FRONTEND_URL}/verify-email?token=${emailVerificationToken}`;
+
+    //direct api
+    const verificationLinkB = `${env.API_URL}api/v1/auth/verify-email?token=${emailVerificationToken}`;
+
+    //publish event for email verification
 
     const userData = {
       id: user.id,
@@ -83,7 +100,11 @@ export const login = async (input: LoginInput): Promise<AuthTokens> => {
 
   const refreshTokenRecord = await createRefreshToken(credential.id);
 
-  const accessToken = signAccessToken({ sub: credential.id, email: credential.email, role: credential.role });
+  const accessToken = signAccessToken({
+    sub: credential.id,
+    email: credential.email,
+    role: credential.role,
+  });
   const refreshToken = signRefreshToken({
     sub: credential.id,
     tokenId: refreshTokenRecord.tokenId,
@@ -121,13 +142,37 @@ export const refreshTokens = async (token: string): Promise<AuthTokens> => {
   const newTokenRecord = await createRefreshToken(credential.id);
 
   return {
-    accessToken: signAccessToken({ sub: credential.id, email: credential.email, role: credential.role }),
+    accessToken: signAccessToken({
+      sub: credential.id,
+      email: credential.email,
+      role: credential.role,
+    }),
     refreshToken: signRefreshToken({ sub: credential.id, tokenId: newTokenRecord.tokenId }),
   };
 };
 
 export const revokeRefreshToken = async (userId: string) => {
   await RefreshToken.destroy({ where: { userId } });
+};
+
+export const verifyEmail = async (token: string) => {
+  const payload = verifyEmailVerificationToken(token);
+
+  if (payload.type !== 'email-verification') {
+    throw new HttpError(400, 'Invalid verification token');
+  }
+
+  const user = await UserCredentials.findByPk(payload.sub);
+
+  if (!user) {
+    throw new HttpError(404, 'User not found');
+  }
+
+  if (user.isVerified) {
+    return user;
+  }
+
+  return UserCredentials.update({ isVerified: true }, { where: { id: user.id } });
 };
 
 const createRefreshToken = async (userId: string, transaction?: Transaction) => {

@@ -1,6 +1,12 @@
 import { AsyncHandler } from '@bus-booking/common';
 import { authProxyService } from '../services/auth-proxy.service';
-import { loginSchema, refreshSchema, registerSchema, revokeSchema } from '../validation/auth.schema';
+import {
+  loginSchema,
+  refreshSchema,
+  registerSchema,
+  revokeSchema,
+  verifyEmailSchema,
+} from '../validation/auth.schema';
 
 export const registerUser: AsyncHandler = async (req, res, next) => {
   try {
@@ -37,6 +43,16 @@ export const revokeTokens: AsyncHandler = async (req, res, next) => {
     const payload = revokeSchema.parse(req.body);
     await authProxyService.revoke(payload);
     res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyEmail: AsyncHandler = async (req, res, next) => {
+  try {
+    const { token } = verifyEmailSchema.parse(req.query);
+    const response = await authProxyService.verifyEmail(token);
+    res.json(response);
   } catch (error) {
     next(error);
   }
