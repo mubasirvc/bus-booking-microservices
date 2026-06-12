@@ -1,15 +1,20 @@
-import { env } from "../config/env.js";
-import bcrypt from "bcrypt";
-import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
-import { UserRole } from "../types/auth.js";
+import { env } from '../config/env.js';
+import bcrypt from 'bcrypt';
+import jwt, { type Secret, type SignOptions } from 'jsonwebtoken';
+import { UserRole } from '../types/auth.js';
 
 const ACCESS_TOKEN: Secret = env.JWT_SECRET;
+const EMAIL_VERIFICATION_TOKEN: Secret = env.JWT_SECRET;
 const REFRESH_TOKEN: Secret = env.JWT_REFRESH_SECRET;
 const ACCESS_OPTIONS: SignOptions = {
-  expiresIn: env.JWT_EXPIRES_IN as SignOptions["expiresIn"],
+  expiresIn: env.JWT_EXPIRES_IN as SignOptions['expiresIn'],
 };
 const REFRESH_OPTIONS: SignOptions = {
-  expiresIn: env.JWT_REFRESH_EXPIRES_IN as SignOptions["expiresIn"],
+  expiresIn: env.JWT_REFRESH_EXPIRES_IN as SignOptions['expiresIn'],
+};
+
+const EMAIL_VERIFICATION_OPTIONS: SignOptions = {
+  expiresIn: '24h',
 };
 
 export const hashPassword = async (password: string): Promise<string> => {
@@ -17,10 +22,7 @@ export const hashPassword = async (password: string): Promise<string> => {
   return bcrypt.hash(password, saltRounds);
 };
 
-export const verifyPassword = async (
-  password: string,
-  hash: string,
-): Promise<boolean> => {
+export const verifyPassword = async (password: string, hash: string): Promise<boolean> => {
   return bcrypt.compare(password, hash);
 };
 
@@ -35,6 +37,12 @@ export interface RefreshTokenPayload {
   tokenId: string;
 }
 
+export interface EmailVerificationTokenPayload {
+  sub: string; // userId
+  email: string;
+  type: string;
+}
+
 export const signAccessToken = (payload: AccessTokenPayload): string => {
   return jwt.sign(payload, ACCESS_TOKEN, ACCESS_OPTIONS);
 };
@@ -46,3 +54,11 @@ export const signRefreshToken = (payload: RefreshTokenPayload): string => {
 export const verifyRefreshToken = (payload: string): RefreshTokenPayload => {
   return jwt.verify(payload, REFRESH_TOKEN) as RefreshTokenPayload;
 };
+
+export const generateEmailVerificationToken = (payload: EmailVerificationTokenPayload): string => {
+  return jwt.sign(payload, EMAIL_VERIFICATION_TOKEN, EMAIL_VERIFICATION_OPTIONS);
+};
+
+export const verifyEmailVerificationToken = (payload: string): EmailVerificationTokenPayload => {
+  return jwt.verify(payload, EMAIL_VERIFICATION_TOKEN) as EmailVerificationTokenPayload;
+}

@@ -26,3 +26,9 @@ export const revokeSchema = z.object({
     userId: z.string().uuid(),
   }),
 });
+
+export const verifyEmailSchema = z.object({
+  query: z.object({
+    token: z.string().min(1),
+  }),
+});

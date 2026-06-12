@@ -2,7 +2,6 @@ import { HttpError } from '@bus-booking/common';
 import axios from 'axios';
 import { env } from '../config/env';
 
-
 const client = axios.create({
   baseURL: env.AUTH_SERVICE_URL,
   timeout: 5000,
@@ -103,6 +102,18 @@ export const authProxyService = {
   async revoke(payload: RevokePayload): Promise<void> {
     try {
       await client.post<void>('/auth/revoke', payload, authHeader);
+    } catch (error) {
+      return handleAxiosError(error);
+    }
+  },
+
+  async verifyEmail(token: string) {
+    try {
+      const response = await client.get('/auth/verify-email', {
+        ...authHeader,
+        params: { token },
+      });
+      return response.data;
     } catch (error) {
       return handleAxiosError(error);
     }

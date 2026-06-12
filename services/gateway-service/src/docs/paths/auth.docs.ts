@@ -7,8 +7,8 @@ import {
   refreshSchema,
   registerSchema,
   revokeSchema,
+  verifyEmailSchema,
 } from '../../validation/auth.schema.js';
-
 
 // ======================================================
 // Shared Schemas
@@ -53,7 +53,6 @@ const successMessageSchema = z.object({
 
   message: z.string(),
 });
-
 
 // ======================================================
 // POST /auth/register
@@ -121,7 +120,6 @@ registry.registerPath({
   },
 });
 
-
 // ======================================================
 // POST /auth/login
 // ======================================================
@@ -181,6 +179,53 @@ registry.registerPath({
   },
 });
 
+// ======================================================
+// GET /auth/verify-email
+// ======================================================
+
+registry.registerPath({
+  method: 'get',
+
+  path: '/auth/verify-email',
+
+  tags: ['Auth'],
+
+  summary: 'Verify user email',
+
+  request: {
+    query: verifyEmailSchema,
+  },
+
+  responses: {
+    200: {
+      description: 'Email verified successfully',
+
+      content: {
+        'application/json': {
+          schema: z.object({
+            success: z.boolean(),
+
+            message: z.string(),
+          }),
+
+          example: {
+            success: true,
+
+            message: 'Email verified successfully',
+          },
+        },
+      },
+    },
+
+    400: {
+      description: 'Invalid or expired verification token',
+    },
+
+    404: {
+      description: 'User not found',
+    },
+  },
+});
 
 // ======================================================
 // POST /auth/refresh
@@ -232,7 +277,6 @@ registry.registerPath({
     },
   },
 });
-
 
 // ======================================================
 // POST /auth/revoke
