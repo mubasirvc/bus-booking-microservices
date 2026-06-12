@@ -39,7 +39,7 @@ export const getAllBuses: AsyncHandler = async (req, res, next) => {
 
 export const getMyBuses: AsyncHandler = async (req, res, next) => {
   try {
-    const operatorId = req.headers['x-user-id'] as string;
+    const operatorId = req.user.id as string;
 
     const page = Number(req.query.page) || 1;
 
@@ -56,7 +56,7 @@ export const getMyBuses: AsyncHandler = async (req, res, next) => {
 export const createBus: AsyncHandler = async (req, res, next) => {
   try {
     const payload = req.body as CreateBusBody;
-    const operatorId = req.headers['x-user-id'] as string;
+    const operatorId = req.user.id as string;
 
     const bus = await busService.createBus({ ...payload, operatorId });
 
@@ -72,7 +72,7 @@ export const updateBus: AsyncHandler = async (req, res, next) => {
 
     const payload = req.body as UpdateBusBody;
 
-    const operatorId = req.headers['x-user-id'] as string;
+    const operatorId = req.user.id as string;
 
     const bus = await busService.updateBus(id,  operatorId, payload);
 

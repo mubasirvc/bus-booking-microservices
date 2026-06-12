@@ -5,7 +5,7 @@ export interface RegisterInput {
   role: UserRole;
 }
 
-export type UserRole = "ADMIN" | "CUSTOMER" | "OPERATOR";
+export type UserRole = "ADMIN" | "USER" | "OPERATOR";
 
 export interface LoginInput {
   email: string;

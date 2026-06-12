@@ -68,7 +68,7 @@ export const deleteBooking: AsyncHandler = async (req, res, next) => {
 
 export const getBookingsByUser: AsyncHandler = async (req, res, next) => {
   try {
-    const userId = req.headers['x-user-id'] as string;
+    const userId = req.user.id as string;
 
     const page = Number(req.query.page) || 1;
 
