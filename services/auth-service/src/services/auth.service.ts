@@ -20,13 +20,13 @@ import { env } from '../config/env.js';
 const REFRESH_TOKEN_TTL_DAYS = 30;
 
 export const register = async (input: RegisterInput): Promise<AuthResponse> => {
-  const existing = await UserCredentials.findOne({
-    where: { email: { [Op.eq]: input.email } },
-  });
+  // const existing = await UserCredentials.findOne({
+  //   where: { email: { [Op.eq]: input.email } },
+  // });
 
-  if (existing) {
-    throw new HttpError(409, 'User with this email already exists');
-  }
+  // if (existing) {
+  //   throw new HttpError(409, 'User with this email already exists');
+  // }
 
   const transaction = await sequelize.transaction();
   try {
@@ -36,7 +36,7 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
         email: input.email,
         userName: input.userName,
         passwordHash,
-        role: "USER",
+        role: 'USER',
         isVerified: false,
       },
       { transaction },
@@ -58,13 +58,7 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
       type: 'email-verification',
     });
 
-    //from frontend
-    const verificationLink = `${env.FRONTEND_URL}/verify-email?token=${emailVerificationToken}`;
-
-    //direct api
-    const verificationLinkB = `${env.API_URL}api/v1/auth/verify-email?token=${emailVerificationToken}`;
-
-    //publish event for email verification
+    //publish events
 
     const userData = {
       id: user.id,
@@ -74,7 +68,7 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
       createdAt: user.createdAt.toISOString(),
     };
 
-    publishUserRegistered(userData);
+    publishUserRegistered({ ...userData, verificationToken: emailVerificationToken });
 
     return {
       accessToken,
