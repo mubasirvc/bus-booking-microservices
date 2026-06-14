@@ -5,6 +5,7 @@ export interface Booking {
   seats: string[];
   totalAmount: number;
   status?: 'PENDING' | 'CANCELLED' | 'CONFIRMED';
+  email: string;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -8,5 +8,5 @@ export const registerRoutes = (app: Router) => {
     res.status(200).json({ status: 'ok', service: 'payment-service' });
   });
 
-  app.use('/', paymentRoutes);
+  app.use('/payments', paymentRoutes);
 };

@@ -10,7 +10,7 @@ import { loginRateLimiter } from '../middleware/rate-limit.middleware';
 export const authRouter: Router = Router();
 
 authRouter.post('/register', validateRequest({ body: registerSchema }), asyncHandler(registerUser));
-authRouter.post('/login', loginRateLimiter, validateRequest({ body: loginSchema }), asyncHandler(loginUser));
+authRouter.post('/login', validateRequest({ body: loginSchema }), asyncHandler(loginUser));
 authRouter.post('/refresh', validateRequest({ body: refreshSchema }), asyncHandler(refreshTokens));
 authRouter.post('/revoke', validateRequest({ body: revokeSchema }), asyncHandler(revokeTokens));
 authRouter.get('/verify-email', validateRequest({query: verifyEmailSchema}), asyncHandler(verifyEmail))

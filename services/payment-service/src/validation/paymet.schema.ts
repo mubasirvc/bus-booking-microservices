@@ -13,7 +13,7 @@ export const paymentWebhookSchema = z.object({
     payment: z.object({
       entity: z.object({
         id: z.string().uuid(),
-        order_id: z.string().uuid(),
+        order_id: z.string(),
       }),
     }),
   }),

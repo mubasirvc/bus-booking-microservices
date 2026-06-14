@@ -8,7 +8,7 @@ import { logger } from '../utils/logger';
 
 interface AccessTokenClaims {
   sub: string;
-  email?: string;
+  email: string;
   role: Role;
 }
 
@@ -30,7 +30,7 @@ const toAuthenticatedUser = (claims: AccessTokenClaims): AuthenticatedUser => {
   if (!claims.sub) {
     throw new HttpError(401, 'Unauthorized');
   }
-
+  
   return {
     id: claims.sub,
     email: claims.email,

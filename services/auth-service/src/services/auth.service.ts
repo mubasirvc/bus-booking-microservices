@@ -36,7 +36,7 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
         email: input.email,
         userName: input.userName,
         passwordHash,
-        role: "USER",
+        role: 'ADMIN',
         isVerified: false,
       },
       { transaction },
@@ -58,13 +58,7 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
       type: 'email-verification',
     });
 
-    //from frontend
-    const verificationLink = `${env.FRONTEND_URL}/verify-email?token=${emailVerificationToken}`;
-
-    //direct api
-    const verificationLinkB = `${env.API_URL}api/v1/auth/verify-email?token=${emailVerificationToken}`;
-
-    //publish event for email verification
+    //publish events
 
     const userData = {
       id: user.id,
@@ -74,7 +68,7 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
       createdAt: user.createdAt.toISOString(),
     };
 
-    publishUserRegistered(userData);
+    publishUserRegistered({ ...userData, verificationToken: emailVerificationToken });
 
     return {
       accessToken,

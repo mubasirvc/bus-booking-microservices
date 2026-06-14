@@ -5,6 +5,7 @@ import { routeRouter } from './inventory-routes/route.routes';
 import { tripRouter } from './inventory-routes/trip.routes';
 import { busRouter } from './inventory-routes/bus.routes';
 import { bookingRouter } from './booking.routes';
+import { paymentRoutes } from './payment.routes';
 
 export const registerRoutes = (app: Router) => {
 
@@ -18,4 +19,5 @@ export const registerRoutes = (app: Router) => {
   app.use('/trips', tripRouter);
   app.use('/buses', busRouter);
   app.use('/bookings', bookingRouter);
+  app.use('/payments',paymentRoutes);
 };

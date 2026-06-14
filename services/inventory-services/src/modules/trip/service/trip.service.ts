@@ -4,11 +4,13 @@ import { Trip, CreateTripInput, UpdateTripInput } from '../types/trip.types.js';
 
 import { TripRepository, tripRepository } from '../repository/trip.repository.js';
 import { busRepository, BusRepository } from '../../bus/repository/bus.repository.js';
+import { routeRepository, RouteRepository } from '../../route/repository/route.repository.js';
 
 class TripService {
   constructor(
     private readonly repository: TripRepository,
     private busRepository: BusRepository,
+    private routRepository: RouteRepository,
   ) {}
 
   async getTripById(id: string): Promise<Trip> {
@@ -19,6 +21,39 @@ class TripService {
     }
 
     return trip;
+  }
+
+  async getTripDetails(id: string) {
+    const trip = await this.repository.findById(id);
+
+    if (!trip) {
+      throw new HttpError(404, 'Trip not found');
+    }
+
+    const bus = await this.busRepository.findById(trip.busId);
+
+    if (!bus) {
+      throw new HttpError(404, 'Bus not found for this trip');
+    }
+
+    const route = await this.routRepository.findById(trip.routeId);
+
+    if (!route) {
+      throw new HttpError(404, 'Route not found for this trip');
+    }
+
+    return {
+      tripId: trip.id,
+      travelDate: trip.travelDate,
+      departureTime: trip.departureTime,
+      arrivalTime: trip.arrivalTime,
+      busId: trip.busId,
+      busNumber: bus.busNumber,
+      busName: bus.name,
+      busType: bus.type,
+      source: route.source,
+      destination: route.destination,
+    };
   }
 
   async getAllTrips(page: number, limit: number): Promise<PaginatedResponse<Trip>> {
@@ -98,7 +133,7 @@ class TripService {
   async getTripsByRouteAndDate(routeId: string, travelDate: string): Promise<Trip[]> {
     return this.repository.findByRouteAndDate(routeId, travelDate);
   }
- 
+
   async cancelTrip(id: string): Promise<void> {
     const updated = await this.repository.cancelTrip(id);
 
@@ -108,4 +143,4 @@ class TripService {
   }
 }
 
-export const tripService = new TripService(tripRepository, busRepository);
+export const tripService = new TripService(tripRepository, busRepository, routeRepository);

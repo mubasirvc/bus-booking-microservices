@@ -13,6 +13,7 @@ const toDomainBooking = (model: BookingModel): Booking => ({
   id: model.id,
   userId: model.userId,
   tripId: model.tripId,
+  email: model.email,
   seats: model.seats,
   totalAmount: Number(model.totalAmount),
   status: model.status,

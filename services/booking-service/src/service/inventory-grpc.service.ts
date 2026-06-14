@@ -11,11 +11,17 @@ type ReserveSeatsResponse = {
   travelDate: string;
 };
 
-type TripDetails = {
+export type TripDetails = {
   tripId: string;
   travelDate: string;
   departureTime: string;
   arrivalTime: string;
+  busId: string;
+  busNumber: string;
+  busName: string;
+  busType: string;
+  source: string;
+  destination: string;
 };
 
 class InventoryGrpcService {
@@ -35,9 +41,9 @@ class InventoryGrpcService {
     });
   }
 
-  async getTripById(tripId: string) {
+  async getTripDetails(tripId: string) {
     return new Promise<TripDetails>((resolve, reject) => {
-      inventoryClient.getTripById(
+      inventoryClient.GetTripDetails(
         { tripId },
 
         (err: any, response: TripDetails) => {

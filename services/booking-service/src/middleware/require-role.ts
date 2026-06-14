@@ -8,17 +8,19 @@ export const requireRole =
     
     const userId = req.header('X-User-Id');
     const role = req.header('X-User-Role') as Role | undefined;
+    const email = req.header('X-User-email') as string;
 
-    console.log(userId, role, 'userid and roleeeeeeeeeeeeeee')
 
-    if (!userId || !role) {
+    console.log(userId, role, email, 'userid, role and email')
+
+    if (!userId || !role || !email) {
       return next(new HttpError(401, 'Unauthorized'));
     }
 
     req.user = {
       id: userId,
       role,
-      email: ''
+      email
     };
 
     if (!roles.includes(role)) {
