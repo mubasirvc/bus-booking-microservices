@@ -5,11 +5,15 @@ import { PaginatedResponse } from '@bus-booking/common';
 import { Booking, BookingStatus, CreateBookingInput } from '../types/booking.js';
 
 import { BookingRepository, bookingRepository } from '../repository/booking.repostiory.js';
-import inventoryGrpcService from './inventory-grpc.service.js';
+import inventoryGrpcService, { TripDetails } from './inventory-grpc.service.js';
 import { logger } from '../utils/logger.js';
 import paymentGrpcService from './payment-grpc.service.js';
 
-import { publishBookingCreated, publishBookingUpdated } from '../messaging/event-publishing.js';
+import {
+  publishBookingCreated,
+  publishBookingCancelled,
+  publishBookingConfirmed,
+} from '../messaging/event-publishing.js';
 
 class BookingService {
   constructor(private readonly repository: BookingRepository) {}
@@ -126,7 +130,7 @@ class BookingService {
       throw new HttpError(400, 'Booking already cancelled');
     }
 
-    const trip = await inventoryGrpcService.getTripById(booking.tripId);
+    const trip = await inventoryGrpcService.getTripDetails(booking.tripId);
 
     const now = new Date();
 
@@ -142,8 +146,10 @@ class BookingService {
 
     const cancelled = await this.repository.cancelBooking(bookingId);
 
-    publishBookingUpdated({
-      bookingId,
+    const payload = this.buildBookingEventPayload(booking, trip);
+
+    publishBookingCancelled({
+      ...payload,
       status: BookingStatus.CANCELLED,
     });
 
@@ -205,14 +211,44 @@ class BookingService {
       logger.info(`Released ${booking.seats.length} seats`);
     }
 
-    publishBookingUpdated({
-      bookingId: id,
-      status: newStatus,
-    });
+    const trip = await inventoryGrpcService.getTripDetails(booking.tripId);
+
+    const payload = this.buildBookingEventPayload(booking, trip);
+
+    if (newStatus === BookingStatus.CONFIRMED) {
+      publishBookingConfirmed({
+        ...payload,
+        status: BookingStatus.CONFIRMED,
+      });
+    }
+
+    if (newStatus === BookingStatus.CANCELLED) {
+      publishBookingCancelled({
+        ...payload,
+        status: BookingStatus.CANCELLED,
+      });
+    }
 
     logger.info(`Booking ${id} updated to ${newStatus}`);
 
     return updated;
+  }
+
+  private buildBookingEventPayload(booking: Booking, trip: TripDetails) {
+    return {
+      seats: booking.seats,
+      totalPrice: booking.totalAmount,
+      bookingId: booking.id,
+      email: booking.email,
+      travelDate: trip.travelDate,
+      departureTime: trip.departureTime,
+      arrivalTime: trip.arrivalTime,
+      busNumber: trip.busNumber,
+      busName: trip.busName,
+      busType: trip.busType,
+      source: trip.source,
+      destination: trip.destination,
+    };
   }
 }
 

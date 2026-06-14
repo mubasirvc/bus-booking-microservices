@@ -15,7 +15,7 @@ import {
 
 import { env } from '../config/env.js';
 import { logger } from '../utils/logger.js';
-import { notificationService } from '../services/notification.service.js';
+import { emailService } from '../services/email.service.js';
 
 type ManageConnection = Connection & ChannelModel;
 
@@ -39,7 +39,7 @@ const handleMessage = async (message: ConsumeMessage, ch: Channel) => {
 
   const payload = event.payload;
 
-  await notificationService.sendVerificationEmail({
+  await emailService.sendVerificationEmail({
     email: payload.email,
     userName: payload.userName,
     verificationToken: payload.verificationToken,

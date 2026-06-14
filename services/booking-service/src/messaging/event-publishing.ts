@@ -1,7 +1,8 @@
 import {
   BOOKING_CREATED_ROUTING_KEY,
   BOOKING_EVENTS_EXCHANGE,
-  BOOKING_UPDATED_ROUTING_KEY,
+  BOOKING_CONFIRMED_ROUTING_KEY,
+  BOOKING_CANCELLED_ROUTING_KEY,
   BookingCreatedPayload,
   BookingUpdatedPayload,
 } from '@bus-booking/common';
@@ -65,29 +66,52 @@ export const publishBookingCreated = (payload: BookingCreatedPayload) => {
   }
 };
 
-export const publishBookingUpdated = (payload: BookingUpdatedPayload) => {
+export const publishBookingConfirmed = (payload: BookingUpdatedPayload) => {
+    if (!channel) {
+      logger.warn('RabbitMQ channel is not initialized. Cannot publish message.');
+      return;
+    }
+
+  const event = {
+    type: BOOKING_CONFIRMED_ROUTING_KEY,
+    payload,
+    occuredAt: new Date().toISOString(),
+    metadata: { version: 1 },
+  };
+
+  channel.publish(
+    BOOKING_EVENTS_EXCHANGE,
+    BOOKING_CONFIRMED_ROUTING_KEY,
+    Buffer.from(JSON.stringify(event)),
+    {
+      contentType: 'application/json',
+      persistent: true,
+    },
+  );
+};
+
+export const publishBookingCancelled = (payload: BookingUpdatedPayload) => {
   if (!channel) {
     logger.warn('RabbitMQ channel is not initialized. Cannot publish message.');
     return;
   }
 
   const event = {
-    type: BOOKING_UPDATED_ROUTING_KEY,
+    type: BOOKING_CANCELLED_ROUTING_KEY,
     payload,
     occuredAt: new Date().toISOString(),
     metadata: { version: 1 },
   };
 
-  const published = channel.publish(
+  channel.publish(
     BOOKING_EVENTS_EXCHANGE,
-    BOOKING_UPDATED_ROUTING_KEY,
+    BOOKING_CANCELLED_ROUTING_KEY,
     Buffer.from(JSON.stringify(event)),
-    { contentType: 'application/json', persistent: true },
+    {
+      contentType: 'application/json',
+      persistent: true,
+    },
   );
-
-  if (!published) {
-    logger.warn({ event }, 'Failed to publish booking updated event');
-  }
 };
 
 export const closePublisher = async () => {
