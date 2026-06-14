@@ -37,17 +37,23 @@ export const inventoryHandlers = {
     }
   },
 
-  async getTripById(call: any, callback: any) {
+  async GetTripDetails(call: any, callback: any) {
     try {
       const { tripId } = call.request;
 
-      const trip = await tripService.getTripById(tripId);
+      const trip = await tripService.getTripDetails(tripId);
 
       const data = {
-        tripId: trip.id,
+        tripId: trip.tripId,
         travelDate: trip.travelDate,
         departureTime: trip.departureTime,
         arrivalTime: trip.arrivalTime,
+        busId: trip.busId,
+        busNumber: trip.busNumber,
+        busName: trip.busName,
+        busType: trip.busType,
+        source: trip.source,
+        destination: trip.destination,
       };
 
       callback(null, data);

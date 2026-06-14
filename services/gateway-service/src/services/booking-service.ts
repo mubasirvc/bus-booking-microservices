@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AuthenticatedUser, HttpError } from '@bus-booking/common';
+import { AuthenticatedUser, HttpError, logger } from '@bus-booking/common';
 
 import { env } from '../config/env.js';
 
@@ -18,6 +18,7 @@ export const buildInternalHeaders = (user: AuthenticatedUser) => ({
   'X-Internal-Token': env.INTERNAL_API_TOKEN,
   'X-User-Id': user.id,
   'X-User-Role': user.role,
+  'X-User-email': user.email,
 });
 
 const resolveMessage = (status: number, data: unknown): string => {

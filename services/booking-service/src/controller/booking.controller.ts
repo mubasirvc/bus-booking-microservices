@@ -1,4 +1,4 @@
-import type { AsyncHandler } from '@bus-booking/common';
+import { logger, type AsyncHandler } from '@bus-booking/common';
 
 import { bookingService } from '../service/booking.service.js';
 
@@ -38,9 +38,12 @@ export const getAllBookings: AsyncHandler = async (req, res, next) => {
 export const createBooking: AsyncHandler = async (req, res, next) => {
   try {
     const payload = req.body as CreateBookingBody;
-
+    const email = req.user.email;
+    
     const booking = await bookingService.createBooking({
       ...payload,
+      userId: req.user.id,
+      email,
       status: BookingStatus.PENDING,
     });
 

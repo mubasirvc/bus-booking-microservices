@@ -1,12 +1,15 @@
 import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { startAuthEventConsumer } from './messaging/auth-consumer.js';
+import { startBookingEventConsumer } from './messaging/booking-consumer.js';
 import { logger } from './utils/logger.js';
 import { createServer } from 'node:http';
 
 const main = async () => {
   try {
     await startAuthEventConsumer()
+    await startBookingEventConsumer();
+    
     const app = createApp();
     const server = createServer(app);
 

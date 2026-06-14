@@ -12,6 +12,7 @@ export type BookingCreationAttributes = Optional<
 export class BookingModel extends Model<Booking, BookingCreationAttributes> implements Booking {
   declare id: string;
   declare userId: string;
+  declare email: string;
   declare tripId: string;
   declare seats: string[];
   declare totalAmount: number;
@@ -36,6 +37,10 @@ BookingModel.init(
 
     tripId: {
       type: DataTypes.UUID,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
 

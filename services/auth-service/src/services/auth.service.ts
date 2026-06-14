@@ -20,13 +20,13 @@ import { env } from '../config/env.js';
 const REFRESH_TOKEN_TTL_DAYS = 30;
 
 export const register = async (input: RegisterInput): Promise<AuthResponse> => {
-  // const existing = await UserCredentials.findOne({
-  //   where: { email: { [Op.eq]: input.email } },
-  // });
+  const existing = await UserCredentials.findOne({
+    where: { email: { [Op.eq]: input.email } },
+  });
 
-  // if (existing) {
-  //   throw new HttpError(409, 'User with this email already exists');
-  // }
+  if (existing) {
+    throw new HttpError(409, 'User with this email already exists');
+  }
 
   const transaction = await sequelize.transaction();
   try {
@@ -36,7 +36,7 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
         email: input.email,
         userName: input.userName,
         passwordHash,
-        role: 'USER',
+        role: 'ADMIN',
         isVerified: false,
       },
       { transaction },

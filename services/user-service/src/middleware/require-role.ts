@@ -1,13 +1,15 @@
-import { HttpError, Role } from '@bus-booking/common';
+import { HttpError, logger, Role } from '@bus-booking/common';
 import type { RequestHandler } from 'express';
 
 export const requireRole =
   (...roles: Role[]): RequestHandler =>
   (req, _res, next) => {
-    const userId = req.header('X-User-Id');
-    const role = req.header('X-User-Role') as Role | undefined;
+    logger.info(`Checking user role for access: ${roles.join(', ')} email: ${req.header('X-User-email')}`);
 
-    if (!userId || !role) {
+    const userId = req.header('X-User-Id');
+    const role = req.header('X-User-Role') as Role;
+
+    if (!userId || !role ) {
       return next(new HttpError(401, 'Unauthorized'));
     }
 
