@@ -1,6 +1,7 @@
 import {
   BOOKING_CREATED_ROUTING_KEY,
-  BOOKING_UPDATED_ROUTING_KEY,
+  BOOKING_CANCELLED_ROUTING_KEY,
+  BOOKING_CONFIRMED_ROUTING_KEY,
   BOOKING_EVENTS_EXCHANGE,
 } from '@bus-booking/common';
 
@@ -43,7 +44,11 @@ const handleMessage = async (message: ConsumeMessage, ch: Channel) => {
       await myBookingService.createBooking(event.payload);
       break;
 
-    case BOOKING_UPDATED_ROUTING_KEY:
+    case BOOKING_CONFIRMED_ROUTING_KEY:
+      await myBookingService.updateBookingStatus(event.payload.bookingId, event.payload.status);
+      break;
+
+    case BOOKING_CANCELLED_ROUTING_KEY:
       await myBookingService.updateBookingStatus(event.payload.bookingId, event.payload.status);
       break;
 
@@ -73,7 +78,8 @@ export const startBookingEventConsumer = async () => {
   const queue = await ch.assertQueue(QUEUE_NAME, { durable: true });
 
   await ch.bindQueue(queue.queue, BOOKING_EVENTS_EXCHANGE, BOOKING_CREATED_ROUTING_KEY);
-  await ch.bindQueue(queue.queue, BOOKING_EVENTS_EXCHANGE, BOOKING_UPDATED_ROUTING_KEY);
+  await ch.bindQueue(queue.queue, BOOKING_EVENTS_EXCHANGE, BOOKING_CONFIRMED_ROUTING_KEY);
+  await ch.bindQueue(queue.queue, BOOKING_EVENTS_EXCHANGE, BOOKING_CANCELLED_ROUTING_KEY);
 
   const consumeHandler = (msg: ConsumeMessage | null) => {
     if (!msg) {
