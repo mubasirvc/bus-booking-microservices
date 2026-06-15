@@ -1,119 +1,89 @@
+version: '3.9'
+
 services:
   rabbitmq:
     image: rabbitmq:3-management
     container_name: bus_booking-rabbitmq
+
     ports:
-      - "${RABBITMQ_PORT:-5672}:5672"
-      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+      - "5672:5672"
+      - "15672:15672"
+
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
+
     networks:
       - bus_booking-network
 
-  # user-db:
-  #   image: postgres:16
-  #   container_name: bus_booking-user-db
-  #   environment:
-  #     POSTGRES_DB: ${USER_DB_NAME:-bus_booking_user_service}
-  #     POSTGRES_USER: ${USER_DB_USER:-bus_booking_user}
-  #     POSTGRES_PASSWORD: ${USER_DB_PASSWORD:-bus_booking_user_password}
-  #   ports:
-  #     - "${USER_DB_PORT:-5432}:5432"
-  #   volumes:
-  #     - user-db-data:/var/lib/postgresql/data
-  #   networks:
-  #     - bus_booking-network
 
-  user-db:
-    image: mongo:7
-    container_name: bus_booking-user-db
+
+  redis:
+    image: redis:7
+    container_name: bus_booking-redis
+
     ports:
-      - "${MONGO_PORT:-27017}:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-root}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-password}
-    volumes:
-      - mongo-data:/data/db
+      - "6379:6379"
 
-
-  inventory-db:
-    image: postgres:16
-    container_name: bus_booking-inventory-db
-    environment:
-      POSTGRES_DB: ${INVENTORY_DB_NAME:-bus_booking_inventory_service}
-      POSTGRES_USER: ${INVENTORY_DB_USER:-bus_booking_inventory_user}
-      POSTGRES_PASSWORD: ${INVENTORY_DB_PASSWORD:-bus_booking_inventory_password}
-    ports:
-      - "${INVENTORY_DB_PORT:-5433}:5432"
     volumes:
-      - inventory-db-data:/var/lib/postgresql/data
+      - redis-data:/data
+
     networks:
       - bus_booking-network
-
-  booking-db:
-    image: postgres:16
-    container_name: bus_booking-booking-db
-    environment:
-      POSTGRES_DB: ${BOOKING_DB_NAME:-bus_booking_booking_service}
-      POSTGRES_USER: ${BOOKING_DB_USER:-bus_booking_booking_user}
-      POSTGRES_PASSWORD: ${BOOKING_DB_PASSWORD:-bus_booking_booking_password}
-    ports:
-      - "${BOOKING_DB_PORT:-5435}:5432"
-    volumes:
-      - booking-db-data:/var/lib/postgresql/data
-    networks:
-      - bus_booking-network 
-      
-  payment-db:
-    image: postgres:16
-    container_name: bus_booking-payment-db
-    environment:
-      POSTGRES_DB: ${PAYMENT_DB_NAME:-bus_booking_payment_service}
-      POSTGRES_USER: ${PAYMENT_DB_USER:-bus_booking_payment_user}
-      POSTGRES_PASSWORD: ${PAYMENT_DB_PASSWORD:-bus_booking_payment__password}
-    ports:
-      - "${PAYMENT_DB_PORT:-5436}:5432"
-    volumes:
-      - payment-db-data:/var/lib/postgresql/data
-    networks:
-      - bus_booking-network 
 
   auth-db:
     image: mysql:8.0
     container_name: bus_booking-auth-db
+
     environment:
       MYSQL_DATABASE: bus_booking_auth_service
       MYSQL_USER: bus_booking_auth_user
       MYSQL_PASSWORD: bus_booking_auth_password
       MYSQL_ROOT_PASSWORD: root_password
+
     ports:
       - "3306:3306"
+
     volumes:
       - auth-db-data:/var/lib/mysql
+
     networks:
       - bus_booking-network
 
-  redis:
-    image: redis:7
-    container_name: bus_booking-redis
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: auth-service
+
+    container_name: bus_booking-auth-service
+
+    env_file:
+      - ./services/auth-service/.env
+
     ports:
-      - "${REDIS_PORT:-6379}:6379"
-    volumes:
-      - redis-data:/data
+      - "4001:4001"
+
+    depends_on:
+      - auth-db
+      - rabbitmq
+      - redis
+
     networks:
       - bus_booking-network
+
 
 
 volumes:
   rabbitmq-data:
-  mongo-data:
-  auth-db-data:
-  inventory-db-data:
-  booking-db-data:
-  payment-db-data:
   redis-data:
+  auth-db-data:
+
 networks:
   bus_booking-network:
+    driver: bridge

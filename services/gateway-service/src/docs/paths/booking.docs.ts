@@ -241,7 +241,7 @@ registry.registerPath({
 
             tripId: '660e8400-e29b-41d4-a716-446655440000',
 
-            seats: ['u-1', 'u-2'],
+            seats: ['s1', 's2'],
 
             totalAmount: 2400,
           },

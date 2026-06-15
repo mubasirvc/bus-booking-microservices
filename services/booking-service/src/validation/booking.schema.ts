@@ -1,8 +1,6 @@
 import { z } from '@bus-booking/common';
 
 export const createBookingSchema = z.object({
-  userId: z.string().uuid(),
-
   tripId: z.string().uuid(),
 
   seats: z.array(z.string()).min(1, {

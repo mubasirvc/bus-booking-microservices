@@ -11,10 +11,6 @@ export const bookingStatusEnum = z.enum(['PENDING', 'CONFIRMED', 'CANCELLED']);
 // ======================================================
 
 export const createBookingSchema = z.object({
-  userId: z.string().uuid().openapi({
-    example: '550e8400-e29b-41d4-a716-446655440000',
-  }),
-
   tripId: z.string().uuid().openapi({
     example: '660e8400-e29b-41d4-a716-446655440000',
   }),

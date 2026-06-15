@@ -4,7 +4,7 @@ import { createEnv, z } from '@bus-booking/common';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  NOTiFiCATION_SERVICE_PORT: z.coerce.number().int().min(0).max(65_535).default(4008),
+  NOTiFiCATION_SERVICE_PORT: z.coerce.number().int().min(0).max(65_535).default(4006),
   RABBITMQ_URL: z.string().optional(),
   INTERNAL_API_TOKEN: z.string().min(16),
   FRONTEND_URL: z.string().url(),

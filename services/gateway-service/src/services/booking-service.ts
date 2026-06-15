@@ -64,7 +64,6 @@ export interface BookingListResponse {
 }
 
 export interface CreateBookingPayload {
-  userId: string;
   tripId: string;
   seats: string[];
   totalAmount: number;

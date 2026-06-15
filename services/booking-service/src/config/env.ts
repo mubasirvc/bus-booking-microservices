@@ -4,7 +4,7 @@ import { createEnv, z } from '@bus-booking/common';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  BOOKING_SERVICE_PORT: z.coerce.number().int().min(0).max(65_535).default(4006),
+  BOOKING_SERVICE_PORT: z.coerce.number().int().min(0).max(65_535).default(4004),
   BOOKING_DB_URL: z.string(),
   INTERNAL_API_TOKEN: z.string().min(16),
   BOOKING_GRPC_PORT: z.coerce.number().int().min(0).max(65_535).default(50052),
