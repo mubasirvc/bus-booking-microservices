@@ -15,7 +15,6 @@ import crypto from 'crypto';
 import { HttpError } from '@bus-booking/common';
 import { logger } from '../utils/logger.js';
 import { publishUserRegistered } from '../messaging/event-publishing.js';
-import { env } from '../config/env.js';
 
 const REFRESH_TOKEN_TTL_DAYS = 30;
 

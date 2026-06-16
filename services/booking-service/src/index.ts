@@ -1,13 +1,13 @@
 // import { connectRedis } from './redis/redis.js';
-import { connectRedis } from '@bus-booking/common';
+import { closeRedis, connectRedis } from '@bus-booking/common';
 import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
-import { initializeDatabase } from './db/sequelize.js';
+import { closeDatabase, initializeDatabase } from './db/sequelize.js';
 import { createServer } from 'node:http';
 import grpc from '@grpc/grpc-js';
 import grpcServer from './grpc/server.js';
-import { initPublisher } from './messaging/event-publishing.js';
+import { closePublisher, initPublisher } from './messaging/event-publishing.js';
 // import { connectRedis } from '@bus-booking/common';
 import { startExpiryListener } from './jobs/booking-expiry.listener.js';
 
@@ -39,7 +39,7 @@ const main = async () => {
 
     const shutdown = () => {
       logger.info('Shutting down booking service...');
-      Promise.all([])
+      Promise.all([closeDatabase(), closePublisher(), closeRedis()])
         .catch((error: unknown) => {
           logger.error({ error }, 'Error during shutdown tasks');
         })

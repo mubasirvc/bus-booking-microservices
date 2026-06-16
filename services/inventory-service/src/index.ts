@@ -31,7 +31,7 @@ const main = async () => {
       logger.info({ port: grpcPort }, 'Inventory gRPC service running');
     });
 
-    const shutdown = () => {
+    const shutdown = ([]) => {
       logger.info('Shutting down inventory service...');
 
       grpcServer.forceShutdown();

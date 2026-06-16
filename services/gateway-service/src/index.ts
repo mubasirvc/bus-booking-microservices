@@ -1,5 +1,5 @@
 import './docs/openapi.js';
-import { connectRedis } from '@bus-booking/common';
+import { closeRedis, connectRedis } from '@bus-booking/common';
 
 // import { redisClient } from '@bus-booking/common';
 import { createServer } from 'http';
@@ -22,7 +22,7 @@ const main = async () => {
     const shutdown = () => {
       logger.info('Shutting down gateway service...');
 
-      Promise.all([])
+      Promise.all([closeRedis()])
         .catch((error: unknown) => {
           logger.error({ error }, 'Error during shutdown tasks');
         })
