@@ -12,4 +12,7 @@ RUN pnpm install --frozen-lockfile
 
 RUN pnpm build
 
-CMD ["node", "services/auth-service/dist/index.js"]
+ARG SERVICE_NAME
+ENV SERVICE_NAME=${SERVICE_NAME}
+
+CMD sh -c "node services/$SERVICE_NAME/dist/index.js"

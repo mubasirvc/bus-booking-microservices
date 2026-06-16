@@ -1,4 +1,5 @@
-import { redisClient } from '@bus-booking/common';
+// import { connectRedis } from './redis/redis.js';
+import { connectRedis } from '@bus-booking/common';
 import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
@@ -15,7 +16,7 @@ const main = async () => {
   try {
     await initializeDatabase();
     await initPublisher();
-    // await connectRedis();
+    await connectRedis();
     await startExpiryListener();
 
     const app = createApp();

@@ -20,7 +20,7 @@ export const createApp = (): Application => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  app.use(apiRateLimiter);
+  app.use(apiRateLimiter());
   registerRoutes(app);
   
   setupSwagger(app);

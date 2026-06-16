@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package inventory;
+
+service InventoryService {
+
+  rpc GetAvailableSeats(
+    GetAvailableSeatsRequest
+  ) returns (
+    GetAvailableSeatsResponse
+  );
+
+  rpc ReserveSeats(
+    ReserveSeatsRequest
+  ) returns (
+    ReserveSeatsResponse
+  );
+
+  rpc ReleaseSeats(
+    ReleaseSeatsRequest
+  ) returns (
+    ReleaseSeatsResponse
+  );
+
+  rpc GetTripDetails(
+    GetTripDetailsRequest
+  ) returns (
+    GetTripDetailsResponse
+  );
+}
+
+message GetAvailableSeatsRequest {
+  string tripId = 1;
+}
+
+message GetAvailableSeatsResponse {
+  int32 availableSeats = 1;
+}
+
+message ReserveSeatsRequest {
+  string tripId = 1;
+  repeated string seatNumbers = 2;
+}
+
+message ReserveSeatsResponse {
+  bool success = 1;
+  int32 remainingSeats = 2;
+  double fare = 3;
+  string busName = 4;
+  string busId = 5;
+  string source = 6;
+  string destination = 7;
+  string travelDate = 8;
+}
+
+message ReleaseSeatsRequest {
+    string tripId = 1;
+    repeated string seatNumbers = 2;
+}
+
+message ReleaseSeatsResponse {
+    bool success = 1;
+}
+
+message GetTripDetailsRequest{
+   string tripId = 1;
+}
+
+message GetTripDetailsResponse{
+ string tripId = 1;
+ string travelDate = 2;
+ string departureTime = 3;
+ string arrivalTime = 4;
+ string busId = 5;
+ string busNumber = 6;
+ string busName =7;
+ string busType = 8;
+ string source = 9;
+ string destination = 10;
+}

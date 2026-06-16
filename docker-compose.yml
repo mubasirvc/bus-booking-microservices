@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   rabbitmq:
@@ -19,8 +19,6 @@ services:
     networks:
       - bus_booking-network
 
-
-
   redis:
     image: redis:7
     container_name: bus_booking-redis
@@ -38,6 +36,12 @@ services:
     image: mysql:8.0
     container_name: bus_booking-auth-db
 
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
     environment:
       MYSQL_DATABASE: bus_booking_auth_service
       MYSQL_USER: bus_booking_auth_user
@@ -52,7 +56,6 @@ services:
 
     networks:
       - bus_booking-network
-
 
   auth-service:
     build:
@@ -70,19 +73,279 @@ services:
       - "4001:4001"
 
     depends_on:
-      - auth-db
-      - rabbitmq
-      - redis
+      auth-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_started
 
     networks:
       - bus_booking-network
 
+  user-db:
+    image: mongo:7
+    container_name: bus_booking-user-db
+
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+
+    ports:
+      - "27017:27017"
+
+    volumes:
+      - mongo-data:/data/db
+
+    networks:
+      - bus_booking-network
+
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: user-service
+
+    container_name: bus_booking-user-service
+
+    env_file:
+      - ./services/user-service/.env
+
+    ports:
+      - "4002:4002"
+
+    depends_on:
+      user-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+
+    networks:
+      - bus_booking-network
+
+  inventory-db:
+    image: postgres:16
+    container_name: bus_booking-inventory-db
+
+    environment:
+      POSTGRES_DB: bus_booking_inventory_service
+      POSTGRES_USER: bus_booking_inventory_user
+      POSTGRES_PASSWORD: bus_booking_inventory_password
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - inventory-db-data:/var/lib/postgresql/data
+
+    networks:
+      - bus_booking-network
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U bus_booking_inventory_user -d bus_booking_inventory_service"
+        ]
+
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: inventory-service
+
+    container_name: bus_booking-inventory-service
+
+    env_file:
+      - ./services/inventory-service/.env
+
+    ports:
+      - "4003:4003"
+      - "50051:50051"
+
+    depends_on:
+      inventory-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_started
+
+    networks:
+      - bus_booking-network
+
+
+  booking-db:
+    image: postgres:16
+    container_name: bus_booking-booking-db
+
+    environment:
+      POSTGRES_DB: bus_booking_booking_service
+      POSTGRES_USER: bus_booking_booking_user
+      POSTGRES_PASSWORD: bus_booking_booking_password
+
+    ports:
+      - "5435:5432"
+
+    volumes:
+      - booking-db-data:/var/lib/postgresql/data
+
+    networks:
+      - bus_booking-network
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U bus_booking_booking_user -d bus_booking_booking_service"
+        ]
+
+
+
+  booking-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: booking-service
+
+    container_name: bus_booking-booking-service
+
+    env_file:
+      - ./services/booking-service/.env
+
+    ports:
+      - "4004:4004"
+
+    depends_on:
+      booking-db:
+        condition: service_healthy
+      inventory-service:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_started
+
+    networks:
+      - bus_booking-network
+
+
+  payment-db:
+    image: postgres:16
+    container_name: bus_booking-payment-db
+
+    environment:
+      POSTGRES_DB: bus_booking_payment_service
+      POSTGRES_USER: bus_booking_payment_user
+      POSTGRES_PASSWORD: bus_booking_payment_password
+
+    ports:
+      - "5436:5432"
+
+    volumes:
+      - payment-db-data:/var/lib/postgresql/data
+
+    networks:
+      - bus_booking-network
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U bus_booking_payment_user -d bus_booking_payment_service"
+        ]
+
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: payment-service
+
+    container_name: bus_booking-payment-service
+
+    env_file:
+      - ./services/payment-service/.env
+
+    ports:
+      - "4005:4005"
+
+    depends_on:
+      payment-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+
+    networks:
+      - bus_booking-network
+
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: notification-service
+
+    container_name: bus_booking-notification-service
+
+    env_file:
+      - ./services/notification-service/.env
+
+    ports:
+      - "4006:4006"
+
+    depends_on:
+      rabbitmq:
+        condition: service_started
+
+    networks:
+      - bus_booking-network
+  
+
+
+  gateway-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: gateway-service
+
+    container_name: bus_booking-gateway-service
+
+    env_file:
+      - ./services/gateway-service/.env
+
+    ports:
+      - "4000:4000"
+
+    depends_on:
+      auth-service:
+        condition: service_started
+      user-service:
+        condition: service_started
+      booking-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+
+    networks:
+      - bus_booking-network
 
 
 volumes:
   rabbitmq-data:
   redis-data:
   auth-db-data:
+  mongo-data:
+  inventory-db-data:
+  booking-db-data:
+  payment-db-data:
 
 networks:
   bus_booking-network:

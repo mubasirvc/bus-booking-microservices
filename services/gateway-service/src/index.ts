@@ -1,6 +1,7 @@
 import './docs/openapi.js';
+import { connectRedis } from '@bus-booking/common';
 
-import { redisClient } from '@bus-booking/common';
+// import { redisClient } from '@bus-booking/common';
 import { createServer } from 'http';
 import { createApp } from './app.js';
 import { logger } from './utils/logger.js';
@@ -8,7 +9,7 @@ import { env } from './config/env.js';
 
 const main = async () => {
   try {
-
+    await connectRedis();
     const app = createApp();
     const server = createServer(app);
 
