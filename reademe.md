@@ -1,75 +1,253 @@
-# 🚌 BusBooking
+# 🚌 Bus Booking System
 
-A production-inspired microservices-based bus booking backend built with Node.js, TypeScript, RabbitMQ, Redis, gRPC, and Docker.
+A production-inspired microservices-based Bus Booking Platform built with Node.js, TypeScript, Docker, RabbitMQ, Redis, gRPC, and multiple databases.
 
-> Built as a learning project, portfolio project, and interview showcase to demonstrate modern backend architecture and distributed systems concepts.
+This project was built as a learning project, portfolio project, and interview showcase to explore real-world backend architecture patterns including microservices, event-driven communication, distributed transactions, role-based access control, caching, asynchronous messaging, and containerized deployments.
 
 ---
 
 # 🚀 Features
 
-## Authentication
+## Authentication & Authorization
 
-* User Registration
+* JWT Access Tokens
+* JWT Refresh Tokens
 * Email Verification
-* JWT Authentication
-* Refresh Tokens
 * Role-Based Access Control (RBAC)
-* Internal Service Authentication
-
-## Booking
-
-* Create Booking
-* Cancel Booking
-* Booking Confirmation
-* Seat Reservation
-* Seat Release
-* Booking Expiration Handling
-
-## Payments
-
-* Razorpay Integration
-* Order Creation
-* Payment Verification
-* Webhook Processing
-
-## Notifications
-
-* Email Verification
-* Booking Confirmation Emails
-* Booking Cancellation Emails
-* Event-Driven Notification Processing
-
-## Platform
-
-* API Gateway
-* Microservices Architecture
-* RabbitMQ Event Bus
-* gRPC Communication
-* Redis Caching
-* Swagger Documentation
-* Dockerized Development Environment
-* Rate Limiting
+* USER role
+* OPERATOR role
+* ADMIN role
 
 ---
 
-# 🏗 Architecture
+## Booking Management
+
+* Seat reservation
+* Temporary seat locking
+* Booking creation
+* Booking confirmation
+* Booking cancellation
+* Automatic booking expiration
+* Seat release on expiration
+
+---
+
+## Payment Integration
+
+* Razorpay payment gateway
+* Payment order creation
+* Webhook verification
+* Payment status tracking
+* Automatic booking confirmation after successful payment
+
+---
+
+## Event-Driven Architecture
+
+RabbitMQ is used for asynchronous communication between services.
+
+Current events:
+
+### Auth Events
+
+* auth.user.registered
+
+### Booking Events
+
+* booking.created
+* booking.confirmed
+* booking.cancelled
+
+---
+
+## Notification System
+
+* Email notifications
+* Booking confirmation emails
+* Booking cancellation emails
+* Event-driven processing
+
+---
+
+## Inventory Management
+
+* Seat reservation
+* Seat release
+* Redis-based temporary locks
+* Automatic expiration handling
+
+---
+
+## API Documentation
+
+Swagger/OpenAPI documentation available.
+
+```text
+http://localhost:4000/docs
+```
+
+---
+
+# 🏗️ Architecture
 
 ## Services
 
-| Service              | Responsibility                                      |
-| -------------------- | --------------------------------------------------- |
-| Gateway Service      | API Gateway, Routing, Authentication, Rate Limiting |
-| Auth Service         | Registration, Login, JWT, Email Verification        |
-| User Service         | User Profiles, User Booking Projections             |
-| Inventory Service    | Trips, Seats, Availability                          |
-| Booking Service      | Booking Lifecycle Management                        |
-| Payment Service      | Razorpay Integration                                |
-| Notification Service | Email Notifications                                 |
+### API Gateway
+
+Responsibilities:
+
+* Request routing
+* Authentication middleware
+* Rate limiting
+* API aggregation
+* Swagger documentation
 
 ---
 
-# 📦 Monorepo Structure
+### Auth Service
+
+Responsibilities:
+
+* Registration
+* Login
+* Refresh tokens
+* Email verification
+* JWT management
+
+Database:
+
+* MySQL
+
+---
+
+### User Service
+
+Responsibilities:
+
+* User profiles
+* User management
+* User search
+
+Database:
+
+* MongoDB
+
+---
+
+### Inventory Service
+
+Responsibilities:
+
+* Routes
+* Buses
+* Trips
+* Seat inventory
+* Seat reservation
+
+Database:
+
+* PostgreSQL
+
+---
+
+### Booking Service
+
+Responsibilities:
+
+* Booking lifecycle
+* Booking validation
+* Booking expiration
+* Booking status management
+
+Database:
+
+* PostgreSQL
+
+---
+
+### Payment Service
+
+Responsibilities:
+
+* Razorpay integration
+* Payment orders
+* Payment verification
+* Webhook handling
+
+Database:
+
+* PostgreSQL
+
+---
+
+### Notification Service
+
+Responsibilities:
+
+* Email delivery
+* Event consumption
+* Notification processing
+
+External Provider:
+
+* Resend
+
+---
+
+# 🧩 Technology Stack
+
+## Backend
+
+* Node.js
+* TypeScript
+* Express
+
+## Databases
+
+* MySQL
+* PostgreSQL
+* MongoDB
+
+## Caching
+
+* Redis
+
+## Messaging
+
+* RabbitMQ
+
+## RPC Communication
+
+* gRPC
+
+## Authentication
+
+* JWT
+
+## Documentation
+
+* Swagger / OpenAPI
+
+## Email
+
+* Resend
+
+## Payments
+
+* Razorpay
+
+## Containerization
+
+* Docker
+* Docker Compose
+
+## Package Management
+
+* pnpm
+
+---
+
+# 📂 Monorepo Structure
 
 ```text
 bus-booking/
@@ -86,330 +264,208 @@ bus-booking/
 ├── packages/
 │   └── common/
 │
+├── docs/
+│
 ├── docker-compose.yml
 │
-└── README.md
+└── pnpm-workspace.yaml
 ```
 
 ---
 
-# 🔄 Communication
+# 🔄 Booking Flow
 
-## Synchronous Communication
+```text
+User
+ │
+ ▼
+Search Trip
+ │
+ ▼
+Create Booking
+ │
+ ▼
+Reserve Seats
+ │
+ ▼
+Booking Status = PENDING
+ │
+ ▼
+Create Payment Order
+ │
+ ▼
+Pay via Razorpay
+ │
+ ▼
+Webhook Received
+ │
+ ▼
+Booking Confirmed
+ │
+ ▼
+Notification Sent
+```
 
-Services communicate using gRPC.
+---
 
-Example:
+# ⏳ Booking Expiration Flow
+
+```text
+Booking Created
+      │
+      ▼
+Seat Reserved
+      │
+      ▼
+Redis Expiration Timer
+      │
+      ▼
+Payment Not Completed
+      │
+      ▼
+Booking Cancelled
+      │
+      ▼
+Seats Released
+```
+
+---
+
+# 📨 Event Flow
+
+```text
+Auth Service
+      │
+      ▼
+auth.user.registered
+      │
+      ▼
+RabbitMQ
+      │
+      ▼
+Notification Service
+```
 
 ```text
 Booking Service
       │
       ▼
-Inventory Service
-```
-
-Used for:
-
-* Reserve Seats
-* Release Seats
-* Trip Details Lookup
-
----
-
-## Asynchronous Communication
-
-Services communicate using RabbitMQ.
-
-```text
-Publisher
-    │
-    ▼
-Exchange
-    │
-    ▼
-Queue
-    │
-    ▼
-Consumer
-```
-
-Benefits:
-
-* Loose Coupling
-* Scalability
-* Reliability
-* Event-Driven Design
-
----
-
-# 📨 RabbitMQ Events
-
-## Authentication Events
-
-### auth.user.registered
-
-Published by:
-
-* Auth Service
-
-Consumed by:
-
-* User Service
-* Notification Service
-
----
-
-## Booking Events
-
-### booking.created
-
-Published by:
-
-* Booking Service
-
-Consumed by:
-
-* User Service
-
----
-
-### booking.confirmed
-
-Published by:
-
-* Booking Service
-
-Consumed by:
-
-* User Service
-* Notification Service
-
----
-
-### booking.cancelled
-
-Published by:
-
-* Booking Service
-
-Consumed by:
-
-* User Service
-* Notification Service
-
----
-
-# 🎫 Booking Flow
-
-```text
-User Selects Trip
-        │
-        ▼
-Create Booking
-(Status = PENDING)
-        │
-        ▼
-Reserve Seats
-        │
-        ▼
-Create Razorpay Order
-        │
-        ▼
-Payment Success
-        │
-        ▼
-Booking Confirmed
-        │
-        ▼
-Confirmation Email Sent
+booking.confirmed
+      │
+      ▼
+RabbitMQ
+      │
+      ▼
+Notification Service
 ```
 
 ---
 
-# ⏰ Booking Expiration Flow
+# 🔐 Roles
 
-```text
-Booking Created
-       │
-       ▼
-Redis Expiry Key Created
-       │
-       ▼
-Timer Expires
-       │
-       ▼
-Booking Cancelled
-       │
-       ▼
-Seats Released
-       │
-       ▼
-Cancellation Email Sent
-```
+## USER
+
+Can:
+
+* Search routes
+* Search trips
+* View bus details
+* Create bookings
+* Cancel own bookings
+* View own bookings
+* Make payments
 
 ---
 
-# ⚡ Redis Usage
+## OPERATOR
 
-Used for:
+Can:
 
-* Rate Limiting
-* Booking Expiration
-* Temporary Seat Reservation
-* Caching
-
-Example:
-
-```text
-booking:{bookingId}
-```
-
-When the key expires:
-
-```text
-Redis
-   ▼
-Booking Service Listener
-   ▼
-Cancel Booking
-   ▼
-Release Seats
-```
+* Create buses
+* Manage own buses
+* Create trips
+* Manage own trips
 
 ---
 
-# 🔐 Security
+## ADMIN
 
-## JWT
+Can:
 
-* Access Token
-* Refresh Token
-
-## Roles
-
-```text
-ADMIN
-OPERATOR
-USER
-```
-
-## Rate Limiting
-
-Implemented using:
-
-* express-rate-limit
-* Redis Store
-
-Protection against:
-
-* Login Abuse
-* Brute Force Attacks
-* API Abuse
+* Manage users
+* Manage routes
+* Manage buses
+* Manage trips
+* View all bookings
+* System administration
 
 ---
 
-# 💳 Payment Integration
+# 🛠️ Local Development Setup
 
-Razorpay
+## Prerequisites
 
-Features:
+Install:
 
-* Order Creation
-* Payment Verification
-* Webhooks
-* Booking Synchronization
-
----
-
-# 📧 Email Provider
-
-Resend
-
-Used for:
-
-* Verification Emails
-* Booking Confirmation Emails
-* Booking Cancellation Emails
-
----
-
-# 📚 API Documentation
-
-Swagger UI:
-
-```text
-http://localhost:4000/docs
-```
-
----
-
-# 🛠 Tech Stack
-
-## Backend
-
-* Node.js
-* TypeScript
-* Express
-
-## Databases
-
-* PostgreSQL
-* MySQL
-* MongoDB
-
-## Messaging
-
-* RabbitMQ
-
-## Cache
-
-* Redis
-
-## Service Communication
-
-* gRPC
-
-## Authentication
-
-* JWT
-
-## Email
-
-* Resend
-
-## Payments
-
-* Razorpay
-
-## Documentation
-
-* Swagger / OpenAPI
-
-## Containerization
-
-* Docker
-
-## Package Manager
-
+* Node.js 22+
 * pnpm
+* Docker Desktop
 
 ---
 
-# 🐳 Running Locally
+## Clone Repository
 
-Install dependencies:
+```bash
+git clone <repository-url>
+
+cd bus-booking
+```
+
+---
+
+## Install Dependencies
 
 ```bash
 pnpm install
 ```
 
-Start infrastructure:
+---
 
-```bash
-docker-compose up -d
+## Configure Environment Variables
+
+Create service-specific environment files:
+
+```text
+services/auth-service/.env
+services/user-service/.env
+services/inventory-service/.env
+services/booking-service/.env
+services/payment-service/.env
+services/notification-service/.env
+services/gateway-service/.env
 ```
 
-Start all services:
+Use the provided `.env.example` files as reference.
+
+---
+
+## Start Infrastructure
+
+```bash
+docker compose up -d
+```
+
+This starts:
+
+* RabbitMQ
+* Redis
+* MySQL
+* MongoDB
+* PostgreSQL instances
+
+---
+
+## Run Services
 
 ```bash
 pnpm dev
@@ -417,42 +473,164 @@ pnpm dev
 
 ---
 
+# 🐳 Docker Deployment
+
+## Build Containers
+
+```bash
+docker compose build
+```
+
+---
+
+## Start Containers
+
+```bash
+docker compose up -d
+```
+
+---
+
+## View Running Containers
+
+```bash
+docker ps
+```
+
+---
+
+## View Logs
+
+```bash
+docker compose logs -f
+```
+
+---
+
+## Stop Containers
+
+```bash
+docker compose down
+```
+
+---
+
+## Remove Containers and Volumes
+
+```bash
+docker compose down -v
+```
+
+---
+
+# 🌐 Service Ports
+
+| Service              | Port |
+| -------------------- | ---- |
+| Gateway Service      | 4000 |
+| Auth Service         | 4001 |
+| User Service         | 4002 |
+| Inventory Service    | 4003 |
+| Booking Service      | 4004 |
+| Payment Service      | 4005 |
+| Notification Service | 4006 |
+
+---
+
+# 🐇 RabbitMQ
+
+Management Dashboard:
+
+```text
+http://localhost:15672
+```
+
+Default credentials:
+
+```text
+Username: guest
+Password: guest
+```
+
+---
+
+# 📖 API Documentation
+
+Swagger:
+
+```text
+http://localhost:4000/docs
+```
+
+---
+
+# 🧪 Development Scripts
+
+Install dependencies:
+
+```bash
+pnpm install
+```
+
+Build:
+
+```bash
+pnpm build
+```
+
+Run development environment:
+
+```bash
+pnpm dev
+```
+
+Lint:
+
+```bash
+pnpm lint
+```
+
+Type check:
+
+```bash
+pnpm typecheck
+```
+
+Run tests:
+
+```bash
+pnpm test
+```
+
+---
+
+# 🔒 Security Features
+
+* JWT Authentication
+* Refresh Token Rotation
+* Role-Based Access Control
+* Internal Service Authentication
+* Razorpay Signature Verification
+* Input Validation
+* Rate Limiting
+* Helmet Security Headers
+
+---
+
 # 🚧 Future Improvements
 
-* Password Reset
-* SMS Notifications
-* CI/CD Pipeline
-* Distributed Tracing
-* Centralized Logging
+* Password Reset Flow
 * Kubernetes Deployment
-* Monitoring & Metrics
-* Saga Pattern
+* Distributed Tracing
+* Metrics & Monitoring
+* Prometheus Integration
+* Grafana Dashboards
+* Centralized Logging
+* CI/CD Deployment Pipeline
+* Frontend Application
 
 ---
 
 # 👨‍💻 Author
 
-Built to explore modern backend engineering concepts including:
-
-* Microservices
-* Event-Driven Architecture
-* Distributed Systems
-* gRPC
-* RabbitMQ
-* Redis
-* Docker
-* Payment Integrations
-* Production-Oriented Backend Design
-
-
-## Architecture Diagram
-
-![Architecture](docs/architecture.png)
-
-## Booking Flow
-
-![Booking Flow](docs/booking-flow.png)
-
-## RabbitMQ Event Flow
-
-![Event Flow](docs/event-flow.png)
+Built as a backend engineering learning project focused on microservices architecture, event-driven systems, distributed communication, and scalable application design.
