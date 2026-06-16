@@ -9,8 +9,8 @@ const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(__filename);
 
-const PROTO_PATH = path.resolve(__dirname, './proto/payment.proto');
-
+// const PROTO_PATH = path.resolve(__dirname, './proto/payment.proto');
+const PROTO_PATH = path.resolve(process.cwd(), 'packages/common/src/proto/payment.proto');
 console.log(PROTO_PATH);
 
 const packageDef = protoLoader.loadSync(PROTO_PATH);

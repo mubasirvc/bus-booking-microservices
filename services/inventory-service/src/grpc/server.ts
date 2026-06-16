@@ -10,8 +10,8 @@ const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(__filename);
 
-const PROTO_PATH = path.join(__dirname, './proto/inventory.proto');
-
+// const PROTO_PATH = path.join(__dirname, './proto/inventory.proto');
+const PROTO_PATH = path.resolve(process.cwd(), 'packages/common/src/proto/inventory.proto');
 const packageDef = protoLoader.loadSync(PROTO_PATH);
 
 const grpcObject = grpc.loadPackageDefinition(packageDef);

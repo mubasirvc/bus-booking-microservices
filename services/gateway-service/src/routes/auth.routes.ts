@@ -5,7 +5,6 @@ import { asyncHandler, validateRequest } from '@bus-booking/common';
 
 import { loginUser, refreshTokens, registerUser, revokeTokens, verifyEmail } from '../controllers/auth.controller';
 import { loginSchema, refreshSchema, registerSchema, revokeSchema, verifyEmailSchema } from '../validation/auth.schema';
-import { loginRateLimiter } from '../middleware/rate-limit.middleware';
 
 export const authRouter: Router = Router();
 

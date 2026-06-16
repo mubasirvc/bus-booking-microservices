@@ -1,11 +1,12 @@
-// import { getRedisClient } from '@bus-booking/common';
-import { redisClient } from '@bus-booking/common';
+// import { redisClient } from '@bus-booking/common';
+// import { getRedisClient } from '../redis/redis.js';
 import { bookingService } from '../service/booking.service.js';
 import { BookingStatus } from '../types/booking.js';
 import { logger } from '../utils/logger.js';
+import { getRedisClient } from '@bus-booking/common';
 
 export const startExpiryListener = async () => {
-  const subscriber = redisClient.duplicate();
+  const subscriber = getRedisClient().duplicate();
 
   await subscriber.subscribe('__keyevent@0__:expired');
 

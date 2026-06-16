@@ -10,7 +10,8 @@ const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(__filename);
 
-const PROTO_PATH = path.join(__dirname, './proto/booking.proto');
+// const PROTO_PATH = path.join(__dirname, './proto/booking.proto');
+const PROTO_PATH = path.resolve(process.cwd(), 'packages/common/src/proto/booking.proto');
 
 const packageDef = protoLoader.loadSync(PROTO_PATH);
 

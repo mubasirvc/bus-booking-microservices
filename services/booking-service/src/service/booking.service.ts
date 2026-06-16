@@ -1,5 +1,4 @@
 import { HttpError } from '@bus-booking/common';
-import { redisClient } from '@bus-booking/common';
 import { PaginatedResponse } from '@bus-booking/common';
 
 import { Booking, BookingStatus, CreateBookingInput } from '../types/booking.js';
@@ -14,6 +13,9 @@ import {
   publishBookingCancelled,
   publishBookingConfirmed,
 } from '../messaging/event-publishing.js';
+import { getRedisClient } from '@bus-booking/common';
+
+// import { getRedisClient } from '../redis/redis.js';
 
 class BookingService {
   constructor(private readonly repository: BookingRepository) {}
@@ -68,7 +70,7 @@ class BookingService {
 
       // const client = getRedisClient();
 
-      await redisClient.set(
+      await getRedisClient().set(
         `booking:${booking.id}`,
         booking.id,
         'EX',
@@ -140,7 +142,7 @@ class BookingService {
 
     // const client = getRedisClient();
 
-    await redisClient.del(`booking:${bookingId}`);
+    await getRedisClient().del(`booking:${bookingId}`);
 
     await inventoryGrpcService.releaseSeats(booking.tripId, booking.seats);
 
@@ -203,7 +205,7 @@ class BookingService {
     // const client = getRedisClient();
 
     // Remove timer for any final state
-    await redisClient.del(`booking:${id}`);
+    await getRedisClient().del(`booking:${id}`);
 
     if (newStatus === BookingStatus.CANCELLED) {
       await inventoryGrpcService.releaseSeats(booking.tripId, booking.seats);
