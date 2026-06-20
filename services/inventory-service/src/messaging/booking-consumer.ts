@@ -1,8 +1,7 @@
 import {
   BOOKING_PENDING_ROUTING_KEY,
-  BOOKING_CANCELLED_ROUTING_KEY,
-  BOOKING_CONFIRMED_ROUTING_KEY,
   BOOKING_EVENTS_EXCHANGE,
+  BOOKING_CANCELLED_ROUTING_KEY,
 } from '@bus-booking/common';
 
 import {
@@ -15,8 +14,9 @@ import {
 } from 'amqplib';
 
 import { logger } from '../utils/logger.js';
-import { myBookingService } from '../services/my-booking.service.js';
+import { tripService } from '../modules/trip/service/trip.service.js';
 import { env } from '../config/env.js';
+import { publishSeatReservationFailed, publishSeatReservationSuccess } from './event-publishing.js';
 
 type ManageConnection = Connection & ChannelModel;
 
@@ -24,7 +24,7 @@ let connectionRef: ManageConnection | null = null;
 let channel: Channel | null = null;
 let consumerTag: string | null = null;
 
-const QUEUE_NAME = 'user-service.booking-events';
+const QUEUE_NAME = 'inventory-service.booking-events';
 
 const closeConnection = async (conn: ManageConnection) => {
   await conn.close();
@@ -40,20 +40,32 @@ const handleMessage = async (message: ConsumeMessage, ch: Channel) => {
   const event = JSON.parse(raw);
 
   switch (event.type) {
-    case BOOKING_PENDING_ROUTING_KEY:
-      await myBookingService.createBooking(event.payload);
-      break;
+    case BOOKING_PENDING_ROUTING_KEY: {
+      try {
+        const reservation = await tripService.reserveSeats(event.payload);
 
-    case BOOKING_CONFIRMED_ROUTING_KEY:
-      await myBookingService.updateBookingStatus(event.payload);
-      break;
+        publishSeatReservationSuccess(reservation);
+      } catch (error) {
+        publishSeatReservationFailed({
+          bookingId: event.payload.bookingId,
+          userId: event.payload.userId,
+          tripId: event.payload.tripId,
+          seats: event.payload.seats,
+          reason: error instanceof Error ? error.message : 'Reservation failed',
+        });
+      }
 
-    case BOOKING_CANCELLED_ROUTING_KEY:
-      await myBookingService.updateBookingStatus(event.payload);
       break;
+    }
+
+    case BOOKING_CANCELLED_ROUTING_KEY: {
+
+      await tripService.releaseSeats(event.payload.tripId, event.payload.seats);
+      break;
+    }
 
     default:
-      logger.warn({ type: event.type }, 'Unknown booking event');
+      logger.warn({ eventType: event.type }, 'Unknown booking event received');
   }
 
   ch.ack(message);
@@ -78,7 +90,6 @@ export const startBookingEventConsumer = async () => {
   const queue = await ch.assertQueue(QUEUE_NAME, { durable: true });
 
   await ch.bindQueue(queue.queue, BOOKING_EVENTS_EXCHANGE, BOOKING_PENDING_ROUTING_KEY);
-  await ch.bindQueue(queue.queue, BOOKING_EVENTS_EXCHANGE, BOOKING_CONFIRMED_ROUTING_KEY);
   await ch.bindQueue(queue.queue, BOOKING_EVENTS_EXCHANGE, BOOKING_CANCELLED_ROUTING_KEY);
 
   const consumeHandler = (msg: ConsumeMessage | null) => {

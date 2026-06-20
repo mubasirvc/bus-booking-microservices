@@ -13,7 +13,7 @@ import { getAuthenticatedUser } from '../utils/auth.js';
 export const getBooking: AsyncHandler = async (req, res, next) => {
   try {
     const user = getAuthenticatedUser(req);
-    const { id } = bookingIdParamsSchema.parse(user, req.params);
+    const { id } = bookingIdParamsSchema.parse(req.params);
 
     const response = await bookingProxyService.getBookingById(user, id);
 

@@ -11,6 +11,7 @@ const envSchema = z.object({
   RAZORPAY_KEY_SECRET: z.string().min(16),
   BOOKING_GRPC_HOST: z.string().default('localhost:50052'),
   PAYMENT_GRPC_PORT: z.coerce.number().int().min(0).max(65_535).default(50053),
+  RABBITMQ_URL: z.string().default('amqp://localhost:5672'),
 });
 
 type EnvType = z.infer<typeof envSchema>;

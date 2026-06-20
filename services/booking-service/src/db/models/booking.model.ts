@@ -6,7 +6,7 @@ import { Booking, BookingStatus } from '../../types/booking.js';
 
 export type BookingCreationAttributes = Optional<
   Booking,
-  'id' | 'status' | 'createdAt' | 'updatedAt'
+  'id' | 'status' | 'createdAt' | 'updatedAt' | 'paymentOrderId'
 >;
 
 export class BookingModel extends Model<Booking, BookingCreationAttributes> implements Booking {
@@ -17,6 +17,7 @@ export class BookingModel extends Model<Booking, BookingCreationAttributes> impl
   declare seats: string[];
   declare totalAmount: number;
   declare status: BookingStatus;
+  declare paymentOrderId: string | null;
   declare createdAt: Date;
   declare updatedAt: Date;
 }
@@ -54,8 +55,13 @@ BookingModel.init(
       allowNull: false,
     },
 
+    paymentOrderId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
     status: {
-      type: DataTypes.ENUM('PENDING', 'CANCELLED', 'CONFIRMED'),
+      type: DataTypes.ENUM('PENDING', 'CANCELLED', 'CONFIRMED', 'AWAITING_PAYMENT'),
       defaultValue: 'PENDING',
     },
 

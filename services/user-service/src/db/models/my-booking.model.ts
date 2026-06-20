@@ -16,25 +16,30 @@ const myBookingSchema = new mongoose.Schema(
 
     busId: {
       type: String,
-      required: true,
+      required: false,
     },
     busName: {
       type: String,
-      required: true,
+      required: false,
     },
     source: {
       type: String,
-      required: true,
+      required: false,
     },
 
     destination: {
       type: String,
-      required: true,
+      required: false,
+    },
+
+    reason: {
+      type: String,
+      required: false,
     },
 
     travelDate: {
       type: Date,
-      required: true,
+      required: false,
     },
 
     seats: {
@@ -49,7 +54,7 @@ const myBookingSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ['PENDING', 'CONFIRMED', 'CANCELLED'],
+      enum: ['PENDING', 'CONFIRMED', 'CANCELLED', 'PAYMENT_AWAIT'],
       default: 'PENDING',
     },
   },

@@ -83,7 +83,7 @@ Current events:
 Swagger/OpenAPI documentation available.
 
 ```text
-http://localhost:4000/docs
+http://localhost:4000/api-docs
 ```
 
 ---
