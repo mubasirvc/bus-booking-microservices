@@ -12,6 +12,14 @@ export interface Trip {
   updatedAt?: Date;
 }
 
+export interface TripDetails {
+  bookingId: string;
+  userId: string;
+  tripId: string;
+  seats: string[];
+  reason?: string;
+}
+
 export interface TripWithBookedSeats extends Trip {
   bookedSeats: string[];
 }

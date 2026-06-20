@@ -26,6 +26,8 @@ const bookingSchema = z.object({
 
   totalAmount: z.number(),
 
+  paymentOrderId: z.string(),
+  
   status: bookingStatusEnum,
 
   createdAt: z.string(),
@@ -237,8 +239,6 @@ registry.registerPath({
           schema: createBookingSchema,
 
           example: {
-            userId: '550e8400-e29b-41d4-a716-446655440000',
-
             tripId: '660e8400-e29b-41d4-a716-446655440000',
 
             seats: ['s1', 's2'],

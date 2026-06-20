@@ -17,11 +17,11 @@ export interface MyBookingPayload {
   userId: string;
   tripId: string;
   seats: string[];
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
-  totalPrice: number;
-  busId: string;
-  busName: string;
-  source: string;
-  destination: string;
-  travelDate: string;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'PAYMENT_AWAIT';
+  totalPrice?: number;
+  busId?: string;
+  busName?: string;
+  source?: string;
+  destination?: string;
+  travelDate?: string;
 } 

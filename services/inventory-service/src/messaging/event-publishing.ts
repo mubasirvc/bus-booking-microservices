@@ -1,11 +1,9 @@
 import {
-  BOOKING_PENDING_ROUTING_KEY,
-  BOOKING_EVENTS_EXCHANGE,
-  BOOKING_CONFIRMED_ROUTING_KEY,
-  BOOKING_CANCELLED_ROUTING_KEY,
-  BookingCancelledPayload,
-  BookingConfirmedPayload,
-  BookingPendingPayload
+  INVENTORY_EVENTS_EXCHANGE,
+  SEAT_RESERVATION_FAILED_ROUTING_KEY,
+  SEAT_RESERVATION_SUCCESS_ROUTING_KEY,
+  type SeatReservationSuccessPayload,
+  type SeatReservationFailedPayload,
 } from '@bus-booking/common';
 
 import { connect, type Channel, type ChannelModel } from 'amqplib';
@@ -28,7 +26,7 @@ export const initPublisher = async () => {
   const connection = await connect(env.RABBITMQ_URL);
   connectionRef = connection;
   channel = await connection.createChannel();
-  await channel.assertExchange(BOOKING_EVENTS_EXCHANGE, 'topic', { durable: true });
+  await channel.assertExchange(INVENTORY_EVENTS_EXCHANGE, 'topic', { durable: true });
 
   connection.on('close', () => {
     logger.warn('RabbitMQ connection closed');
@@ -42,47 +40,22 @@ export const initPublisher = async () => {
   logger.info('Booking service RabbitMQ publisher initialized');
 };
 
-export const publishBookingPending = (payload: BookingPendingPayload) => {
-  if (!channel) {
-    logger.warn('RabbitMQ channel is not initialized. Cannot publish message.');
-    return;
-  }
-
-  const event = {
-    type: BOOKING_PENDING_ROUTING_KEY,
-    payload,
-    occuredAt: new Date().toISOString(),
-    metadata: { version: 1 },
-  };
-
-  const published = channel.publish(
-    BOOKING_EVENTS_EXCHANGE,
-    BOOKING_PENDING_ROUTING_KEY,
-    Buffer.from(JSON.stringify(event)),
-    { contentType: 'application/json', persistent: true },
-  );
-
-  if (!published) {
-    logger.warn({ event }, 'Failed to publish booking pending event');
-  }
-};
-
-export const publishBookingConfirmed = (payload: BookingConfirmedPayload) => {
+export const publishSeatReservationSuccess = (payload: SeatReservationSuccessPayload) => {
     if (!channel) {
       logger.warn('RabbitMQ channel is not initialized. Cannot publish message.');
       return;
     }
 
   const event = {
-    type: BOOKING_CONFIRMED_ROUTING_KEY,
+    type: SEAT_RESERVATION_SUCCESS_ROUTING_KEY,
     payload,
     occuredAt: new Date().toISOString(),
     metadata: { version: 1 },
   };
 
   channel.publish(
-    BOOKING_EVENTS_EXCHANGE,
-    BOOKING_CONFIRMED_ROUTING_KEY,
+    INVENTORY_EVENTS_EXCHANGE,
+    SEAT_RESERVATION_SUCCESS_ROUTING_KEY,
     Buffer.from(JSON.stringify(event)),
     {
       contentType: 'application/json',
@@ -91,22 +64,22 @@ export const publishBookingConfirmed = (payload: BookingConfirmedPayload) => {
   );
 };
 
-export const publishBookingCancelled = (payload: BookingCancelledPayload) => {
+export const publishSeatReservationFailed = (payload: SeatReservationFailedPayload) => {
   if (!channel) {
     logger.warn('RabbitMQ channel is not initialized. Cannot publish message.');
     return;
   }
 
   const event = {
-    type: BOOKING_CANCELLED_ROUTING_KEY,
+    type: SEAT_RESERVATION_FAILED_ROUTING_KEY,
     payload,
     occuredAt: new Date().toISOString(),
     metadata: { version: 1 },
   };
 
   channel.publish(
-    BOOKING_EVENTS_EXCHANGE,
-    BOOKING_CANCELLED_ROUTING_KEY,
+    INVENTORY_EVENTS_EXCHANGE,
+    SEAT_RESERVATION_FAILED_ROUTING_KEY,
     Buffer.from(JSON.stringify(event)),
     {
       contentType: 'application/json',

@@ -10,7 +10,14 @@ export class MyBookingService {
 
   async createBooking(payload: MyBookingPayload) {
     try {
-      return await myBookingRepository.create(payload);
+      return await myBookingRepository.create({
+        bookingId: payload.bookingId,
+        userId: payload.userId,
+        tripId: payload.tripId,
+        seats: payload.seats,
+        status: payload.status!,
+        totalPrice: 0,
+      });
     } catch (error) {
       throw new HttpError(500, 'Failed to create booking');
     }
@@ -26,8 +33,11 @@ export class MyBookingService {
     return booking;
   }
 
-  async updateBookingStatus(bookingId: string, status: string) {
-    const booking = await myBookingRepository.updateBookingByStatus(bookingId, status);
+  async updateBookingStatus(payload: { bookingId: string; status: string }) {
+    const booking = await myBookingRepository.updateBookingByStatus(
+      payload.bookingId,
+      payload.status,
+    );
 
     if (!booking) {
       throw new HttpError(404, 'Booking not found');

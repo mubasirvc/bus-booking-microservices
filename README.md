@@ -1,8 +1,8 @@
 # 🚌 Bus Booking System
 
-A production-inspired microservices-based Bus Booking Platform built with Node.js, TypeScript, Docker, RabbitMQ, Redis, gRPC, and multiple databases.
+A production-inspired microservices-based Bus Booking Platform built with Node.js, TypeScript, Docker, RabbitMQ, Redis, gRPC, PostgreSQL, MySQL, and MongoDB.
 
-This project was built as a learning project, portfolio project, and interview showcase to explore real-world backend architecture patterns including microservices, event-driven communication, distributed transactions, role-based access control, caching, asynchronous messaging, and containerized deployments.
+This project was built to explore real-world backend engineering concepts including Microservices Architecture, Event-Driven Communication, Distributed Transactions using the Saga Pattern, Payment Integration, Role-Based Access Control (RBAC), Caching, and Containerized Deployments.
 
 ---
 
@@ -14,31 +14,32 @@ This project was built as a learning project, portfolio project, and interview s
 * JWT Refresh Tokens
 * Email Verification
 * Role-Based Access Control (RBAC)
-* USER role
-* OPERATOR role
-* ADMIN role
+* USER Role
+* OPERATOR Role
+* ADMIN Role
 
 ---
 
 ## Booking Management
 
-* Seat reservation
-* Temporary seat locking
-* Booking creation
-* Booking confirmation
-* Booking cancellation
-* Automatic booking expiration
-* Seat release on expiration
+* Trip Search
+* Seat Reservation
+* Booking Creation
+* Booking Confirmation
+* Booking Cancellation
+* Booking History
+* Event-Driven Booking Processing
+* Automatic Seat Release
 
 ---
 
-## Payment Integration
+## Payment Processing
 
-* Razorpay payment gateway
-* Payment order creation
-* Webhook verification
-* Payment status tracking
-* Automatic booking confirmation after successful payment
+* Razorpay Integration
+* Payment Order Creation
+* Payment Verification
+* Webhook Processing
+* Booking Confirmation after Payment
 
 ---
 
@@ -46,151 +47,110 @@ This project was built as a learning project, portfolio project, and interview s
 
 RabbitMQ is used for asynchronous communication between services.
 
-Current events:
+Implemented Events:
 
-### Auth Events
+### Authentication Events
 
 * auth.user.registered
 
 ### Booking Events
 
-* booking.created
+* booking.pending
 * booking.confirmed
 * booking.cancelled
 
----
+### Inventory Events
 
-## Notification System
+* seat.reservation.success
+* seat.reservation.failed
 
-* Email notifications
-* Booking confirmation emails
-* Booking cancellation emails
-* Event-driven processing
+### Payment Events
 
----
-
-## Inventory Management
-
-* Seat reservation
-* Seat release
-* Redis-based temporary locks
-* Automatic expiration handling
+* payment.success
+* payment.failed
 
 ---
 
-## API Documentation
+## Notifications
 
-Swagger/OpenAPI documentation available.
-
-```text
-http://localhost:4000/docs
-```
+* Email Verification Emails
+* Booking Confirmation Emails
+* Booking Cancellation Emails
+* Event-Driven Notification Processing
 
 ---
 
 # 🏗️ Architecture
 
-## Services
+## System Architecture
 
-### API Gateway
+![System Architecture](docs/architecture.png)
 
-Responsibilities:
+The platform follows a microservices architecture where each service owns its own database and business domain. Services communicate synchronously using gRPC for internal requests and asynchronously through RabbitMQ for event-driven workflows.
 
-* Request routing
-* Authentication middleware
-* Rate limiting
-* API aggregation
-* Swagger documentation
+The API Gateway acts as the single entry point for clients and handles authentication, authorization, request routing, and API documentation.
 
----
+Each service is independently deployable and responsible for a specific business capability:
 
-### Auth Service
+* Auth Service manages authentication and user access.
+* User Service manages user profiles and booking history.
+* Inventory Service manages buses, routes, trips, and seat availability.
+* Booking Service orchestrates the booking lifecycle.
+* Payment Service handles Razorpay integration and payment processing.
+* Notification Service handles email delivery and event-based notifications.
 
-Responsibilities:
-
-* Registration
-* Login
-* Refresh tokens
-* Email verification
-* JWT management
-
-Database:
-
-* MySQL
+RabbitMQ enables loose coupling between services, while Redis is used for temporary booking expiration management and caching.
 
 ---
 
-### User Service
+## Booking Saga Flow
 
-Responsibilities:
+![Booking Saga](docs/booking-saga.png)
 
-* User profiles
-* User management
-* User search
+The booking process is implemented using the Saga Pattern to coordinate a distributed transaction across multiple services without relying on a shared database transaction.
 
-Database:
+When a user creates a booking:
 
-* MongoDB
+1. The Booking Service creates a booking record with status `PENDING`.
+2. A `booking.pending` event is published.
+3. The Inventory Service consumes the event and attempts to reserve the requested seats.
+4. If seat reservation succeeds, a `seat.reservation.success` event is published.
+5. The Booking Service consumes the success event, calculates the fare, and requests the Payment Service to create a Razorpay order.
+6. The booking status is updated to `AWAITING_PAYMENT`.
+7. The frontend receives the payment order details and redirects the user to Razorpay Checkout.
 
----
-
-### Inventory Service
-
-Responsibilities:
-
-* Routes
-* Buses
-* Trips
-* Seat inventory
-* Seat reservation
-
-Database:
-
-* PostgreSQL
+This approach allows each service to remain autonomous while ensuring business consistency through event-driven communication.
 
 ---
 
-### Booking Service
+## Payment Success & Compensation Flow
 
-Responsibilities:
+![Payment Flow](docs/payment-compensation.png)
 
-* Booking lifecycle
-* Booking validation
-* Booking expiration
-* Booking status management
+After the user completes payment, Razorpay sends a webhook notification to the Payment Service.
 
-Database:
+### Successful Payment
 
-* PostgreSQL
+1. The Payment Service verifies the webhook signature.
+2. The payment status is updated to `SUCCESS`.
+3. A `payment.success` event is published.
+4. The Booking Service consumes the event and updates the booking status to `CONFIRMED`.
+5. A `booking.confirmed` event is published.
+6. User Service updates booking history.
+7. Notification Service sends a booking confirmation email.
 
----
+### Failed Payment (Compensation)
 
-### Payment Service
+If payment fails:
 
-Responsibilities:
+1. The Payment Service publishes a `payment.failed` event.
+2. The Booking Service updates the booking status to `CANCELLED`.
+3. A `booking.cancelled` event is published.
+4. The Inventory Service consumes the event and releases the previously reserved seats.
+5. User Service updates booking history.
+6. Notification Service sends a cancellation email.
 
-* Razorpay integration
-* Payment orders
-* Payment verification
-* Webhook handling
-
-Database:
-
-* PostgreSQL
-
----
-
-### Notification Service
-
-Responsibilities:
-
-* Email delivery
-* Event consumption
-* Notification processing
-
-External Provider:
-
-* Resend
+This compensation mechanism ensures eventual consistency across services and prevents seats from remaining locked after unsuccessful payments.
 
 ---
 
@@ -200,23 +160,23 @@ External Provider:
 
 * Node.js
 * TypeScript
-* Express
+* Express.js
 
 ## Databases
 
-* MySQL
 * PostgreSQL
+* MySQL
 * MongoDB
-
-## Caching
-
-* Redis
 
 ## Messaging
 
 * RabbitMQ
 
-## RPC Communication
+## Caching
+
+* Redis
+
+## Internal Communication
 
 * gRPC
 
@@ -224,24 +184,24 @@ External Provider:
 
 * JWT
 
-## Documentation
+## Payments
 
-* Swagger / OpenAPI
+* Razorpay
 
 ## Email
 
 * Resend
 
-## Payments
+## Documentation
 
-* Razorpay
+* Swagger / OpenAPI
 
 ## Containerization
 
 * Docker
 * Docker Compose
 
-## Package Management
+## Package Manager
 
 * pnpm
 
@@ -265,6 +225,9 @@ bus-booking/
 │   └── common/
 │
 ├── docs/
+│   ├── architecture.png
+│   ├── booking-saga.png
+│   └── payment-compensation.png
 │
 ├── docker-compose.yml
 │
@@ -273,65 +236,9 @@ bus-booking/
 
 ---
 
-# 🔄 Booking Flow
+# 🔄 Event Flow
 
-```text
-User
- │
- ▼
-Search Trip
- │
- ▼
-Create Booking
- │
- ▼
-Reserve Seats
- │
- ▼
-Booking Status = PENDING
- │
- ▼
-Create Payment Order
- │
- ▼
-Pay via Razorpay
- │
- ▼
-Webhook Received
- │
- ▼
-Booking Confirmed
- │
- ▼
-Notification Sent
-```
-
----
-
-# ⏳ Booking Expiration Flow
-
-```text
-Booking Created
-      │
-      ▼
-Seat Reserved
-      │
-      ▼
-Redis Expiration Timer
-      │
-      ▼
-Payment Not Completed
-      │
-      ▼
-Booking Cancelled
-      │
-      ▼
-Seats Released
-```
-
----
-
-# 📨 Event Flow
+## User Registration
 
 ```text
 Auth Service
@@ -344,36 +251,91 @@ RabbitMQ
       │
       ▼
 Notification Service
+      │
+      ▼
+Verification Email
 ```
+
+---
+
+## Booking Creation
 
 ```text
 Booking Service
       │
       ▼
-booking.confirmed
+booking.pending
       │
       ▼
-RabbitMQ
+Inventory Service
       │
       ▼
-Notification Service
+seat.reservation.success
+      │
+      ▼
+Booking Service
+      │
+      ▼
+Create Payment Order
 ```
 
 ---
 
-# 🔐 Roles
+## Payment Success
+
+```text
+Payment Service
+      │
+      ▼
+payment.success
+      │
+      ▼
+Booking Service
+      │
+      ▼
+booking.confirmed
+      │
+      ├────► User Service
+      │
+      └────► Notification Service
+```
+
+---
+
+## Payment Failure
+
+```text
+Payment Service
+      │
+      ▼
+payment.failed
+      │
+      ▼
+Booking Service
+      │
+      ▼
+booking.cancelled
+      │
+      ├────► Inventory Service
+      ├────► User Service
+      └────► Notification Service
+```
+
+---
+
+# 👥 Roles
 
 ## USER
 
 Can:
 
-* Search routes
-* Search trips
-* View bus details
-* Create bookings
-* Cancel own bookings
-* View own bookings
-* Make payments
+* Search Routes
+* Search Trips
+* View Bus Details
+* Create Bookings
+* Cancel Own Bookings
+* View Own Bookings
+* Make Payments
 
 ---
 
@@ -381,10 +343,10 @@ Can:
 
 Can:
 
-* Create buses
-* Manage own buses
-* Create trips
-* Manage own trips
+* Create Buses
+* Manage Own Buses
+* Create Trips
+* Manage Own Trips
 
 ---
 
@@ -392,12 +354,48 @@ Can:
 
 Can:
 
-* Manage users
-* Manage routes
-* Manage buses
-* Manage trips
-* View all bookings
-* System administration
+* Manage Users
+* Manage Routes
+* Manage Buses
+* Manage Trips
+* View All Bookings
+* System Administration
+
+---
+
+# 🌐 Service Ports
+
+| Service              | Port |
+| -------------------- | ---- |
+| Gateway Service      | 4000 |
+| Auth Service         | 4001 |
+| User Service         | 4002 |
+| Inventory Service    | 4003 |
+| Booking Service      | 4004 |
+| Payment Service      | 4005 |
+| Notification Service | 4006 |
+
+---
+
+# 🐇 RabbitMQ
+
+Management Dashboard:
+
+http://localhost:15672
+
+Default Credentials:
+
+Username: guest
+
+Password: guest
+
+---
+
+# 📖 API Documentation
+
+Swagger Documentation:
+
+http://localhost:4000/docs
 
 ---
 
@@ -433,7 +431,7 @@ pnpm install
 
 ## Configure Environment Variables
 
-Create service-specific environment files:
+Create environment files:
 
 ```text
 services/auth-service/.env
@@ -445,7 +443,7 @@ services/notification-service/.env
 services/gateway-service/.env
 ```
 
-Use the provided `.env.example` files as reference.
+Use `.env.example` files as reference.
 
 ---
 
@@ -459,9 +457,9 @@ This starts:
 
 * RabbitMQ
 * Redis
+* PostgreSQL
 * MySQL
 * MongoDB
-* PostgreSQL instances
 
 ---
 
@@ -475,131 +473,34 @@ pnpm dev
 
 # 🐳 Docker Deployment
 
-## Build Containers
+Build:
 
 ```bash
 docker compose build
 ```
 
----
-
-## Start Containers
+Start:
 
 ```bash
 docker compose up -d
 ```
 
----
-
-## View Running Containers
-
-```bash
-docker ps
-```
-
----
-
-## View Logs
+View Logs:
 
 ```bash
 docker compose logs -f
 ```
 
----
-
-## Stop Containers
+Stop:
 
 ```bash
 docker compose down
 ```
 
----
-
-## Remove Containers and Volumes
+Remove Containers & Volumes:
 
 ```bash
 docker compose down -v
-```
-
----
-
-# 🌐 Service Ports
-
-| Service              | Port |
-| -------------------- | ---- |
-| Gateway Service      | 4000 |
-| Auth Service         | 4001 |
-| User Service         | 4002 |
-| Inventory Service    | 4003 |
-| Booking Service      | 4004 |
-| Payment Service      | 4005 |
-| Notification Service | 4006 |
-
----
-
-# 🐇 RabbitMQ
-
-Management Dashboard:
-
-```text
-http://localhost:15672
-```
-
-Default credentials:
-
-```text
-Username: guest
-Password: guest
-```
-
----
-
-# 📖 API Documentation
-
-Swagger:
-
-```text
-http://localhost:4000/docs
-```
-
----
-
-# 🧪 Development Scripts
-
-Install dependencies:
-
-```bash
-pnpm install
-```
-
-Build:
-
-```bash
-pnpm build
-```
-
-Run development environment:
-
-```bash
-pnpm dev
-```
-
-Lint:
-
-```bash
-pnpm lint
-```
-
-Type check:
-
-```bash
-pnpm typecheck
-```
-
-Run tests:
-
-```bash
-pnpm test
 ```
 
 ---
@@ -622,15 +523,24 @@ pnpm test
 * Password Reset Flow
 * Kubernetes Deployment
 * Distributed Tracing
-* Metrics & Monitoring
-* Prometheus Integration
+* Prometheus Monitoring
 * Grafana Dashboards
 * Centralized Logging
-* CI/CD Deployment Pipeline
+* CI/CD Pipeline
 * Frontend Application
+* OpenTelemetry Integration
 
 ---
 
 # 👨‍💻 Author
 
-Built as a backend engineering learning project focused on microservices architecture, event-driven systems, distributed communication, and scalable application design.
+Built as a backend engineering project focused on:
+
+* Microservices Architecture
+* Event-Driven Systems
+* Saga Pattern
+* RabbitMQ Messaging
+* Distributed Transactions
+* Payment Orchestration
+* gRPC Communication
+* Scalable Backend Design

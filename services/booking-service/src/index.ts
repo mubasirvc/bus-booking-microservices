@@ -10,6 +10,8 @@ import grpcServer from './grpc/server.js';
 import { closePublisher, initPublisher } from './messaging/event-publishing.js';
 // import { connectRedis } from '@bus-booking/common';
 import { startExpiryListener } from './jobs/booking-expiry.listener.js';
+import { startPaymentEventConsumer } from './messaging/payment-consumer.js';
+import { startInventoryEventConsumer } from './messaging/inventory-consumer.js';
 
 
 const main = async () => {
@@ -18,6 +20,8 @@ const main = async () => {
     await initPublisher();
     await connectRedis();
     await startExpiryListener();
+    await startPaymentEventConsumer()
+    await startInventoryEventConsumer()
 
     const app = createApp();
     const server = createServer(app);

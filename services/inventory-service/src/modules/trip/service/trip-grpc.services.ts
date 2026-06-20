@@ -28,38 +28,38 @@ class TripGrpcService {
     }
 
     const alreadyBooked = trip.bookedSeats?.filter((seat) => seats.includes(seat)) ?? [];
-
+ console.log(alreadyBooked + 'already booked')
     if (alreadyBooked.length > 0) {
-      throw new HttpError(400, `Seats already booked: ${alreadyBooked.join(', ')}`);
+      return false;
     }
 
-    const bus = await this.busRepository.findById(trip.busId);
+    // const bus = await this.busRepository.findById(trip.busId);
 
-    if (!bus) {
-      throw new HttpError(404, 'Bus not found');
-    }
+    // if (!bus) {
+    //   throw new HttpError(404, 'Bus not found');
+    // }
 
-    const route = await this.routeRepository.findById(trip.routeId);
+    // const route = await this.routeRepository.findById(trip.routeId);
 
-    if (!route) {
-      throw new HttpError(404, 'Route not found');
-    }
+    // if (!route) {
+    //   throw new HttpError(404, 'Route not found');
+    // }
 
-    const updatedBookedSeats = [...(trip.bookedSeats ?? []), ...seats];
+    // const updatedBookedSeats = [...(trip.bookedSeats ?? []), ...seats];
 
-    const remainingSeats = trip.availableSeats - seats.length;
+    // const remainingSeats = trip.availableSeats - seats.length;
 
-    await this.repository.updateSeatState(tripId, remainingSeats, updatedBookedSeats);
+    // await this.repository.updateSeatState(tripId, remainingSeats, updatedBookedSeats);
 
     return {
       success: true,
-      remainingSeats,
-      fare: trip.fare,
-      busName: bus.name,
-      busId: bus.id,
-      source: route.source,
-      destination: route.destination,
-      travelDate: trip.travelDate,
+      // remainingSeats,
+      // fare: trip.fare,
+      // busName: bus.name,
+      // busId: bus.id,
+      // source: route.source,
+      // destination: route.destination,
+      // travelDate: trip.travelDate,
     };
   }
 

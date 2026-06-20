@@ -1,8 +1,9 @@
 import {
   BOOKING_PENDING_ROUTING_KEY,
-  BOOKING_CANCELLED_ROUTING_KEY,
-  BOOKING_CONFIRMED_ROUTING_KEY,
   BOOKING_EVENTS_EXCHANGE,
+  SEAT_RESERVATION_FAILED_ROUTING_KEY,
+  INVENTORY_EVENTS_EXCHANGE,
+  SEAT_RESERVATION_SUCCESS_ROUTING_KEY,
 } from '@bus-booking/common';
 
 import {
@@ -15,8 +16,8 @@ import {
 } from 'amqplib';
 
 import { logger } from '../utils/logger.js';
-import { myBookingService } from '../services/my-booking.service.js';
 import { env } from '../config/env.js';
+import { bookingService } from '../service/booking.service.js';
 
 type ManageConnection = Connection & ChannelModel;
 
@@ -24,7 +25,7 @@ let connectionRef: ManageConnection | null = null;
 let channel: Channel | null = null;
 let consumerTag: string | null = null;
 
-const QUEUE_NAME = 'user-service.booking-events';
+const QUEUE_NAME = 'booking-service.inventory-events';
 
 const closeConnection = async (conn: ManageConnection) => {
   await conn.close();
@@ -40,26 +41,19 @@ const handleMessage = async (message: ConsumeMessage, ch: Channel) => {
   const event = JSON.parse(raw);
 
   switch (event.type) {
-    case BOOKING_PENDING_ROUTING_KEY:
-      await myBookingService.createBooking(event.payload);
+    case SEAT_RESERVATION_SUCCESS_ROUTING_KEY:
+      await bookingService.handleSeatReservationSuccess(event.payload);
       break;
 
-    case BOOKING_CONFIRMED_ROUTING_KEY:
-      await myBookingService.updateBookingStatus(event.payload);
+    case SEAT_RESERVATION_FAILED_ROUTING_KEY:
+      await bookingService.handleSeatReservationFailed(event.payload);
       break;
-
-    case BOOKING_CANCELLED_ROUTING_KEY:
-      await myBookingService.updateBookingStatus(event.payload);
-      break;
-
-    default:
-      logger.warn({ type: event.type }, 'Unknown booking event');
   }
 
   ch.ack(message);
 };
 
-export const startBookingEventConsumer = async () => {
+export const startInventoryEventConsumer = async () => {
   if (!env.RABBITMQ_URL) {
     logger.warn('RabbitMQ URL is not configured');
     return;
@@ -74,12 +68,11 @@ export const startBookingEventConsumer = async () => {
   const ch = await connection.createChannel();
   channel = ch;
 
-  await ch.assertExchange(BOOKING_EVENTS_EXCHANGE, 'topic', { durable: true });
+  await ch.assertExchange(INVENTORY_EVENTS_EXCHANGE, 'topic', { durable: true });
   const queue = await ch.assertQueue(QUEUE_NAME, { durable: true });
 
-  await ch.bindQueue(queue.queue, BOOKING_EVENTS_EXCHANGE, BOOKING_PENDING_ROUTING_KEY);
-  await ch.bindQueue(queue.queue, BOOKING_EVENTS_EXCHANGE, BOOKING_CONFIRMED_ROUTING_KEY);
-  await ch.bindQueue(queue.queue, BOOKING_EVENTS_EXCHANGE, BOOKING_CANCELLED_ROUTING_KEY);
+  await ch.bindQueue(queue.queue, INVENTORY_EVENTS_EXCHANGE, SEAT_RESERVATION_FAILED_ROUTING_KEY);
+  await ch.bindQueue(queue.queue, INVENTORY_EVENTS_EXCHANGE, SEAT_RESERVATION_SUCCESS_ROUTING_KEY);
 
   const consumeHandler = (msg: ConsumeMessage | null) => {
     if (!msg) {
@@ -112,7 +105,7 @@ export const startBookingEventConsumer = async () => {
   logger.info('Booking event consumer started');
 };
 
-export const stopBookingEventConsumer = async () => {
+export const stopPaymentEventConsumer = async () => {
   try {
     const ch = channel;
     if (ch && consumerTag) {

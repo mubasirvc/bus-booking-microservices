@@ -19,6 +19,7 @@ const toDomainBooking = (model: BookingModel): Booking => ({
   status: model.status,
   createdAt: model.createdAt,
   updatedAt: model.updatedAt,
+  paymentOrderId: model.paymentOrderId,
 });
 
 export class BookingRepository {
@@ -160,7 +161,7 @@ export class BookingRepository {
       {
         where: {
           id,
-          status: BookingStatus.PENDING,
+          status: BookingStatus.AWAITING_PAYMENT,
         },
       },
     );

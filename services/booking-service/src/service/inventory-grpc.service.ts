@@ -2,14 +2,18 @@ import { inventoryClient } from '../grpc/inventory.client.js';
 
 type ReserveSeatsResponse = {
   success: boolean;
-  remainingSeats: number;
-  fare: number;
-  busName: string;
-  busId: string;
-  source: string;
-  destination: string;
-  travelDate: string;
 };
+
+// type ReserveSeatsResponse = {
+//   success: boolean;
+//   remainingSeats: number;
+//   fare: number;
+//   busName: string;
+//   busId: string;
+//   source: string;
+//   destination: string;
+//   travelDate: string;
+// };
 
 export type TripDetails = {
   tripId: string;
@@ -73,6 +77,23 @@ class InventoryGrpcService {
       );
     });
   }
+  // async reserveSeats(tripId: string, seatNumbers: string[]): Promise<ReserveSeatsResponse> {
+  //   return new Promise<ReserveSeatsResponse>((resolve, reject) => {
+  //     inventoryClient.ReserveSeats(
+  //       {
+  //         tripId,
+  //         seatNumbers,
+  //       },
+  //       (err: any, response: ReserveSeatsResponse) => {
+  //         if (err) {
+  //           return reject(err);
+  //         }
+
+  //         resolve(response);
+  //       },
+  //     );
+  //   });
+  // }
 
   async releaseSeats(tripId: string, seatNumbers: string[]): Promise<{ success: boolean }> {
     return new Promise<{ success: boolean }>((resolve, reject) => {

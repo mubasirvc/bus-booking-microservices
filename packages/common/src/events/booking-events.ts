@@ -1,26 +1,29 @@
 import { EventPayload, OutboundEvent } from './event-types';
 
 export const BOOKING_EVENTS_EXCHANGE = 'booking.events';
-export const BOOKING_CREATED_ROUTING_KEY = 'booking.created';
+export const BOOKING_PENDING_ROUTING_KEY = 'booking.pending';
 export const BOOKING_CONFIRMED_ROUTING_KEY = 'booking.confirmed';
 export const BOOKING_CANCELLED_ROUTING_KEY = 'booking.cancelled';
 
-export interface BookingCreatedPayload extends EventPayload {
+type BookingStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'AWAITING_PAYMENT';
+
+export interface BookingPendingPayload extends EventPayload {
   userId: string;
   bookingId: string;
-  busId: string;
-  source: string;
-  destination: string;
-  travelDate: string;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  status: BookingStatus;
   seats: string[];
-  totalPrice: number;
+  tripId: string;
 }
 
-export interface BookingUpdatedPayload extends EventPayload {
+export interface BookingCancelledPayload extends EventPayload, Partial<BookingConfirmedPayload> {}
+
+export interface BookingConfirmedPayload extends EventPayload {
   seats: string[];
   totalPrice: number;
   bookingId: string;
+  userId: string;
+  tripId: string;
+  email: string;
   travelDate: string;
   departureTime: string;
   arrivalTime: string;
@@ -29,20 +32,21 @@ export interface BookingUpdatedPayload extends EventPayload {
   busType: string;
   source: string;
   destination: string;
-  status: 'CONFIRMED' | 'CANCELLED';
+  reason?: string;
+  status: 'CONFIRMED' | 'CANCELLED' | 'AWAITING_PAYMENT';
 }
 
-export type BookingCreatedEvent = OutboundEvent<
-  typeof BOOKING_CREATED_ROUTING_KEY,
-  BookingCreatedPayload
+export type BookingPendingEvent = OutboundEvent<
+  typeof BOOKING_PENDING_ROUTING_KEY,
+  BookingPendingPayload
 >;
 
 export type BookingConfirmedEvent = OutboundEvent<
   typeof BOOKING_CONFIRMED_ROUTING_KEY,
-  BookingUpdatedPayload
+  BookingConfirmedPayload
 >;
 
 export type BookingCancelledEvent = OutboundEvent<
   typeof BOOKING_CANCELLED_ROUTING_KEY,
-  BookingUpdatedPayload
+  BookingCancelledPayload
 >;
